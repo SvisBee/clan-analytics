@@ -213,7 +213,7 @@ function Assert-CbmProcessSucceeded {
     param(
         [Parameter(Mandatory = $true)]$Result,
         [Parameter(Mandatory = $true)][string]$Label,
-        [Parameter(Mandatory = $true)][Collections.Generic.List[string]]$Warnings
+        [Parameter(Mandatory = $true)][AllowEmptyCollection()][Collections.Generic.List[string]]$Warnings
     )
 
     if ($Result.ExitCode -ne 0) { throw "$Label failed with exit code $($Result.ExitCode)." }

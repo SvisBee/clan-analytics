@@ -144,6 +144,52 @@ function Get-WorkspaceInventoryHash {
     return Get-TextHash -Text ($sorted -join "`n")
 }
 
+function Get-SafeDiagnosticExcerpt {
+    param(
+        [AllowNull()][AllowEmptyString()][string]$Text,
+        [ValidateRange(2, 100)][int]$MaxLines = 12,
+        [ValidateRange(200, 10000)][int]$MaxChars = 2000
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Text)) { return '<empty>' }
+
+    $sourceLines = @($Text -split '\r?\n')
+    if ($sourceLines.Count -gt $MaxLines) {
+        $headCount = [Math]::Floor($MaxLines / 2)
+        $tailCount = $MaxLines - $headCount
+        $sourceLines = @($sourceLines | Select-Object -First $headCount) +
+            @('<... lines omitted ...>') +
+            @($sourceLines | Select-Object -Last $tailCount)
+    }
+
+    $safeLines = foreach ($line in $sourceLines) {
+        $safe = [string]$line
+        $safe = [regex]::Replace($safe, '(?i)\b(authorization)(\s*[:=]\s*).*$', '$1$2[REDACTED]')
+        $safe = [regex]::Replace($safe, '(?i)\bBearer\s+\S+', 'Bearer [REDACTED]')
+        $safe = [regex]::Replace(
+            $safe,
+            '(?i)\b(password|passwd|pwd|token|api[_-]?key|secret)(\s*[:=]\s*)(?:"[^"]*"|''[^'']*''|\S+)',
+            '$1$2[REDACTED]'
+        )
+        $safe = [regex]::Replace(
+            $safe,
+            '(?i)\b([a-z][a-z0-9+.-]*://)(?:[^/\s:@]+):(?:[^@\s/]+)@',
+            '$1[REDACTED]@'
+        )
+        $safe = [regex]::Replace($safe, '\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b', '[REDACTED_JWT]')
+        $safe = [regex]::Replace($safe, '\b[A-Za-z0-9_-]{32,}\b', '[REDACTED_LONG_VALUE]')
+        $safe
+    }
+
+    $excerpt = ($safeLines -join ' | ').Trim()
+    if ($excerpt.Length -gt $MaxChars) {
+        $marker = ' ...[truncated]'
+        $excerpt = $excerpt.Substring(0, $MaxChars - $marker.Length) + $marker
+    }
+    if ([string]::IsNullOrWhiteSpace($excerpt)) { return '<empty>' }
+    return $excerpt
+}
+
 function Wait-BoundedStreamTasks {
     param(
         [Parameter(Mandatory = $true)][System.Threading.Tasks.Task]$StdoutTask,
@@ -193,8 +239,10 @@ function Invoke-CbmCli {
         if (-not $process.WaitForExit($TimeoutSeconds * 1000)) {
             try { $process.Kill() } catch {}
             try { $null = $process.WaitForExit(5000) } catch {}
-            $null = Wait-BoundedStreamTasks -StdoutTask $stdoutTask -StderrTask $stderrTask -TimeoutMs $StreamDrainTimeoutMs -Label $Tool
-            throw "$Tool PROCESS_TIMEOUT"
+            $streams = Wait-BoundedStreamTasks -StdoutTask $stdoutTask -StderrTask $stderrTask -TimeoutMs $StreamDrainTimeoutMs -Label $Tool
+            $safeStdout = Get-SafeDiagnosticExcerpt -Text $streams.Stdout
+            $safeStderr = Get-SafeDiagnosticExcerpt -Text $streams.Stderr
+            throw "$Tool PROCESS_TIMEOUT; stdout_excerpt=$safeStdout; stderr_excerpt=$safeStderr"
         }
 
         $streams = Wait-BoundedStreamTasks -StdoutTask $stdoutTask -StderrTask $stderrTask -TimeoutMs $StreamDrainTimeoutMs -Label $Tool
@@ -216,7 +264,11 @@ function Assert-CbmProcessSucceeded {
         [Parameter(Mandatory = $true)][AllowEmptyCollection()][Collections.Generic.List[string]]$Warnings
     )
 
-    if ($Result.ExitCode -ne 0) { throw "$Label failed with exit code $($Result.ExitCode)." }
+    if ($Result.ExitCode -ne 0) {
+        $safeStdout = Get-SafeDiagnosticExcerpt -Text $Result.Stdout
+        $safeStderr = Get-SafeDiagnosticExcerpt -Text $Result.Stderr
+        throw "$Label failed with exit code $($Result.ExitCode); stdout_excerpt=$safeStdout; stderr_excerpt=$safeStderr"
+    }
     foreach ($line in @($Result.Stderr -split '\r?\n')) {
         $trimmed = $line.Trim()
         if (-not $trimmed -or $trimmed -match '^level=info msg=mem\.init') { continue }

@@ -85,3 +85,11 @@ Thumbs.db
 Desktop.ini
 $RECYCLE.BIN/
 .DS_Store
+
+# Strix local configuration and scan outputs
+/.strix/
+/strix_runs/
+/security/strix/local/
+/security/strix/results/
+/security/strix/config.local.json
+/security/strix/*.secrets.json

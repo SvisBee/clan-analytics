@@ -18,6 +18,12 @@
 
 Подробности: [docs/codebase_memory.md](docs/codebase_memory.md).
 
+## Project-local skills и security readiness
+
+Доступны `$coc-design-engineering`, `$coc-review-and-qa`, `$coc-debugging` и `$coc-code-simplification`; правила выбора и границы описаны в [docs/local_skills.md](docs/local_skills.md).
+
+Strix исследован только на уровне readiness-документации: scaffold подготовлен, но инструмент не установлен и не запускался. Фактическое security testing отложено до появления подходящего динамического attack surface и отдельных разрешений. Подробнее: [docs/security/strix_readiness.md](docs/security/strix_readiness.md).
+
 ## Структура
 
 - `src/clan_analytics/` – будущий Python-код API, сборщиков, расчётов и экспортов.

@@ -14,6 +14,8 @@ $workspaceRoot = 'D:/coc'
 $workspacePath = 'D:\coc'
 $gitRoot = 'D:\coc\repo'
 $ignorePath = 'D:\coc\.cbmignore'
+$expectedGitRemoteName = 'origin'
+$expectedGitRemoteUrl = 'https://github.com/SvisBee/clan-analytics.git'
 $requiredIgnoreRules = @(
     '**/.git/**',
     '**/.codebase-memory/**',
@@ -401,8 +403,30 @@ function Invoke-CodebaseMemoryRefresh {
         if (-not [string]::IsNullOrEmpty($statusBefore)) { throw 'Git working tree is not completely clean.' }
         $stagedBefore = Invoke-Git -Arguments @('diff', '--cached', '--name-only')
         if (-not [string]::IsNullOrEmpty($stagedBefore)) { throw 'Git index contains staged files.' }
+        $remoteNames = @(
+            (Invoke-Git -Arguments @('remote')) -split '\r?\n' |
+                ForEach-Object { $_.Trim() } |
+                Where-Object { $_ }
+        )
+        if ($remoteNames.Count -ne 1) { throw "Git remote count mismatch; expected exactly one remote named $expectedGitRemoteName." }
+        if ($remoteNames[0] -cne $expectedGitRemoteName) { throw "Git remote name mismatch; expected $expectedGitRemoteName." }
+
+        $fetchUrlsBefore = @(
+            (Invoke-Git -Arguments @('remote', 'get-url', '--all', $expectedGitRemoteName)) -split '\r?\n' |
+                ForEach-Object { $_.Trim() } |
+                Where-Object { $_ }
+        )
+        if ($fetchUrlsBefore.Count -ne 1 -or $fetchUrlsBefore[0] -cne $expectedGitRemoteUrl) { throw "Git fetch URL mismatch for $expectedGitRemoteName." }
+        $fetchUrlBefore = $fetchUrlsBefore[0]
+
+        $pushUrlsBefore = @(
+            (Invoke-Git -Arguments @('remote', 'get-url', '--push', '--all', $expectedGitRemoteName)) -split '\r?\n' |
+                ForEach-Object { $_.Trim() } |
+                Where-Object { $_ }
+        )
+        if ($pushUrlsBefore.Count -ne 1 -or $pushUrlsBefore[0] -cne $expectedGitRemoteUrl) { throw "Git push URL mismatch for $expectedGitRemoteName." }
+        $pushUrlBefore = $pushUrlsBefore[0]
         $remoteBefore = Invoke-Git -Arguments @('remote')
-        if (-not [string]::IsNullOrEmpty($remoteBefore)) { throw 'Git remote is present; this workspace expects none.' }
         $headBefore = Invoke-Git -Arguments @('rev-parse', 'HEAD')
 
         $repoHashBefore = Get-ContentManifestHash -Root $gitRoot
@@ -452,6 +476,8 @@ function Invoke-CodebaseMemoryRefresh {
         if (-not [string]::IsNullOrEmpty((Invoke-Git -Arguments @('status', '--porcelain=v1', '--untracked-files=all')))) { throw 'Git status changed during refresh.' }
         if (-not [string]::IsNullOrEmpty((Invoke-Git -Arguments @('diff', '--cached', '--name-only')))) { throw 'Staged files appeared during refresh.' }
         if ((Invoke-Git -Arguments @('remote')) -cne $remoteBefore) { throw 'Git remotes changed during refresh.' }
+        if ((Invoke-Git -Arguments @('remote', 'get-url', '--all', $expectedGitRemoteName)) -cne $fetchUrlBefore) { throw 'Git remote fetch URL changed during refresh.' }
+        if ((Invoke-Git -Arguments @('remote', 'get-url', '--push', '--all', $expectedGitRemoteName)) -cne $pushUrlBefore) { throw 'Git remote push URL changed during refresh.' }
         if ((Get-ContentManifestHash -Root $gitRoot) -cne $repoHashBefore) { throw 'Repository files changed during refresh.' }
         if ((Get-ContentManifestHash -Root (Join-Path $workspacePath 'obsidian') -MarkdownOnly) -cne $obsidianHashBefore) { throw 'Obsidian Markdown files changed during refresh.' }
         if ((Get-FileSha256 -Path $ignorePath) -cne $ignoreHashBefore) { throw '.cbmignore changed during refresh.' }

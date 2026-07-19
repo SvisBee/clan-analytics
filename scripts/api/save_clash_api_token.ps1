@@ -57,6 +57,49 @@ function Assert-NoReparsePath {
     }
 }
 
+function Test-PrivateAccessAcl {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $Path,
+        [Parameter(Mandatory = $true)]
+        [System.Security.Principal.SecurityIdentifier] $UserSid,
+        [Parameter(Mandatory = $true)]
+        [System.Security.AccessControl.InheritanceFlags] $InheritanceFlags
+    )
+
+    try {
+        $acl = Get-Acl -LiteralPath $Path
+        $rules = @($acl.Access)
+        if (-not $acl.AreAccessRulesProtected -or $rules.Count -ne 2) {
+            return $false
+        }
+
+        $allow = [System.Security.AccessControl.AccessControlType]::Allow
+        $fullControl = [System.Security.AccessControl.FileSystemRights]::FullControl
+        $none = [System.Security.AccessControl.PropagationFlags]::None
+        $systemSid = [System.Security.Principal.SecurityIdentifier]::new('S-1-5-18')
+        $expectedSids = @($UserSid.Value, $systemSid.Value) | Sort-Object
+        $actualSids = @(
+            foreach ($rule in $rules) {
+                if ($rule.IsInherited -or
+                    $rule.AccessControlType -ne $allow -or
+                    $rule.FileSystemRights -ne $fullControl -or
+                    $rule.InheritanceFlags -ne $InheritanceFlags -or
+                    $rule.PropagationFlags -ne $none) {
+                    return $false
+                }
+                $rule.IdentityReference.Translate(
+                    [System.Security.Principal.SecurityIdentifier]
+                ).Value
+            }
+        ) | Sort-Object
+        return ($actualSids -join ',') -eq ($expectedSids -join ',')
+    }
+    catch {
+        return $false
+    }
+}
+
 function Set-PrivateAccessAcl {
     param(
         [Parameter(Mandatory = $true)]
@@ -69,55 +112,65 @@ function Set-PrivateAccessAcl {
         [string] $FailureMessage
     )
 
-    $systemSid = [System.Security.Principal.SecurityIdentifier]::new('S-1-5-18')
-    $none = [System.Security.AccessControl.PropagationFlags]::None
-    $allow = [System.Security.AccessControl.AccessControlType]::Allow
+    $stage = 'precheck_private_dacl'
     try {
+        if (Test-PrivateAccessAcl `
+            -Path $Path `
+            -UserSid $UserSid `
+            -InheritanceFlags $InheritanceFlags) {
+            return
+        }
+
+        $stage = 'read_existing_acl'
         $acl = Get-Acl -LiteralPath $Path
+        $stage = 'capture_identity_metadata'
         $ownerBefore = $acl.Owner
         $groupBefore = $acl.Group
+        $stage = 'protect_dacl'
         $acl.SetAccessRuleProtection($true, $false)
+        $stage = 'remove_access_rules'
         foreach ($rule in @($acl.Access)) {
-            $acl.RemoveAccessRuleSpecific($rule)
+            $null = $acl.RemoveAccessRuleSpecific($rule)
         }
+        $stage = 'add_private_rules'
+        $systemSid = [System.Security.Principal.SecurityIdentifier]::new('S-1-5-18')
+        $none = [System.Security.AccessControl.PropagationFlags]::None
+        $allow = [System.Security.AccessControl.AccessControlType]::Allow
         foreach ($sid in @($UserSid, $systemSid)) {
             $acl.AddAccessRule([System.Security.AccessControl.FileSystemAccessRule]::new(
                 $sid, 'FullControl', $InheritanceFlags, $none, $allow
             ))
         }
+        $stage = 'apply_dacl'
         Set-Acl -LiteralPath $Path -AclObject $acl
 
+        $stage = 'read_applied_acl'
         $verifiedAcl = Get-Acl -LiteralPath $Path
-        $rules = @($verifiedAcl.Access)
-        if (-not $verifiedAcl.AreAccessRulesProtected -or
-            $verifiedAcl.Owner -ne $ownerBefore -or
-            $verifiedAcl.Group -ne $groupBefore -or
-            $rules.Count -ne 2) {
-            throw 'Private access rule verification failed.'
+        $stage = 'verify_owner_group'
+        if ($verifiedAcl.Owner -ne $ownerBefore -or $verifiedAcl.Group -ne $groupBefore) {
+            throw [System.InvalidOperationException]::new(
+                'Owner or primary group changed while applying the private DACL.'
+            )
         }
-
-        $expectedSids = @($UserSid.Value, $systemSid.Value) | Sort-Object
-        $actualSids = @(
-            foreach ($rule in $rules) {
-                if ($rule.IsInherited -or
-                    $rule.AccessControlType -ne $allow -or
-                    ($rule.FileSystemRights -band [System.Security.AccessControl.FileSystemRights]::FullControl) -ne
-                        [System.Security.AccessControl.FileSystemRights]::FullControl -or
-                    $rule.InheritanceFlags -ne $InheritanceFlags -or
-                    $rule.PropagationFlags -ne $none) {
-                    throw 'Private access rule verification failed.'
-                }
-                $rule.IdentityReference.Translate(
-                    [System.Security.Principal.SecurityIdentifier]
-                ).Value
-            }
-        ) | Sort-Object
-        if (($actualSids -join ',') -ne ($expectedSids -join ',')) {
-            throw 'Private access identity verification failed.'
+        $stage = 'verify_private_dacl'
+        if (-not (Test-PrivateAccessAcl `
+            -Path $Path `
+            -UserSid $UserSid `
+            -InheritanceFlags $InheritanceFlags)) {
+            throw [System.InvalidOperationException]::new(
+                'Private DACL verification failed.'
+            )
         }
     }
     catch {
-        throw [System.InvalidOperationException]::new($FailureMessage, $_.Exception)
+        $causeException = $_.Exception
+        while ($null -ne $causeException.InnerException) {
+            $causeException = $causeException.InnerException
+        }
+        $cause = $causeException.GetType().Name
+        throw [System.InvalidOperationException]::new(
+            "$FailureMessage Stage: $stage. Cause: $cause."
+        )
     }
 }
 

@@ -75,11 +75,15 @@ Token передаётся только через имя environment variable. 
 
 Настоящий token вводится один раз скрытым prompt в `save_clash_api_token.ps1`. Скрипт сохраняет только Windows DPAPI ciphertext по default path `%LOCALAPPDATA%\ClashClanAnalytics\secrets\coc_api_token.dpapi`, физически вне workspace. Plaintext на диск не записывается. Secret связан с текущими Windows user identity и компьютером; после смены пользователя или компьютера его нужно сохранить заново. После смены API token повторите save с `-Overwrite`. После смены allowlisted public IP может понадобиться новый API key.
 
-Save-script рассчитан на обычную Windows user identity и не требует запуска от Administrator или привилегии `SeSecurityPrivilege`. Он изменяет только DACL каталога и файла: отключает наследование и оставляет FullControl текущему пользователю и SYSTEM. Owner, primary group и SACL не модифицируются. Если metadata-проверка после предыдущего неудачного сохранения подтвердила наличие target, следующий настоящий save выполняется с `-Overwrite`; при отсутствии target флаг не нужен. Plaintext и ciphertext не выводятся.
+**Token storage status: validated. API probe status: not executed.**
 
-ACL helpers идемпотентны: уже корректный private DACL не переприменяется, что важно при повторном save с `-Overwrite`. При фактическом изменении безопасная stage diagnostics сообщает только этап и тип исключения без descriptor или secret data. Target, оставшийся после неудачного save, не считается валидированным до успешного overwrite; runner до этого использовать нельзя.
+DPAPI token storage validation passed on 2026-07-19. Save-script был запущен обычной Windows user identity с `-Overwrite`; token введён через скрытый prompt. Script сообщил `DPAPI secret saved` и завершился с exit code `0`. Token и ciphertext не выводились, а настоящий secret остаётся вне workspace. С точки зрения локального token storage runner разблокирован, но runner и API probe ещё не запускались, и реальный Clash API request не выполнялся.
 
-Overwrite использует явный уникальный recovery backup в том же private directory; `$null` как backup argument больше не передаётся. Backup удаляется только после проверки нового target и private ACL обоих файлов. При ошибке после replace backup сохраняется для ручного recovery, а следующий save блокируется до разрешения этого состояния. Текущий target после неудачных запусков всё ещё требует успешного `-Overwrite`; до него runner использовать нельзя.
+Save-script рассчитан на обычную Windows user identity и не требует запуска от Administrator или привилегии `SeSecurityPrivilege`. Он изменяет только DACL каталога и файла: отключает наследование и оставляет FullControl текущему пользователю и SYSTEM. Owner, primary group и SACL не модифицируются. Plaintext и ciphertext не выводятся.
+
+ACL helpers идемпотентны: уже корректный private DACL не переприменяется, что важно при повторном save с `-Overwrite`. При фактическом изменении безопасная stage diagnostics сообщает только этап и тип исключения без descriptor или secret data. После любого будущего неуспешного save target нельзя использовать до последующего успешного save.
+
+Overwrite использует явный уникальный recovery backup в том же private directory; `$null` как backup argument больше не передаётся. Backup удаляется только после проверки нового target и private ACL обоих файлов. При ошибке после replace backup сохраняется для ручного recovery, новый save блокируется до разрешения recovery state, а runner нельзя использовать при незавершённом recovery state.
 
 Runner расшифровывает secret только для запуска child process, временно устанавливает `COC_API_TOKEN` в собственном environment и удаляет его после завершения. Ciphertext не входит в Git или Codebase Memory.
 

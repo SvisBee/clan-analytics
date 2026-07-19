@@ -77,7 +77,9 @@ Token передаётся только через имя environment variable. 
 
 **Token storage status: validated. API probe status: not executed.**
 
-DPAPI token storage validation passed on 2026-07-19. Save-script был запущен обычной Windows user identity с `-Overwrite`; token введён через скрытый prompt. Script сообщил `DPAPI secret saved` и завершился с exit code `0`. Token и ciphertext не выводились, а настоящий secret остаётся вне workspace. С точки зрения локального token storage runner разблокирован, но runner и API probe ещё не запускались, и реальный Clash API request не выполнялся.
+DPAPI token storage validation passed on 2026-07-19. Save-script был запущен обычной Windows user identity с `-Overwrite`; token введён через скрытый prompt. Script сообщил `DPAPI secret saved` и завершился с exit code `0`. Token и ciphertext не выводились, а настоящий secret остаётся вне workspace. С точки зрения локального token storage runner разблокирован, но API probe ещё не выполнялся и реальный Clash API request не запускался.
+
+Первый live runner attempt 2026-07-19 остановился до Python process и network request. Причиной был Windows PowerShell 5.1 module autoload: общий `PSModulePath` предлагал несовместимый PowerShell 7 module раньше inbox module. Runner теперь проверяет и импортирует `Microsoft.PowerShell.Security` только из текущего `$PSHOME`, а module-qualified command исключает случайный autoload другой версии. Настоящий ciphertext структурно корректен, поэтому повторный save и новый API key не потребовались. Token storage status остаётся `validated`, API probe status остаётся `not executed`, а следующий live request требует отдельного явного разрешения.
 
 Save-script рассчитан на обычную Windows user identity и не требует запуска от Administrator или привилегии `SeSecurityPrivilege`. Он изменяет только DACL каталога и файла: отключает наследование и оставляет FullControl текущему пользователю и SYSTEM. Owner, primary group и SACL не модифицируются. Plaintext и ciphertext не выводятся.
 

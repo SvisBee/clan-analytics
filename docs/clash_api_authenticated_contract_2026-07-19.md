@@ -8,6 +8,18 @@
 Authorization: Bearer [REDACTED]
 ```
 
+## Подтверждённый API base URL
+
+Источник: authenticated official Swagger UI. Проверено: `2026-07-19`.
+
+Swagger specification/base URL был получен официальным UI из cookie `game-api-url`. Наблюдаемое официальное значение: `https://api.clashofclans.com/v1/`. Нормализованное project-значение без завершающего `/`: `https://api.clashofclans.com/v1`.
+
+- origin: `https://api.clashofclans.com`, статус `origin_verified`;
+- version prefix: `/v1`, статус `version_prefix_verified`;
+- normalized base URL: `https://api.clashofclans.com/v1`, статус `base_url_verified`.
+
+`game-api-token` не читался. Token, cookies и session data в проект не сохранялись. Завершающий `/` нормализуется в project config. Реальный API request не выполнялся.
+
 ## Подтверждённые endpoints
 
 ```text
@@ -38,6 +50,6 @@ GET /clans/{clanTag}/capitalraidseasons
 
 ## Неподтверждённые сведения
 
-Следующие статусы остаются явными: `enum_values_unverified`, `requiredness_unverified`, `nullability_unverified`, `base_url_unverified`.
+Следующие статусы остаются явными: `enum_values_unverified`, `requiredness_unverified`, `nullability_unverified`.
 
-Также не подтверждены API version prefix, status codes, endpoint error mapping, официальный alphabet и length clan tag и конкретные rate limits. Эти сведения нельзя выводить из количества enum-вариантов или добавлять по памяти.
+Также не подтверждены status codes, endpoint error mapping, официальный alphabet и length clan tag и конкретные rate limits. Эти сведения нельзя выводить из количества enum-вариантов или добавлять по памяти.

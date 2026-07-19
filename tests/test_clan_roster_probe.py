@@ -15,17 +15,19 @@ sys.path.insert(0, str(SRC_ROOT))
 
 from clan_analytics.api.client import (  # noqa: E402
     MAX_RESPONSE_BYTES,
+    OFFICIAL_API_BASE_URL,
     OFFICIAL_CLAN_ENDPOINT_TEMPLATE,
     HttpResponse,
     ProbeError,
     _OutputFilesystem,
+    _validate_base_url,
     build_request_url,
     main,
     normalize_clan_tag,
 )
 
 
-BASE_URL = "https://fixture.clashofclans.com"
+BASE_URL = OFFICIAL_API_BASE_URL
 ENDPOINT_TEMPLATE = OFFICIAL_CLAN_ENDPOINT_TEMPLATE
 TOKEN_NAME = "COC_API_TOKEN"
 FAKE_TOKEN = "fixture-secret-value"
@@ -213,6 +215,21 @@ class ClanRosterProbeTests(unittest.TestCase):
         self.assertNotIn(FAKE_TOKEN, result[2])
         self.assertEqual(transport.calls, [])
 
+    def assert_execute_base_rejected(self, base_url: str) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            transport = FakeTransport(response_for())
+            arguments = self.arguments(root / "run", "--confirm-api-contract")
+            arguments[arguments.index(BASE_URL)] = base_url
+            result = self.run_main(
+                arguments,
+                allowed_root=root,
+                environ=GuardEnvironment(),
+                transport=transport,
+            )
+            self.assertEqual(result[0], 2)
+            self.assertEqual(transport.calls, [])
+
     def test_dry_run_does_not_read_environment_or_call_network(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -332,6 +349,71 @@ class ClanRosterProbeTests(unittest.TestCase):
             self.assertEqual(result[0], 2)
             self.assertEqual(transport.calls, [])
             self.assertIn("placeholder API contract", result[2])
+
+    def test_official_api_base_url_constant_is_verified_value(self) -> None:
+        self.assertEqual(OFFICIAL_API_BASE_URL, "https://api.clashofclans.com/v1")
+
+    def test_official_base_url_trailing_slash_is_normalized(self) -> None:
+        normalized, hostname = _validate_base_url(f"{OFFICIAL_API_BASE_URL}/")
+        self.assertEqual(normalized, OFFICIAL_API_BASE_URL)
+        self.assertEqual(hostname, "api.clashofclans.com")
+
+    def test_build_request_url_preserves_official_version_prefix(self) -> None:
+        self.assertEqual(
+            build_request_url(BASE_URL, ENDPOINT_TEMPLATE, "#DEMOCLAN"),
+            "https://api.clashofclans.com/v1/clans/%23DEMOCLAN",
+        )
+
+    def test_execute_accepts_official_base_url(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            transport = FakeTransport(response_for())
+            result = self.run_main(
+                self.arguments(root / "run", "--confirm-api-contract"),
+                allowed_root=root,
+                environ={TOKEN_NAME: FAKE_TOKEN},
+                transport=transport,
+            )
+            self.assertEqual(result[0], 0)
+            self.assertEqual(len(transport.calls), 1)
+            self.assertEqual(
+                transport.calls[0][0],
+                "https://api.clashofclans.com/v1/clans/%23DEMOCLAN",
+            )
+
+    def test_execute_rejects_non_official_base_urls_before_environment(self) -> None:
+        for base_url in (
+            "https://api.clashofclans.com",
+            "https://api.clashofclans.com/v2",
+            "https://developer.clashofclans.com/v1",
+            "https://fixture.clashofclans.com/v1",
+            "https://api.clashofclans.com/v1/extra",
+        ):
+            with self.subTest(base_url=base_url):
+                self.assert_execute_base_rejected(base_url)
+
+    def test_http_base_url_is_rejected_before_environment(self) -> None:
+        self.assert_execute_base_rejected("http://api.clashofclans.com/v1")
+
+    def test_base_url_credentials_query_and_fragment_are_rejected(self) -> None:
+        for base_url in (
+            "https://user:password@api.clashofclans.com/v1",
+            "https://api.clashofclans.com/v1?mode=test",
+            "https://api.clashofclans.com/v1?",
+            "https://api.clashofclans.com/v1#fragment",
+            "https://api.clashofclans.com/v1#",
+        ):
+            with self.subTest(base_url=base_url):
+                self.assert_execute_base_rejected(base_url)
+
+    def test_unsafe_base_url_paths_are_rejected(self) -> None:
+        for base_url in (
+            "https://api.clashofclans.com/v1//extra",
+            "https://api.clashofclans.com/v1/../extra",
+            "https://api.clashofclans.com/v1/%2e%2e/extra",
+        ):
+            with self.subTest(base_url=base_url):
+                self.assert_execute_base_rejected(base_url)
 
     def test_execute_rejects_non_profile_endpoint_before_network(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

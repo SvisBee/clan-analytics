@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping, Sequence, TextIO
 from urllib.error import HTTPError, URLError
-from urllib.parse import quote, urljoin, urlsplit
+from urllib.parse import quote, unquote, urljoin, urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 from .normalization import (
@@ -26,6 +26,7 @@ from .normalization import (
 
 
 PROJECT_USER_AGENT = "ClashClanAnalytics-Probe/0.1"
+OFFICIAL_API_BASE_URL = "https://api.clashofclans.com/v1"
 OFFICIAL_CLAN_ENDPOINT_TEMPLATE = "/clans/{clan_tag}"
 DEFAULT_OUTPUT_ROOT = Path(r"D:\coc\runs\api_probe")
 MAX_RESPONSE_BYTES = 2 * 1024 * 1024
@@ -206,13 +207,18 @@ def _validate_timeout(value: int) -> int:
 
 
 def _validate_base_url(value: str) -> tuple[str, str]:
-    parsed = urlsplit(value.strip())
+    candidate = value.strip()
+    parsed = urlsplit(candidate)
     if parsed.scheme != "https" or not parsed.hostname:
         raise ProbeError("base URL must be an HTTPS origin")
-    if parsed.username or parsed.password or parsed.query or parsed.fragment:
+    if parsed.username or parsed.password or "?" in candidate or "#" in candidate:
         raise ProbeError("base URL must not contain credentials, query, or fragment")
-    if parsed.path not in ("", "/"):
-        raise ProbeError("base URL must not contain a path")
+    decoded_path = unquote(parsed.path)
+    if "\\" in decoded_path or "//" in decoded_path:
+        raise ProbeError("base URL contains an unsafe path")
+    if any(segment in (".", "..") for segment in decoded_path.split("/")):
+        raise ProbeError("base URL contains an unsafe path segment")
+    normalized_path = parsed.path.removesuffix("/")
     hostname = parsed.hostname.lower()
     if hostname != "clashofclans.com" and not hostname.endswith(".clashofclans.com"):
         raise ProbeError("base URL host must belong to clashofclans.com")
@@ -221,7 +227,7 @@ def _validate_base_url(value: str) -> tuple[str, str]:
     except ValueError:
         raise ProbeError("base URL contains an invalid port") from None
     port = f":{parsed_port}" if parsed_port is not None else ""
-    return f"https://{hostname}{port}", hostname
+    return f"https://{hostname}{port}{normalized_path}", hostname
 
 
 def _validate_endpoint_template(value: str) -> str:
@@ -548,6 +554,8 @@ def execute_probe(
         raise ProbeError("execute mode requires --confirm-api-contract")
     if "placeholder" in plan.base_url.lower() or "unverified" in plan.endpoint_template.lower():
         raise ProbeError("execute mode rejects placeholder API contract values")
+    if plan.base_url != OFFICIAL_API_BASE_URL:
+        raise ProbeError("execute mode requires the official API base URL")
     if plan.endpoint_template != OFFICIAL_CLAN_ENDPOINT_TEMPLATE:
         raise ProbeError("execute mode requires the official clan endpoint template")
     if plan.output_dir.exists() and not plan.overwrite:

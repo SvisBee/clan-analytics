@@ -196,6 +196,22 @@ class ApiNormalizationTests(unittest.TestCase):
             self.assertTrue(forbidden.isdisjoint(member))
 
     def test_war_and_composition_summaries_are_neutral(self) -> None:
+        roster = build_public_roster(self.clan, self.wars)
+        self.assertEqual(
+            roster["clan"],
+            {
+                "name": "Example Clan",
+                "level": 10,
+            },
+        )
+        self.assertEqual(
+            roster["war_data_coverage"],
+            {
+                "members_with_data": 1,
+                "members_without_data": 1,
+            },
+        )
+
         war = build_public_war_summary(self.wars[0])
         self.assertEqual(war["attacks_used"], 2)
         self.assertEqual(war["attacks_available"], 2)
@@ -203,7 +219,10 @@ class ApiNormalizationTests(unittest.TestCase):
 
         composition = build_composition_summary(self.clan)
         self.assertEqual(composition["total_members"], 2)
-        self.assertEqual(composition["members_with_limited_data"], 1)
+        self.assertEqual(
+            composition["members_with_limited_composition_data"],
+            1,
+        )
         self.assertEqual(
             composition["town_hall_distribution"],
             [{"town_hall_level": 16, "members": 1}],

@@ -349,7 +349,22 @@ def build_public_roster(
                 item["telegram_username"] = telegram_username.strip()
         public_members.append(item)
 
-    return {"members": public_members}
+    members_with_war_data = sum(
+        member["data_status"] == "available"
+        for member in public_members
+    )
+
+    return {
+        "clan": {
+            "name": clan.name,
+            "level": clan.level,
+        },
+        "war_data_coverage": {
+            "members_with_data": members_with_war_data,
+            "members_without_data": len(public_members) - members_with_war_data,
+        },
+        "members": public_members,
+    }
 
 
 def build_public_war_summary(war: WarSnapshot) -> dict[str, Any]:
@@ -388,5 +403,5 @@ def build_composition_summary(clan: ClanSnapshot) -> dict[str, Any]:
             {"town_hall_level": level, "members": counts[level]}
             for level in sorted(counts, reverse=True)
         ],
-        "members_with_limited_data": limited_data,
+        "members_with_limited_composition_data": limited_data,
     }

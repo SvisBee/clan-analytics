@@ -6,6 +6,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -16,6 +17,7 @@ from clan_analytics.api.client import (  # noqa: E402
     MAX_RESPONSE_BYTES,
     HttpResponse,
     ProbeError,
+    _OutputFilesystem,
     build_request_url,
     main,
     normalize_clan_tag,
@@ -61,6 +63,76 @@ class FailingTransport:
         raise RuntimeError(FAKE_TOKEN)
 
 
+class ObservingFilesystem(_OutputFilesystem):
+    def __init__(self) -> None:
+        self.staging_ready = False
+
+    def rename(self, source: Path, destination: Path) -> None:
+        if source.name.startswith(".clan-probe-staging-"):
+            if destination.exists():
+                raise AssertionError("target appeared before staging publication")
+            self.staging_ready = sorted(path.name for path in source.iterdir()) == sorted(
+                (
+                    "raw_clan_response.json",
+                    "probe_metadata.json",
+                    "normalized_clan.json",
+                    "public_roster_preview.json",
+                )
+            )
+        super().rename(source, destination)
+
+
+class FailingWriteFilesystem(_OutputFilesystem):
+    def __init__(self, fail_at: int) -> None:
+        self.fail_at = fail_at
+        self.write_count = 0
+
+    def write_exclusive(self, path: Path, content: bytes) -> None:
+        self.write_count += 1
+        if self.write_count == self.fail_at:
+            raise OSError("injected write failure")
+        super().write_exclusive(path, content)
+
+
+class FailingPublishFilesystem(_OutputFilesystem):
+    def rename(self, source: Path, destination: Path) -> None:
+        if source.name.startswith(".clan-probe-staging-"):
+            raise OSError("injected publication failure")
+        super().rename(source, destination)
+
+
+class FailingBackupCleanupFilesystem(_OutputFilesystem):
+    def remove_tree(self, path: Path) -> None:
+        if path.name.startswith(".clan-probe-backup-"):
+            raise OSError("injected backup cleanup failure")
+        super().remove_tree(path)
+
+
+class FailingRollbackFilesystem(_OutputFilesystem):
+    def rename(self, source: Path, destination: Path) -> None:
+        if source.name.startswith((".clan-probe-staging-", ".clan-probe-backup-")):
+            raise OSError("injected publication or recovery failure")
+        super().rename(source, destination)
+
+
+class ExtraStagingFileFilesystem(_OutputFilesystem):
+    def __init__(self) -> None:
+        self.write_count = 0
+
+    def write_exclusive(self, path: Path, content: bytes) -> None:
+        super().write_exclusive(path, content)
+        self.write_count += 1
+        if self.write_count == 4:
+            (path.parent / "unexpected.json").write_text("{}", encoding="utf-8")
+
+
+class InvalidStagingJsonFilesystem(_OutputFilesystem):
+    def write_exclusive(self, path: Path, content: bytes) -> None:
+        super().write_exclusive(path, content)
+        if path.name == "raw_clan_response.json":
+            path.write_bytes(b"not-json")
+
+
 def response_for(
     payload=VALID_RESPONSE,
     *,
@@ -98,6 +170,7 @@ class ClanRosterProbeTests(unittest.TestCase):
         allowed_root: Path,
         environ=None,
         transport=None,
+        filesystem=None,
     ) -> tuple[int, str, str]:
         stdout = io.StringIO()
         stderr = io.StringIO()
@@ -106,10 +179,14 @@ class ClanRosterProbeTests(unittest.TestCase):
             allowed_output_root=allowed_root,
             environ={} if environ is None else environ,
             transport=transport,
+            filesystem=filesystem,
             stdout=stdout,
             stderr=stderr,
         )
         return exit_code, stdout.getvalue(), stderr.getvalue()
+
+    def transaction_paths(self, root: Path, kind: str) -> list[Path]:
+        return list(root.glob(f".clan-probe-{kind}-*"))
 
     def assert_argument_value_redacted(
         self,
@@ -304,6 +381,7 @@ class ClanRosterProbeTests(unittest.TestCase):
             target.mkdir()
             marker = target / "marker.txt"
             marker.write_text("preserve", encoding="utf-8")
+            before = marker.read_bytes()
             transport = FakeTransport(response_for())
             result = self.run_main(
                 self.arguments(target, "--confirm-api-contract"),
@@ -312,8 +390,226 @@ class ClanRosterProbeTests(unittest.TestCase):
                 transport=transport,
             )
             self.assertEqual(result[0], 2)
-            self.assertEqual(marker.read_text(encoding="utf-8"), "preserve")
+            self.assertEqual(marker.read_bytes(), before)
             self.assertEqual(transport.calls, [])
+            self.assertEqual(self.transaction_paths(root, "staging"), [])
+
+    def test_new_run_is_published_only_after_complete_staging(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            target = root / "run"
+            filesystem = ObservingFilesystem()
+            transport = FakeTransport(response_for())
+            result = self.run_main(
+                self.arguments(target, "--confirm-api-contract"),
+                allowed_root=root,
+                environ={TOKEN_NAME: FAKE_TOKEN},
+                transport=transport,
+                filesystem=filesystem,
+            )
+            self.assertEqual(result[0], 0)
+            self.assertTrue(filesystem.staging_ready)
+            self.assertEqual(len(transport.calls), 1)
+            self.assertEqual(len(list(target.iterdir())), 4)
+            self.assertEqual(self.transaction_paths(root, "staging"), [])
+            self.assertEqual(self.transaction_paths(root, "backup"), [])
+
+    def test_second_file_write_failure_leaves_no_partial_target(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            target = root / "run"
+            transport = FakeTransport(response_for())
+            result = self.run_main(
+                self.arguments(target, "--confirm-api-contract"),
+                allowed_root=root,
+                environ={TOKEN_NAME: FAKE_TOKEN},
+                transport=transport,
+                filesystem=FailingWriteFilesystem(2),
+            )
+            self.assertEqual(result[0], 2)
+            self.assertFalse(target.exists())
+            self.assertEqual(self.transaction_paths(root, "staging"), [])
+            self.assertEqual(len(transport.calls), 1)
+
+    def test_fourth_file_write_failure_leaves_no_partial_target(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            target = root / "run"
+            transport = FakeTransport(response_for())
+            result = self.run_main(
+                self.arguments(target, "--confirm-api-contract"),
+                allowed_root=root,
+                environ={TOKEN_NAME: FAKE_TOKEN},
+                transport=transport,
+                filesystem=FailingWriteFilesystem(4),
+            )
+            self.assertEqual(result[0], 2)
+            self.assertFalse(target.exists())
+            self.assertEqual(self.transaction_paths(root, "staging"), [])
+            self.assertEqual(len(transport.calls), 1)
+
+    def test_serialization_failure_happens_before_filesystem_commit(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            target = root / "run"
+            transport = FakeTransport(response_for())
+            with patch(
+                "clan_analytics.api.client._serialize_json",
+                side_effect=ProbeError("output JSON serialization failed"),
+            ):
+                result = self.run_main(
+                    self.arguments(target, "--confirm-api-contract"),
+                    allowed_root=root,
+                    environ={TOKEN_NAME: FAKE_TOKEN},
+                    transport=transport,
+                )
+            self.assertEqual(result[0], 2)
+            self.assertFalse(target.exists())
+            self.assertEqual(self.transaction_paths(root, "staging"), [])
+            self.assertEqual(len(transport.calls), 1)
+            self.assertNotIn(FAKE_TOKEN, result[1] + result[2])
+
+    def test_overwrite_publishes_complete_new_run_and_removes_backup(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            target = root / "run"
+            target.mkdir()
+            (target / "marker.txt").write_text("old", encoding="utf-8")
+            transport = FakeTransport(response_for())
+            result = self.run_main(
+                self.arguments(target, "--confirm-api-contract", "--overwrite"),
+                allowed_root=root,
+                environ={TOKEN_NAME: FAKE_TOKEN},
+                transport=transport,
+            )
+            self.assertEqual(result[0], 0)
+            self.assertFalse((target / "marker.txt").exists())
+            self.assertEqual(len(list(target.iterdir())), 4)
+            self.assertEqual(self.transaction_paths(root, "staging"), [])
+            self.assertEqual(self.transaction_paths(root, "backup"), [])
+            self.assertEqual(len(transport.calls), 1)
+
+    def test_overwrite_staging_failure_preserves_old_target(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            target = root / "run"
+            target.mkdir()
+            marker = target / "marker.txt"
+            marker.write_bytes(b"old-output")
+            transport = FakeTransport(response_for())
+            result = self.run_main(
+                self.arguments(target, "--confirm-api-contract", "--overwrite"),
+                allowed_root=root,
+                environ={TOKEN_NAME: FAKE_TOKEN},
+                transport=transport,
+                filesystem=FailingWriteFilesystem(2),
+            )
+            self.assertEqual(result[0], 2)
+            self.assertEqual(marker.read_bytes(), b"old-output")
+            self.assertEqual(self.transaction_paths(root, "staging"), [])
+            self.assertEqual(self.transaction_paths(root, "backup"), [])
+            self.assertEqual(len(transport.calls), 1)
+
+    def test_publication_failure_restores_old_target(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            target = root / "run"
+            target.mkdir()
+            marker = target / "marker.txt"
+            marker.write_bytes(b"old-output")
+            transport = FakeTransport(response_for())
+            result = self.run_main(
+                self.arguments(target, "--confirm-api-contract", "--overwrite"),
+                allowed_root=root,
+                environ={TOKEN_NAME: FAKE_TOKEN},
+                transport=transport,
+                filesystem=FailingPublishFilesystem(),
+            )
+            self.assertEqual(result[0], 2)
+            self.assertEqual(marker.read_bytes(), b"old-output")
+            self.assertEqual(self.transaction_paths(root, "staging"), [])
+            self.assertEqual(self.transaction_paths(root, "backup"), [])
+            self.assertEqual(len(transport.calls), 1)
+
+    def test_backup_cleanup_failure_keeps_new_target_and_backup(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            target = root / "run"
+            target.mkdir()
+            (target / "marker.txt").write_bytes(b"old-output")
+            transport = FakeTransport(response_for())
+            result = self.run_main(
+                self.arguments(target, "--confirm-api-contract", "--overwrite"),
+                allowed_root=root,
+                environ={TOKEN_NAME: FAKE_TOKEN},
+                transport=transport,
+                filesystem=FailingBackupCleanupFilesystem(),
+            )
+            backups = self.transaction_paths(root, "backup")
+            self.assertEqual(result[0], 2)
+            self.assertEqual(len(list(target.iterdir())), 4)
+            self.assertEqual(len(backups), 1)
+            self.assertEqual((backups[0] / "marker.txt").read_bytes(), b"old-output")
+            self.assertIn("backup cleanup failed", result[2])
+            self.assertEqual(len(transport.calls), 1)
+
+    def test_rollback_failure_reports_recovery_failure_and_keeps_backup(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            target = root / "run"
+            target.mkdir()
+            (target / "marker.txt").write_bytes(b"old-output")
+            transport = FakeTransport(response_for())
+            result = self.run_main(
+                self.arguments(target, "--confirm-api-contract", "--overwrite"),
+                allowed_root=root,
+                environ={TOKEN_NAME: FAKE_TOKEN},
+                transport=transport,
+                filesystem=FailingRollbackFilesystem(),
+            )
+            backups = self.transaction_paths(root, "backup")
+            self.assertEqual(result[0], 2)
+            self.assertFalse(target.exists())
+            self.assertEqual(len(backups), 1)
+            self.assertEqual((backups[0] / "marker.txt").read_bytes(), b"old-output")
+            self.assertEqual(self.transaction_paths(root, "staging"), [])
+            self.assertIn("output recovery failed", result[2])
+            self.assertNotIn(FAKE_TOKEN, result[1] + result[2])
+            self.assertEqual(len(transport.calls), 1)
+
+    def test_extra_staging_file_blocks_publication(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            target = root / "run"
+            transport = FakeTransport(response_for())
+            result = self.run_main(
+                self.arguments(target, "--confirm-api-contract"),
+                allowed_root=root,
+                environ={TOKEN_NAME: FAKE_TOKEN},
+                transport=transport,
+                filesystem=ExtraStagingFileFilesystem(),
+            )
+            self.assertEqual(result[0], 2)
+            self.assertFalse(target.exists())
+            self.assertEqual(self.transaction_paths(root, "staging"), [])
+            self.assertEqual(len(transport.calls), 1)
+
+    def test_invalid_staging_json_blocks_publication(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            target = root / "run"
+            transport = FakeTransport(response_for())
+            result = self.run_main(
+                self.arguments(target, "--confirm-api-contract"),
+                allowed_root=root,
+                environ={TOKEN_NAME: FAKE_TOKEN},
+                transport=transport,
+                filesystem=InvalidStagingJsonFilesystem(),
+            )
+            self.assertEqual(result[0], 2)
+            self.assertFalse(target.exists())
+            self.assertEqual(self.transaction_paths(root, "staging"), [])
+            self.assertEqual(len(transport.calls), 1)
 
     def test_cross_host_response_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

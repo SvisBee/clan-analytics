@@ -23,7 +23,7 @@
 
 - `--dry-run`: валидирует plan без чтения environment, сети и файлов output;
 - `--confirm-api-contract`: обязателен только для execute и подтверждает ручную проверку contract;
-- `--overwrite`: явно разрешает замену четырёх ожидаемых файлов в существующем output directory; без флага существующий каталог блокирует probe.
+- `--overwrite`: явно разрешает транзакционную замену существующего output directory; без флага существующий каталог блокирует probe до network request.
 
 Синтаксическая проверка tag не утверждает официальный alphabet или length. Эти ограничения остаются `unverified` до Swagger review. В URL символ `#` кодируется как `%23`.
 
@@ -97,3 +97,19 @@ Token передаётся только через имя environment variable. 
 | `public_roster_preview.json` | local safe preview | existing `build_public_roster` plus `build_composition_summary`, without player tags or private fields |
 
 Raw response, normalized output and metadata remain outside Git and `site`. Public preview is not automatically published and requires a separate allowlist review before any future copy to `site/data`.
+
+### Транзакционная публикация output
+
+Четыре файла публикуются как единый application-level run. Сначала JSON-представления формируются в памяти, затем все файлы эксклюзивно создаются во временном staging-каталоге рядом с target на том же filesystem. Каждый файл полностью записывается, получает `flush()` и `os.fsync()`, после чего закрывается.
+
+Перед публикацией staging повторно проверяется: разрешены ровно четыре ожидаемых обычных файла, каждый файл должен содержать JSON, raw response должен соответствовать уже проверенному object, public preview снова проходит проверку private fields, а metadata должна фиксировать один request и ноль redirects. Повторная normalization не выполняется.
+
+Target не появляется до полной подготовки и проверки staging. При ошибке подготовки staging удаляется, а target остаётся отсутствующим. Если target уже существует без `--overwrite`, probe отказывает до network request и не создаёт staging.
+
+При `--overwrite` полностью подготовленный staging создаётся до изменения старого target. Затем старый target переименовывается во временный sibling backup, staging переименовывается в target, а backup удаляется только после успешного переключения. Если финальное переименование staging завершается ошибкой, старый target восстанавливается из backup, staging очищается, операция завершается с ошибкой и второй request не выполняется.
+
+Имена staging и backup генерируются стандартной библиотекой, не содержат token, clan tag или другие входные значения и не считаются успешными runs. Рекурсивное удаление применяется только к созданным probe sibling-путям после строгой проверки их имени и расположения.
+
+Если новый target уже опубликован, но backup удалить не удалось, операция возвращает ненулевой статус, сохраняет валидный новый target и оставляет backup для ручной проверки. Если rollback не удался, ошибка явно сообщает `output recovery failed`, backup сохраняется, а результат не считается успешным. Ошибка cleanup добавляется к исходной безопасной причине и не раскрывает содержимое файлов или credentials.
+
+Эта модель обеспечивает application-level all-or-nothing publication при обычных обработанных ошибках. Она не обещает полную crash-consistency при отключении питания или аварии операционной системы на любом этапе. Настоящий execute-mode по-прежнему не запускался.

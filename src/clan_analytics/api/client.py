@@ -6,7 +6,9 @@ import argparse
 import json
 import os
 import re
+import shutil
 import sys
+import uuid
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -98,6 +100,30 @@ class HttpResponse:
 class _NoRedirectHandler(HTTPRedirectHandler):
     def redirect_request(self, request, file_pointer, code, message, headers, new_url):
         return None
+
+
+class _OutputFilesystem:
+    """Small injection point for output transaction operations."""
+
+    def ensure_parent(self, path: Path) -> None:
+        path.mkdir(parents=True, exist_ok=True)
+
+    def create_directory(self, path: Path) -> None:
+        path.mkdir()
+
+    def write_exclusive(self, path: Path, content: bytes) -> None:
+        with path.open("xb") as output:
+            written = output.write(content)
+            if written != len(content):
+                raise OSError("incomplete output write")
+            output.flush()
+            os.fsync(output.fileno())
+
+    def rename(self, source: Path, destination: Path) -> None:
+        source.rename(destination)
+
+    def remove_tree(self, path: Path) -> None:
+        shutil.rmtree(path)
 
 
 class UrllibTransport:
@@ -303,34 +329,150 @@ def _assert_public_projection(value: Any) -> None:
         raise ProbeError("public projection contains a game tag")
 
 
-def _write_json(path: Path, value: Any, *, overwrite: bool) -> None:
-    mode = "w" if overwrite else "x"
-    with path.open(mode, encoding="utf-8", newline="\n") as output:
-        json.dump(value, output, ensure_ascii=False, indent=2, sort_keys=True)
-        output.write("\n")
+def _serialize_json(value: Any) -> bytes:
+    try:
+        rendered = json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True)
+    except (TypeError, ValueError):
+        raise ProbeError("output JSON serialization failed") from None
+    return f"{rendered}\n".encode("utf-8")
+
+
+def _new_transaction_path(target: Path, kind: str) -> Path:
+    path = target.parent / f".clan-probe-{kind}-{uuid.uuid4().hex}"
+    if path.exists():
+        raise ProbeError(f"output {kind} path collision")
+    return path
+
+
+def _assert_transaction_path(path: Path, target: Path, kind: str) -> None:
+    expected_prefix = f".clan-probe-{kind}-"
+    suffix = path.name.removeprefix(expected_prefix)
+    if (
+        path == target
+        or path.parent.resolve(strict=False) != target.parent.resolve(strict=False)
+        or not path.name.startswith(expected_prefix)
+        or not re.fullmatch(r"[0-9a-f]{32}", suffix)
+    ):
+        raise ProbeError(f"unsafe output {kind} path")
+
+
+def _cleanup_transaction_path(
+    filesystem: _OutputFilesystem,
+    path: Path,
+    target: Path,
+    kind: str,
+) -> str | None:
+    if not path.exists():
+        return None
+    try:
+        _assert_transaction_path(path, target, kind)
+        filesystem.remove_tree(path)
+    except (OSError, ProbeError):
+        return f"output {kind} cleanup failed"
+    return None
+
+
+def _prepare_output_files(
+    *,
+    response: HttpResponse,
+    normalized: Any,
+    public_preview: Mapping[str, Any],
+    metadata: Mapping[str, Any],
+) -> Mapping[str, bytes]:
+    _assert_public_projection(public_preview)
+    files = {
+        "raw_clan_response.json": response.body,
+        "probe_metadata.json": _serialize_json(metadata),
+        "normalized_clan.json": _serialize_json(asdict(normalized)),
+        "public_roster_preview.json": _serialize_json(public_preview),
+    }
+    if len(files) != len(OUTPUT_FILENAMES) or set(files) != set(OUTPUT_FILENAMES):
+        raise ProbeError("output file set is invalid")
+    return files
+
+
+def _validate_staging(
+    staging: Path,
+    *,
+    expected_raw_payload: Mapping[str, Any],
+) -> None:
+    if not staging.is_dir():
+        raise ProbeError("output staging directory is missing")
+    entries = list(staging.iterdir())
+    if {entry.name for entry in entries} != set(OUTPUT_FILENAMES) or len(entries) != len(
+        OUTPUT_FILENAMES
+    ):
+        raise ProbeError("output staging file set is invalid")
+    if any(not entry.is_file() or entry.is_symlink() for entry in entries):
+        raise ProbeError("output staging contains a non-regular file")
+    try:
+        parsed = {
+            name: json.loads((staging / name).read_text(encoding="utf-8"))
+            for name in OUTPUT_FILENAMES
+        }
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        raise ProbeError("output staging contains invalid JSON") from None
+    if parsed["raw_clan_response.json"] != expected_raw_payload:
+        raise ProbeError("output staging raw response mismatch")
+    metadata = parsed["probe_metadata.json"]
+    if not isinstance(metadata, Mapping):
+        raise ProbeError("output staging metadata is invalid")
+    if metadata.get("request_count") != 1 or metadata.get("redirects_followed") != 0:
+        raise ProbeError("output staging request metadata is invalid")
+    _assert_public_projection(parsed["public_roster_preview.json"])
+
+
+def _publish_staging(
+    plan: ProbePlan,
+    staging: Path,
+    filesystem: _OutputFilesystem,
+) -> None:
+    target = plan.output_dir
+    backup: Path | None = None
+    if target.exists():
+        if not plan.overwrite:
+            raise ProbeError("output directory already exists; use --overwrite explicitly")
+        backup = _new_transaction_path(target, "backup")
+        _assert_transaction_path(backup, target, "backup")
+        try:
+            filesystem.rename(target, backup)
+        except OSError:
+            raise ProbeError("existing output could not be prepared for replacement") from None
+    try:
+        filesystem.rename(staging, target)
+    except OSError:
+        if backup is not None:
+            try:
+                filesystem.rename(backup, target)
+            except OSError:
+                raise ProbeError(
+                    "output recovery failed; previous output retained in temporary "
+                    f"backup: {backup.name}"
+                ) from None
+        raise ProbeError("output publication failed; previous output restored") from None
+    if backup is not None:
+        cleanup_error = _cleanup_transaction_path(
+            filesystem, backup, target, "backup"
+        )
+        if cleanup_error:
+            raise ProbeError(
+                "output published but backup cleanup failed; temporary backup retained: "
+                f"{backup.name}"
+            )
 
 
 def _write_outputs(
     plan: ProbePlan,
     *,
     response: HttpResponse,
+    raw_payload: Mapping[str, Any],
     normalized: Any,
     public_preview: Mapping[str, Any],
     collected_at: str,
+    filesystem: _OutputFilesystem,
 ) -> None:
     if plan.output_dir.exists() and not plan.overwrite:
         raise ProbeError("output directory already exists; use --overwrite explicitly")
-    plan.output_dir.mkdir(parents=True, exist_ok=plan.overwrite)
-    if not plan.overwrite:
-        collisions = [name for name in OUTPUT_FILENAMES if (plan.output_dir / name).exists()]
-        if collisions:
-            raise ProbeError("an output file already exists; use --overwrite explicitly")
-
-    raw_path = plan.output_dir / "raw_clan_response.json"
-    raw_mode = "wb" if plan.overwrite else "xb"
-    with raw_path.open(raw_mode) as raw_output:
-        raw_output.write(response.body)
-
     metadata = {
         "collected_at": collected_at,
         "method": "GET",
@@ -344,17 +486,47 @@ def _write_outputs(
         "response_bytes": len(response.body),
         "redirects_followed": 0,
     }
-    _write_json(plan.output_dir / "probe_metadata.json", metadata, overwrite=plan.overwrite)
-    _write_json(
-        plan.output_dir / "normalized_clan.json",
-        asdict(normalized),
-        overwrite=plan.overwrite,
+    files = _prepare_output_files(
+        response=response,
+        normalized=normalized,
+        public_preview=public_preview,
+        metadata=metadata,
     )
-    _write_json(
-        plan.output_dir / "public_roster_preview.json",
-        public_preview,
-        overwrite=plan.overwrite,
-    )
+    staging: Path | None = None
+    try:
+        filesystem.ensure_parent(plan.output_dir.parent)
+        if plan.output_dir.exists() and not plan.overwrite:
+            raise ProbeError("output directory already exists; use --overwrite explicitly")
+        staging = _new_transaction_path(plan.output_dir, "staging")
+        _assert_transaction_path(staging, plan.output_dir, "staging")
+        filesystem.create_directory(staging)
+        for name in OUTPUT_FILENAMES:
+            filesystem.write_exclusive(staging / name, files[name])
+        _validate_staging(staging, expected_raw_payload=raw_payload)
+        _publish_staging(plan, staging, filesystem)
+    except ProbeError as error:
+        cleanup_error = (
+            _cleanup_transaction_path(
+                filesystem, staging, plan.output_dir, "staging"
+            )
+            if staging is not None
+            else None
+        )
+        if cleanup_error:
+            raise ProbeError(f"{error}; {cleanup_error}") from None
+        raise
+    except OSError:
+        cleanup_error = (
+            _cleanup_transaction_path(
+                filesystem, staging, plan.output_dir, "staging"
+            )
+            if staging is not None
+            else None
+        )
+        message = "output transaction failed"
+        if cleanup_error:
+            message = f"{message}; {cleanup_error}"
+        raise ProbeError(message) from None
 
 
 def execute_probe(
@@ -362,6 +534,7 @@ def execute_probe(
     *,
     environ: Mapping[str, str],
     transport: Any | None = None,
+    filesystem: _OutputFilesystem | None = None,
 ) -> None:
     if not plan.contract_confirmed:
         raise ProbeError("execute mode requires --confirm-api-contract")
@@ -403,9 +576,11 @@ def execute_probe(
     _write_outputs(
         plan,
         response=response,
+        raw_payload=payload,
         normalized=normalized,
         public_preview=public_preview,
         collected_at=collected_at,
+        filesystem=filesystem if filesystem is not None else _OutputFilesystem(),
     )
 
 
@@ -444,6 +619,7 @@ def main(
     *,
     environ: Mapping[str, str] | None = None,
     transport: Any | None = None,
+    filesystem: _OutputFilesystem | None = None,
     allowed_output_root: Path = DEFAULT_OUTPUT_ROOT,
     stdout: TextIO = sys.stdout,
     stderr: TextIO = sys.stderr,
@@ -462,6 +638,7 @@ def main(
             plan,
             environ=os.environ if environ is None else environ,
             transport=transport,
+            filesystem=filesystem,
         )
         print("Probe: PASS", file=stdout)
         print(f"Requests executed: {REQUESTS_PLANNED}", file=stdout)

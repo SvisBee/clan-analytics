@@ -5,6 +5,8 @@
 **/secrets/**
 **/*secret*
 **/*token*
+# Safe tracked source code. The real API token is stored outside the workspace.
+!/scripts/api/save_clash_api_token.ps1
 *.pem
 *.key
 credentials*.json

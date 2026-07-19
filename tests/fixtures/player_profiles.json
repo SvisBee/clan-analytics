@@ -1,0 +1,13 @@
+[
+  {
+    "tag": "#DEMO001",
+    "name": "Demo Player 01",
+    "role": "member",
+    "townHallLevel": 16,
+    "sourceTimestamp": "2026-07-19T09:00:00Z"
+  },
+  {
+    "tag": "#DEMO002",
+    "name": "Demo Player 02"
+  }
+]

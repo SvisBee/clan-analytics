@@ -12,7 +12,9 @@ Clash of Clans API
 → GitHub Pages
 ```
 
-Эта схема пока не реализована.
+Сетевой сбор, raw storage, SQLite и публикация данных пока не реализованы. Добавлен только чистый Python-фундамент нормализации вымышленных fixtures и public allowlist-проекция без filesystem и network side effects.
+
+Точное состояние проверки официальной схемы, изолированные wire assumptions, модели и формулы: [clash_api_data_foundation.md](clash_api_data_foundation.md).
 
 ## Будущий поток состава
 
@@ -29,6 +31,8 @@ Clash of Clans API
 `site/data/roster.json` является генерируемым публичным артефактом и не редактируется вручную. Внутренние поля отбрасываются до записи файла, а экспорт пропускает только поля из явного allowlist. Статический сайт читает подготовленный публичный JSON и не получает доступ к локальной SQLite, raw payload или внутренней модели.
 
 Draft-контракт модели, источников и экспорта: [roster_data_contract.md](roster_data_contract.md).
+
+Текущая чистая нормализация не создаёт `site/data/roster.json`. Она принимает API-shaped fixture dict вместе с явно переданными `collected_at` и `raw_source_reference`, формирует immutable snapshots и возвращает allowlist-only dict. Реальный collector остаётся отдельным будущим слоем.
 
 ## Предварительный поток Игр кланов
 

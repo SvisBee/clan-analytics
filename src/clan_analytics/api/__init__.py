@@ -1,0 +1,41 @@
+"""Pure data models and normalization helpers for API-shaped fixtures."""
+
+from .models import (
+    ClanMemberSnapshot,
+    ClanSnapshot,
+    PlayerProfileSnapshot,
+    SourceMetadata,
+    WarAttackSnapshot,
+    WarMemberSnapshot,
+    WarSnapshot,
+)
+from .normalization import (
+    NormalizationError,
+    build_composition_summary,
+    build_public_roster,
+    build_public_war_summary,
+    normalize_clan,
+    normalize_clan_members,
+    normalize_current_war,
+    normalize_player_profile,
+    normalize_war_attacks,
+)
+
+__all__ = [
+    "ClanMemberSnapshot",
+    "ClanSnapshot",
+    "NormalizationError",
+    "PlayerProfileSnapshot",
+    "SourceMetadata",
+    "WarAttackSnapshot",
+    "WarMemberSnapshot",
+    "WarSnapshot",
+    "build_composition_summary",
+    "build_public_roster",
+    "build_public_war_summary",
+    "normalize_clan",
+    "normalize_clan_members",
+    "normalize_current_war",
+    "normalize_player_profile",
+    "normalize_war_attacks",
+]

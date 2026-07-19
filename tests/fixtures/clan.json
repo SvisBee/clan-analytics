@@ -1,0 +1,18 @@
+{
+  "tag": "#DEMOCLAN",
+  "name": "Example Clan",
+  "clanLevel": 10,
+  "sourceTimestamp": "2026-07-19T09:00:00Z",
+  "memberList": [
+    {
+      "tag": "#DEMO002",
+      "name": "Demo Player 02"
+    },
+    {
+      "tag": "#DEMO001",
+      "name": "Demo Player 01",
+      "role": "member",
+      "townHallLevel": 16
+    }
+  ]
+}

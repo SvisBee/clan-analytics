@@ -1,0 +1,57 @@
+[
+  {
+    "state": "fixture_completed",
+    "attacksPerMember": 2,
+    "endTime": "20260718T180000.000Z",
+    "sourceTimestamp": "2026-07-18T18:05:00Z",
+    "clan": {
+      "members": [
+        {
+          "tag": "#DEMO001",
+          "name": "Demo Player 01",
+          "townhallLevel": 16,
+          "attacks": [
+            {
+              "attackerTag": "#DEMO001",
+              "defenderTag": "#TARGET01",
+              "stars": 3,
+              "destructionPercentage": 100,
+              "order": 2
+            },
+            {
+              "attackerTag": "#DEMO001",
+              "defenderTag": "#TARGET02",
+              "stars": 2,
+              "destructionPercentage": 87.5,
+              "order": 5
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "state": "fixture_completed",
+    "attacksPerMember": 2,
+    "endTime": "20260715T180000.000Z",
+    "sourceTimestamp": "2026-07-15T18:05:00Z",
+    "clan": {
+      "members": [
+        {
+          "tag": "#DEMO001",
+          "name": "Demo Player 01",
+          "townhallLevel": 16,
+          "attacks": [
+            {
+              "attackerTag": "#DEMO001",
+              "defenderTag": "#TARGET03",
+              "stars": 1,
+              "destructionPercentage": 62,
+              "order": 1
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

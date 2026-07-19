@@ -1,9 +1,8 @@
-"""Pure normalization for small, fictional API-shaped fixtures.
+"""Pure normalization for small, fictional official-shaped API fixtures.
 
-The official Swagger schema was not available without portal authentication
-during this stage. Wire names used here are isolated adapter assumptions and
-are not declarations of official required fields. Project-level invariants are
-validated so malformed local fixtures fail with useful messages.
+Wire names and basic Swagger types used here were verified on 2026-07-19.
+Requiredness, nullability, enum values, and the API base URL remain unverified.
+Project-level invariants make malformed local fixtures fail with useful errors.
 """
 
 from __future__ import annotations
@@ -64,13 +63,13 @@ def _optional_int(payload: Mapping[str, Any], key: str, path: str) -> int | None
     return value
 
 
-def _optional_number(payload: Mapping[str, Any], key: str, path: str) -> float | None:
-    value = payload.get(key)
-    if value is None:
-        return None
-    if isinstance(value, bool) or not isinstance(value, (int, float)):
-        raise NormalizationError(f"{path}.{key} must be a number or null")
-    return float(value)
+def _optional_non_negative_int(
+    payload: Mapping[str, Any], key: str, path: str
+) -> int | None:
+    value = _optional_int(payload, key, path)
+    if value is not None and value < 0:
+        raise NormalizationError(f"{path}.{key} must be zero or greater")
+    return value
 
 
 def _stars(payload: Mapping[str, Any], path: str) -> int:
@@ -123,6 +122,19 @@ def normalize_clan_members(
                 display_name=_required_string(member, "name", path),
                 clan_role=_optional_string(member, "role", path),
                 town_hall_level=_optional_int(member, "townHallLevel", path),
+                exp_level=_optional_non_negative_int(member, "expLevel", path),
+                clan_rank=_optional_non_negative_int(member, "clanRank", path),
+                previous_clan_rank=_optional_non_negative_int(
+                    member, "previousClanRank", path
+                ),
+                donations=_optional_non_negative_int(member, "donations", path),
+                donations_received=_optional_non_negative_int(
+                    member, "donationsReceived", path
+                ),
+                trophies=_optional_non_negative_int(member, "trophies", path),
+                builder_base_trophies=_optional_non_negative_int(
+                    member, "builderBaseTrophies", path
+                ),
                 source=source,
             )
         )
@@ -189,7 +201,7 @@ def normalize_war_attacks(payload: Sequence[Any]) -> tuple[WarAttackSnapshot, ..
                 attacker_tag=_required_string(attack, "attackerTag", path),
                 defender_tag=_optional_string(attack, "defenderTag", path),
                 stars=_stars(attack, path),
-                destruction_percentage=_optional_number(
+                destruction_percentage=_optional_int(
                     attack, "destructionPercentage", path
                 ),
                 order=_optional_int(attack, "order", path),

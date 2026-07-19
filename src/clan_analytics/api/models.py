@@ -22,6 +22,13 @@ class ClanMemberSnapshot:
     display_name: str
     clan_role: str | None
     town_hall_level: int | None
+    exp_level: int | None
+    clan_rank: int | None
+    previous_clan_rank: int | None
+    donations: int | None
+    donations_received: int | None
+    trophies: int | None
+    builder_base_trophies: int | None
     source: SourceMetadata
 
 
@@ -43,7 +50,7 @@ class WarAttackSnapshot:
     attacker_tag: str
     defender_tag: str | None
     stars: int
-    destruction_percentage: float | None
+    destruction_percentage: int | None
     order: int | None
 
 

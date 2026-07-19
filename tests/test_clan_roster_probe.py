@@ -15,6 +15,7 @@ sys.path.insert(0, str(SRC_ROOT))
 
 from clan_analytics.api.client import (  # noqa: E402
     MAX_RESPONSE_BYTES,
+    OFFICIAL_CLAN_ENDPOINT_TEMPLATE,
     HttpResponse,
     ProbeError,
     _OutputFilesystem,
@@ -25,7 +26,7 @@ from clan_analytics.api.client import (  # noqa: E402
 
 
 BASE_URL = "https://fixture.clashofclans.com"
-ENDPOINT_TEMPLATE = "/fixture/clans/{clan_tag}"
+ENDPOINT_TEMPLATE = OFFICIAL_CLAN_ENDPOINT_TEMPLATE
 TOKEN_NAME = "COC_API_TOKEN"
 FAKE_TOKEN = "fixture-secret-value"
 VALID_RESPONSE = {
@@ -38,6 +39,13 @@ VALID_RESPONSE = {
             "name": "Demo Player 01",
             "role": "member",
             "townHallLevel": 16,
+            "expLevel": 250,
+            "clanRank": 1,
+            "previousClanRank": 2,
+            "donations": 1234,
+            "donationsReceived": 987,
+            "trophies": 5500,
+            "builderBaseTrophies": 4800,
         }
     ],
 }
@@ -324,6 +332,50 @@ class ClanRosterProbeTests(unittest.TestCase):
             self.assertEqual(result[0], 2)
             self.assertEqual(transport.calls, [])
             self.assertIn("placeholder API contract", result[2])
+
+    def test_execute_rejects_non_profile_endpoint_before_network(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            transport = FakeTransport(response_for())
+            arguments = self.arguments(root / "run", "--confirm-api-contract")
+            arguments[arguments.index(ENDPOINT_TEMPLATE)] = "/clans/{clan_tag}/warlog"
+            result = self.run_main(
+                arguments,
+                allowed_root=root,
+                environ={TOKEN_NAME: FAKE_TOKEN},
+                transport=transport,
+            )
+            self.assertEqual(result[0], 2)
+            self.assertEqual(transport.calls, [])
+            self.assertIn("official clan endpoint template", result[2])
+
+    def test_members_endpoint_is_not_used_by_current_probe(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            transport = FakeTransport(response_for())
+            arguments = self.arguments(root / "run", "--confirm-api-contract")
+            arguments[arguments.index(ENDPOINT_TEMPLATE)] = "/clans/{clan_tag}/members"
+            result = self.run_main(
+                arguments,
+                allowed_root=root,
+                environ={TOKEN_NAME: FAKE_TOKEN},
+                transport=transport,
+            )
+            self.assertEqual(result[0], 2)
+            self.assertEqual(transport.calls, [])
+
+    def test_probe_docs_name_official_profile_endpoint_as_roster_source(self) -> None:
+        docs = (REPO_ROOT / "docs" / "clan_roster_probe.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("GET /clans/{clanTag}", docs)
+        self.assertIn("Clan.memberList", docs)
+
+    def test_bearer_authorization_header_contract_is_preserved(self) -> None:
+        source = (SRC_ROOT / "clan_analytics" / "api" / "client.py").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn('"Authorization": f"Bearer {token}"', source)
 
     def test_clan_tag_is_normalized(self) -> None:
         self.assertEqual(normalize_clan_tag(" demo123 "), "#DEMO123")

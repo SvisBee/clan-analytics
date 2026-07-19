@@ -18,6 +18,13 @@ Real data source: `TBD`
 | `display_name` | string | обязательно | источник состава | публичное |
 | `role` | enum | обязательно | источник состава | публичное |
 | `town_hall_level` | integer | обязательно при доступности | источник состава | публичное |
+| `exp_level` | integer/null | optional internal snapshot | `ClanMember.expLevel` | не публикуется |
+| `clan_rank` | integer/null | optional internal snapshot | `ClanMember.clanRank` | не публикуется |
+| `previous_clan_rank` | integer/null | optional internal snapshot | `ClanMember.previousClanRank` | не публикуется |
+| `donations` | integer/null | optional internal snapshot | `ClanMember.donations` | не публикуется |
+| `donations_received` | integer/null | optional internal snapshot | `ClanMember.donationsReceived` | не публикуется |
+| `trophies` | integer/null | optional internal snapshot | `ClanMember.trophies` | не публикуется |
+| `builder_base_trophies` | integer/null | optional internal snapshot | `ClanMember.builderBaseTrophies` | не публикуется |
 | `roster_snapshot_at` | datetime | обязательно | система импорта | техническое |
 | `is_current_member` | boolean | обязательно | источник состава | техническое или производное публичное состояние |
 | `verification_status` | enum | необязательно на первом снимке | внутренняя логика КВ | публичное агрегированное состояние |
@@ -94,6 +101,8 @@ unknown
 ## Поля, запрещённые для публичного экспорта
 
 - `player_tag` до отдельного решения;
+- `exp_level`, `clan_rank`, `previous_clan_rank`;
+- `donations`, `donations_received`, `trophies`, `builder_base_trophies`;
 - внутренние идентификаторы;
 - причины отсутствия;
 - данные и описание спорных ситуаций;
@@ -143,9 +152,9 @@ site/data/roster.json
 
 ### Основной предполагаемый источник
 
-Официальный Clash of Clans API после отдельного разрешения, создания безопасной конфигурации и минимального probe. До такого probe доступность и точный контракт полей не считаются подтверждёнными.
+Официальный Clash of Clans API после отдельного разрешения, создания безопасной конфигурации и минимального probe. Авторизованный официальный Swagger review от `2026-07-19` подтвердил `GET /clans/{clanTag}`, `Clan.memberList`, точные используемые wire-field names/types и Bearer JWT header. Подробности и provenance: [clash_api_data_foundation.md](clash_api_data_foundation.md) и [clash_api_authenticated_contract_2026-07-19.md](clash_api_authenticated_contract_2026-07-19.md).
 
-На 2026-07-19 публичные страницы официального портала подтверждают общий доступ к профилям кланов и игроков, JSON, ключ и IP-ограничения. Детальная Swagger-схема требует входа, поэтому точные wire-поля остаются `unverified`. Локальный код использует их только как необязательные или явно валидируемые fixture assumptions и не выдаёт за подтверждённый API-контракт. Подробности: [clash_api_data_foundation.md](clash_api_data_foundation.md).
+Base URL, version prefix, requiredness, nullability, enum values, status codes и error mapping всё ещё не подтверждены. Наличие internal snapshot field не добавляет его в public allowlist. Настоящий response пока не получался.
 
 ### Временный резервный источник
 

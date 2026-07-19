@@ -52,6 +52,80 @@ class ApiNormalizationTests(unittest.TestCase):
             ["#DEMO001", "#DEMO002"],
         )
 
+    def test_official_clan_member_integer_fields_map_to_internal_snapshot(self) -> None:
+        member = self.clan.members[0]
+        self.assertEqual(member.exp_level, 250)
+        self.assertEqual(member.clan_rank, 1)
+        self.assertEqual(member.previous_clan_rank, 2)
+        self.assertEqual(member.donations, 1234)
+        self.assertEqual(member.donations_received, 987)
+        self.assertEqual(member.trophies, 5500)
+        self.assertEqual(member.builder_base_trophies, 4800)
+
+    def test_missing_optional_clan_member_fields_are_null(self) -> None:
+        member = self.clan.members[1]
+        for field in (
+            "exp_level",
+            "clan_rank",
+            "previous_clan_rank",
+            "donations",
+            "donations_received",
+            "trophies",
+            "builder_base_trophies",
+        ):
+            self.assertIsNone(getattr(member, field), field)
+
+    def test_boolean_is_not_accepted_for_clan_member_integer_fields(self) -> None:
+        payload = load_fixture("clan.json")
+        payload["memberList"][0]["donations"] = True
+        with self.assertRaisesRegex(
+            NormalizationError, r"memberList\[0\]\.donations must be an integer"
+        ):
+            normalize_clan(
+                payload,
+                collected_at="2026-07-19T09:05:00Z",
+                raw_source_reference="inline",
+            )
+
+    def test_invalid_clan_member_integer_type_has_clear_error(self) -> None:
+        payload = load_fixture("clan.json")
+        payload["memberList"][0]["trophies"] = "5500"
+        with self.assertRaisesRegex(
+            NormalizationError, r"memberList\[0\]\.trophies must be an integer"
+        ):
+            normalize_clan(
+                payload,
+                collected_at="2026-07-19T09:05:00Z",
+                raw_source_reference="inline",
+            )
+
+    def test_negative_clan_member_integer_is_rejected(self) -> None:
+        payload = load_fixture("clan.json")
+        payload["memberList"][0]["clanRank"] = -1
+        with self.assertRaisesRegex(
+            NormalizationError, r"memberList\[0\]\.clanRank must be zero or greater"
+        ):
+            normalize_clan(
+                payload,
+                collected_at="2026-07-19T09:05:00Z",
+                raw_source_reference="inline",
+            )
+
+    def test_war_attack_destruction_percentage_requires_official_integer_type(self) -> None:
+        payload = load_fixture("war_history.json")[0]
+        payload["clan"]["members"][0]["attacks"][0][
+            "destructionPercentage"
+        ] = 99.5
+        with self.assertRaisesRegex(
+            NormalizationError,
+            r"attacks\[0\]\.destructionPercentage must be an integer",
+        ):
+            normalize_current_war(
+                payload,
+                collected_at="2026-07-19T09:05:00Z",
+                raw_source_reference="inline",
+            )
+
     def test_missing_optional_player_fields_are_null(self) -> None:
         profile = normalize_player_profile(
             load_fixture("player_profiles.json")[1],
@@ -110,6 +184,13 @@ class ApiNormalizationTests(unittest.TestCase):
             "raw_source_reference",
             "source_timestamp",
             "collected_at",
+            "exp_level",
+            "clan_rank",
+            "previous_clan_rank",
+            "donations",
+            "donations_received",
+            "trophies",
+            "builder_base_trophies",
         }
         for member in roster["members"]:
             self.assertTrue(forbidden.isdisjoint(member))

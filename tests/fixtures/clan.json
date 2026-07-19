@@ -12,7 +12,14 @@
       "tag": "#DEMO001",
       "name": "Demo Player 01",
       "role": "member",
-      "townHallLevel": 16
+      "townHallLevel": 16,
+      "expLevel": 250,
+      "clanRank": 1,
+      "previousClanRank": 2,
+      "donations": 1234,
+      "donationsReceived": 987,
+      "trophies": 5500,
+      "builderBaseTrophies": 4800
     }
   ]
 }

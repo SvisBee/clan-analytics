@@ -4,9 +4,11 @@
 
 ## Назначение и границы
 
-`scripts/api/probe_clan_roster.py` готовит один явный read-only GET request к будущему подтверждённому endpoint профиля клана. Probe использует только Python standard library, не выполняет retry, pagination, fallback, запросы профилей игроков или другие endpoints.
+`scripts/api/probe_clan_roster.py` готовит один явный read-only request к официально подтверждённому `GET /clans/{clanTag}` и получает roster из `Clan.memberList`. Probe использует только Python standard library, не выполняет retry, pagination, fallback, запросы профилей игроков или другие endpoints.
 
-Точный API base URL и endpoint path не подтверждены доступной публичной Swagger-схемой. Поэтому они не имеют defaults, передаются отдельными параметрами и в execute-mode дополнительно требуют флаг `--confirm-api-contract`. Этот флаг означает только ручную проверку base URL и endpoint перед конкретным запуском; он не заменяет разрешение на сеть, API token, clan tag или сам запуск.
+Официальное имя path-параметра Swagger: `{clanTag}`. Внутренний project template использует `{clan_tag}`, поэтому разрешённый execute template равен `/clans/{clan_tag}` и после URL encoding формирует официальный path. Base URL и version prefix остаются неподтверждёнными, не имеют defaults и передаются вручную. Execute дополнительно требует `--confirm-api-contract`; флаг не заменяет разрешение на сеть, token, clan tag или сам запуск.
+
+Отдельный `GET /clans/{clanTag}/members` также официально подтверждён, но текущий probe его не вызывает: второй request нарушил бы зафиксированную single-request policy.
 
 ## CLI contract
 
@@ -16,8 +18,8 @@
 - `--token-env`: имя environment variable, но не значение token;
 - `--output-dir`: абсолютный run-specific path внутри `D:\coc\runs\api_probe`;
 - `--timeout-seconds`: значение от 1 до 60;
-- `--base-url`: вручную подтверждённый HTTPS origin в домене `clashofclans.com`;
-- `--endpoint-template`: вручную подтверждённый absolute path с одним `{clan_tag}`.
+- `--base-url`: обязательный вручную подтверждаемый HTTPS origin в домене `clashofclans.com`, без default;
+- `--endpoint-template`: обязательный project path с одним `{clan_tag}`; execute принимает только `/clans/{clan_tag}`.
 
 Режимы и safety flags:
 
@@ -27,7 +29,7 @@
 
 Синтаксическая проверка tag не утверждает официальный alphabet или length. Эти ограничения остаются `unverified` до Swagger review. В URL символ `#` кодируется как `%23`.
 
-Execute дополнительно отклоняет значения, содержащие `placeholder` или `UNVERIFIED`, даже если передан `--confirm-api-contract`.
+Execute отклоняет endpoint template, отличный от `/clans/{clan_tag}`, а также placeholder/unverified contract values даже при `--confirm-api-contract`. Dry-run сохраняет возможность проверить очевидный `UNVERIFIED` placeholder без environment, сети и output.
 
 ## Dry-run
 
@@ -50,7 +52,7 @@ Dry-run выводит method `GET`, один planned request, redacted token va
 
 DO NOT RUN UNTIL:
 
-- official base URL and endpoint confirmed;
+- official base URL confirmed;
 - token created and stored only in the current local process environment;
 - public IP allowlisted;
 - clan tag approved;
@@ -66,11 +68,11 @@ python D:\coc\repo\scripts\api\probe_clan_roster.py `
   --output-dir 'D:\coc\runs\api_probe\clan_roster\<timestamp>' `
   --timeout-seconds 15 `
   --base-url '<confirmed official HTTPS origin>' `
-  --endpoint-template '<confirmed absolute path containing {clan_tag}>' `
+  --endpoint-template '/clans/{clan_tag}' `
   --confirm-api-contract
 ```
 
-Token передаётся только через имя environment variable. Значение не принимается в CLI, не выводится, не включается в metadata и не записывается. Authorization header не входит в diagnostics. Environment не читается в dry-run.
+Token передаётся только через имя environment variable. Значение не принимается в CLI, не выводится, не включается в metadata и не записывается. Официальный Swagger review подтвердил Bearer JWT header; клиент сохраняет `Authorization: Bearer <token>`. Authorization header не входит в diagnostics. Environment не читается в dry-run.
 
 ## Request policy
 

@@ -26,6 +26,7 @@ from .normalization import (
 
 
 PROJECT_USER_AGENT = "ClashClanAnalytics-Probe/0.1"
+OFFICIAL_CLAN_ENDPOINT_TEMPLATE = "/clans/{clan_tag}"
 DEFAULT_OUTPUT_ROOT = Path(r"D:\coc\runs\api_probe")
 MAX_RESPONSE_BYTES = 2 * 1024 * 1024
 MIN_TIMEOUT_SECONDS = 1
@@ -41,6 +42,13 @@ _TAG_PATTERN = re.compile(r"#[A-Z0-9]{3,20}")
 _ENV_NAME_PATTERN = re.compile(r"[A-Z_][A-Z0-9_]{1,63}")
 _PRIVATE_PUBLIC_KEYS = {
     "player_tag",
+    "exp_level",
+    "clan_rank",
+    "previous_clan_rank",
+    "donations",
+    "donations_received",
+    "trophies",
+    "builder_base_trophies",
     "raw_source_reference",
     "source_timestamp",
     "collected_at",
@@ -540,6 +548,8 @@ def execute_probe(
         raise ProbeError("execute mode requires --confirm-api-contract")
     if "placeholder" in plan.base_url.lower() or "unverified" in plan.endpoint_template.lower():
         raise ProbeError("execute mode rejects placeholder API contract values")
+    if plan.endpoint_template != OFFICIAL_CLAN_ENDPOINT_TEMPLATE:
+        raise ProbeError("execute mode requires the official clan endpoint template")
     if plan.output_dir.exists() and not plan.overwrite:
         raise ProbeError("output directory already exists; use --overwrite explicitly")
     token = environ.get(plan.token_env)

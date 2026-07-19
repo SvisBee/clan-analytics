@@ -61,19 +61,45 @@ DO NOT RUN UNTIL:
 - explicit execution permission received.
 
 ```powershell
-$env:COC_API_TOKEN = '<set locally, do not paste into docs>'
-
-python D:\coc\repo\scripts\api\probe_clan_roster.py `
-  --clan-tag '#APPROVED_PLACEHOLDER' `
-  --token-env COC_API_TOKEN `
-  --output-dir 'D:\coc\runs\api_probe\clan_roster\<timestamp>' `
-  --timeout-seconds 15 `
-  --base-url 'https://api.clashofclans.com/v1' `
-  --endpoint-template '/clans/{clan_tag}' `
-  --confirm-api-contract
+powershell.exe `
+  -NoLogo `
+  -NoProfile `
+  -ExecutionPolicy Bypass `
+  -File 'D:\coc\repo\scripts\api\run_clan_roster_probe.ps1' `
+  -ClanTag '#APPROVED_PLACEHOLDER'
 ```
 
 Token передаётся только через имя environment variable. Значение не принимается в CLI, не выводится, не включается в metadata и не записывается. Официальный Swagger review подтвердил Bearer JWT header; клиент сохраняет `Authorization: Bearer <token>`. Authorization header не входит в diagnostics. Environment не читается в dry-run. Настоящий execute-mode всё ещё не запускался.
+
+## Локальное хранение API token
+
+Настоящий token вводится один раз скрытым prompt в `save_clash_api_token.ps1`. Скрипт сохраняет только Windows DPAPI ciphertext по default path `%LOCALAPPDATA%\ClashClanAnalytics\secrets\coc_api_token.dpapi`, физически вне workspace. Plaintext на диск не записывается. Secret связан с текущими Windows user identity и компьютером; после смены пользователя или компьютера его нужно сохранить заново. После смены API token повторите save с `-Overwrite`. После смены allowlisted public IP может понадобиться новый API key.
+
+Runner расшифровывает secret только для запуска child process, временно устанавливает `COC_API_TOKEN` в собственном environment и удаляет его после завершения. Ciphertext не входит в Git или Codebase Memory.
+
+Для настоящего token запрещены `.env`, `config.json`, PowerShell profile, `setx`, user-level и machine-level persistent environment variables, любые файлы внутри `D:\coc`, GitHub repository, Obsidian, `AGENTS.md` и Codebase Memory notes. Эти места хранят plaintext либо делают постоянное значение слишком широко доступным.
+
+Однократное сохранение:
+
+```powershell
+powershell.exe `
+  -NoLogo `
+  -NoProfile `
+  -ExecutionPolicy Bypass `
+  -File 'D:\coc\repo\scripts\api\save_clash_api_token.ps1'
+```
+
+Безопасный wrapper dry-run без чтения secret:
+
+```powershell
+powershell.exe `
+  -NoLogo `
+  -NoProfile `
+  -ExecutionPolicy Bypass `
+  -File 'D:\coc\repo\scripts\api\run_clan_roster_probe.ps1' `
+  -ClanTag '#DEMOCLAN' `
+  -DryRun
+```
 
 ## Request policy
 

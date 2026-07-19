@@ -34,3 +34,64 @@ if (menuButton && navigation) {
     }
   });
 }
+
+const navigationLinks = Array.from(
+  document.querySelectorAll('.site-nav a[href^="#"]')
+);
+
+const setActiveNavigationLink = (activeId) => {
+  navigationLinks.forEach((link) => {
+    const isActive = link.getAttribute("href") === `#${activeId}`;
+
+    if (isActive) {
+      link.setAttribute("aria-current", "location");
+    } else {
+      link.removeAttribute("aria-current");
+    }
+  });
+};
+
+navigationLinks.forEach((link) => {
+  link.addEventListener("click", () => {
+    setActiveNavigationLink(link.getAttribute("href").slice(1));
+  });
+});
+
+if ("IntersectionObserver" in window) {
+  const sections = navigationLinks
+    .map((link) => document.querySelector(link.getAttribute("href")))
+    .filter(Boolean);
+
+  const sectionObserver = new IntersectionObserver(
+    (entries) => {
+      const visibleSection = entries.find((entry) => entry.isIntersecting);
+
+      if (visibleSection) {
+        setActiveNavigationLink(visibleSection.target.id);
+      }
+    },
+    { rootMargin: "-30% 0px -60% 0px" }
+  );
+
+  sections.forEach((section) => sectionObserver.observe(section));
+}
+
+document.querySelectorAll(".player-details").forEach((details) => {
+  const summary = details.querySelector("summary");
+
+  if (!summary) {
+    return;
+  }
+
+  const syncExpandedState = () => {
+    summary.setAttribute("aria-expanded", String(details.open));
+  };
+
+  details.addEventListener("toggle", syncExpandedState);
+  summary.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      details.open = !details.open;
+    }
+  });
+});

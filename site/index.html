@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Опубликованный информационный прототип сайта аналитики клана Clash of Clans: будущий состав, участие в войнах и другие активности.">
+  <meta name="description" content="Публичный демо-интерфейс аналитики клана Clash of Clans: состав, участие в войнах и агрегированные показатели без подключённых игровых данных.">
   <meta name="theme-color" content="#111b2d">
   <meta property="og:title" content="Аналитика клана Clash of Clans">
-  <meta property="og:description" content="Опубликованный информационный прототип сайта с будущей историей активности клана.">
+  <meta property="og:description" content="Демо-интерфейс состава, войн и агрегированной аналитики клана без подключённых игровых данных.">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="ru_RU">
-  <title>Аналитика клана Clash of Clans – прототип</title>
+  <title>Clan Analytics – интерфейс аналитики клана</title>
   <link rel="stylesheet" href="assets/css/styles.css">
   <script src="assets/js/app.js" defer></script>
 </head>
@@ -18,11 +18,11 @@
 
   <header class="site-header" data-header>
     <div class="container header-inner">
-      <a class="brand" href="#top" aria-label="На начало страницы">
-        <span class="brand-mark" aria-hidden="true">CA</span>
+      <a class="brand" href="#overview" aria-label="На начало страницы">
+        <span class="brand-mark" aria-hidden="true">?</span>
         <span class="brand-copy">
-          <span class="brand-title">Аналитика клана</span>
-          <span class="brand-subtitle">Clash of Clans</span>
+          <span class="brand-title">[Название клана]</span>
+          <span class="brand-subtitle">#CLAN-TAG · Clash of Clans</span>
         </span>
       </a>
 
@@ -32,11 +32,11 @@
       </button>
 
       <nav class="site-nav" id="site-navigation" aria-label="Основная навигация">
-        <a href="#sections">Разделы</a>
-        <a href="#roster">Состав</a>
-        <a href="#wars">КВ</a>
-        <a href="#roadmap">Этапы</a>
-        <a href="#privacy">Приватность</a>
+        <a href="#overview" aria-current="location">Обзор</a>
+        <a href="#players">Игроки</a>
+        <a href="#wars">Войны</a>
+        <a href="#analytics">Аналитика состава</a>
+        <a href="#about">О проекте</a>
       </nav>
 
       <span class="status-badge status-badge--prototype">Прототип</span>
@@ -44,173 +44,234 @@
   </header>
 
   <main id="main-content">
-    <section class="hero" id="top" aria-labelledby="hero-title">
+    <section class="hero" id="overview" aria-labelledby="hero-title">
       <div class="container hero-grid">
         <div class="hero-copy">
-          <p class="eyebrow">История клана в одном месте</p>
-          <h1 id="hero-title">Понятная аналитика состава и активности</h1>
-          <p class="hero-lead">Сайт будет собирать историю активности клана, помогать видеть состав и участие, а со временем – давать основу для планирования обычных КВ. Проект развивается постепенно, только на подтверждённых данных.</p>
+          <p class="eyebrow">Публичный демо-прототип</p>
+          <h1 id="hero-title">Состав и войны без лишней сложности</h1>
+          <p class="hero-lead">Компактный интерфейс показывает, как будут выглядеть карточки игроков, история войн и агрегированные показатели. Все значения на странице демонстрационные: игровые данные и API пока не подключены.</p>
           <div class="hero-actions" aria-label="Основные действия">
-            <a class="button button--primary" href="#sections">Посмотреть будущие разделы</a>
-            <a class="button button--secondary" href="#roster">Перейти к составу</a>
+            <a class="button button--primary" href="#players">Посмотреть игроков</a>
+            <a class="button button--secondary" href="#wars">Открыть войны</a>
           </div>
           <p class="independent-note">Независимый проект клана. Не является официальным сайтом Clash of Clans или Supercell.</p>
         </div>
 
-        <aside class="hero-panel" aria-label="Статус прототипа">
-          <div class="hero-emblem" aria-hidden="true">
+        <aside class="hero-panel clan-identity" aria-label="Идентичность клана">
+          <div class="hero-emblem hero-emblem--placeholder" aria-hidden="true">
             <svg viewBox="0 0 120 132" role="img">
               <path d="M60 7 106 24v36c0 31-18 52-46 65C32 112 14 91 14 60V24L60 7Z" fill="none" stroke="currentColor" stroke-width="5"/>
-              <path d="m39 67 14 14 29-34" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"/>
+              <path d="M47 49c2-9 10-14 19-12 8 1 14 7 14 15 0 9-6 13-13 17-6 3-8 6-8 12M59 98h.1" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="7"/>
             </svg>
+            <span>Место для эмблемы</span>
           </div>
           <div>
-            <p class="panel-kicker">Текущий этап</p>
-            <p class="panel-title">Информационный прототип</p>
-            <p class="panel-text">Структура готова к просмотру. Игровые данные ещё не подключены.</p>
+            <p class="panel-kicker">Идентичность клана</p>
+            <p class="panel-title">[Название клана]</p>
+            <p class="identity-tag">Тег клана: <strong>#CLAN-TAG</strong></p>
+            <p class="panel-text">Название, тег и эмблема заменяются после предоставления подтверждённых публичных материалов.</p>
           </div>
-          <div class="panel-progress" aria-label="Первый этап из шести">
-            <span class="panel-progress__bar"><span></span></span>
-            <span>Этап 1 / 6</span>
-          </div>
+          <span class="status-badge status-badge--pending">Данные не подключены</span>
         </aside>
       </div>
     </section>
 
-    <section class="section section--surface" id="sections" aria-labelledby="sections-title">
+    <section class="section section--surface" id="players" aria-labelledby="players-title">
       <div class="container">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">Будущие возможности</p>
-            <h2 id="sections-title">Что появится на сайте</h2>
+            <p class="eyebrow">Игроки</p>
+            <h2 id="players-title">Карточки состава</h2>
           </div>
-          <p>Каждый раздел подключается только после проверки источника и публичных полей.</p>
+          <p>Основные сведения видны сразу, а подробная статистика раскрывается по запросу.</p>
         </div>
 
-        <div class="module-grid">
-          <article class="module-card module-card--next">
-            <div class="module-card__top"><span class="module-icon" aria-hidden="true">01</span><span class="status-badge status-badge--next">Следующий этап</span></div>
-            <h3>Состав клана</h3>
-            <p>Участники, должности, ратуши и нейтральный обзор общей активности.</p>
+        <div class="demo-note" role="note">
+          <span class="status-badge status-badge--prototype">Демо-данные</span>
+          <p>Ниже используются вымышленные имена, теги и показатели. Они показывают только структуру будущего интерфейса.</p>
+        </div>
+
+        <div class="player-grid">
+          <article class="player-card">
+            <div class="player-card__header">
+              <div class="player-avatar" aria-hidden="true">01</div>
+              <div>
+                <p class="player-card__eyebrow" data-field="clan_role">Участник</p>
+                <h3 data-field="nickname">Игрок-пример 01</h3>
+                <p class="player-tag" data-field="player_tag">#DEMO001</p>
+              </div>
+              <span class="town-hall" data-field="town_hall_level"><span>TH</span>16</span>
+            </div>
+
+            <div class="player-contact" data-field="telegram_username">
+              <span>Telegram</span>
+              <strong>@username <small>(демо)</small></strong>
+            </div>
+
+            <dl class="player-metrics" aria-label="Ключевая статистика игрока-примера 01">
+              <div><dt>Атаки</dt><dd>4 / 4</dd></div>
+              <div><dt>Звёзды</dt><dd>9</dd></div>
+              <div><dt>Среднее</dt><dd>2,25</dd></div>
+            </dl>
+
+            <div class="player-card__status">
+              <span class="neutral-indicator neutral-indicator--steady">Регулярно участвует</span>
+            </div>
+
+            <details class="player-details">
+              <summary role="button" aria-expanded="false" aria-controls="player-details-01">
+                <span class="player-details__open">Подробнее</span>
+                <span class="player-details__close">Скрыть</span>
+                <span class="details-chevron" aria-hidden="true"></span>
+              </summary>
+              <div class="player-details__content" id="player-details-01">
+                <dl class="detail-list">
+                  <div data-field="war_participations"><dt>Участий в войнах</dt><dd>2</dd></div>
+                  <div data-field="attacks_used"><dt>Использовано атак</dt><dd>4</dd></div>
+                  <div data-field="attacks_available"><dt>Доступно атак</dt><dd>4</dd></div>
+                  <div data-field="stars_earned"><dt>Получено звёзд</dt><dd>9</dd></div>
+                  <div data-field="average_stars"><dt>Среднее звёзд</dt><dd>2,25</dd></div>
+                  <div data-field="last_war_date"><dt>Последняя война</dt><dd><time datetime="2026-07-15">15 июля 2026</time></dd></div>
+                </dl>
+              </div>
+            </details>
           </article>
-          <article class="module-card">
-            <div class="module-card__top"><span class="module-icon" aria-hidden="true">02</span><span class="status-badge status-badge--prototype">В прототипе</span></div>
-            <h3>Обычные КВ</h3>
-            <p>История участия, атаки по зеркалу и понятные статусы обязательности.</p>
-          </article>
-          <article class="module-card">
-            <div class="module-card__top"><span class="module-icon" aria-hidden="true">03</span><span class="status-badge">Запланировано</span></div>
-            <h3>ЛВК</h3>
-            <p>Отдельный обзор лиг с правилами состава, отличными от обычных КВ.</p>
-          </article>
-          <article class="module-card">
-            <div class="module-card__top"><span class="module-icon" aria-hidden="true">04</span><span class="status-badge">Запланировано</span></div>
-            <h3>Рейдовые выходные</h3>
-            <p>История участия и согласованные показатели активности в столице.</p>
-          </article>
-          <article class="module-card">
-            <div class="module-card__top"><span class="module-icon" aria-hidden="true">05</span><span class="status-badge">Запланировано</span></div>
-            <h3>Пожертвования</h3>
-            <p>Динамика помощи соклановцам за подтверждённые периоды.</p>
-          </article>
-          <article class="module-card">
-            <div class="module-card__top"><span class="module-icon" aria-hidden="true">06</span><span class="status-badge">Запланировано</span></div>
-            <h3>Игры кланов</h3>
-            <p>Участие и вклад вне войн – отдельно от боевой результативности.</p>
+
+          <article class="player-card">
+            <div class="player-card__header">
+              <div class="player-avatar" aria-hidden="true">02</div>
+              <div>
+                <p class="player-card__eyebrow" data-field="clan_role">Старейшина</p>
+                <h3 data-field="nickname">Игрок-пример 02</h3>
+                <p class="player-tag" data-field="player_tag">#DEMO002</p>
+              </div>
+              <span class="town-hall" data-field="town_hall_level"><span>TH</span>15</span>
+            </div>
+
+            <dl class="player-metrics" aria-label="Ключевая статистика игрока-примера 02">
+              <div><dt>Атаки</dt><dd>1 / 2</dd></div>
+              <div><dt>Звёзды</dt><dd>2</dd></div>
+              <div><dt>Среднее</dt><dd>2,00</dd></div>
+            </dl>
+
+            <div class="player-card__status">
+              <span class="neutral-indicator neutral-indicator--limited">Мало данных</span>
+            </div>
+
+            <details class="player-details">
+              <summary role="button" aria-expanded="false" aria-controls="player-details-02">
+                <span class="player-details__open">Подробнее</span>
+                <span class="player-details__close">Скрыть</span>
+                <span class="details-chevron" aria-hidden="true"></span>
+              </summary>
+              <div class="player-details__content" id="player-details-02">
+                <dl class="detail-list">
+                  <div data-field="war_participations"><dt>Участий в войнах</dt><dd>1</dd></div>
+                  <div data-field="attacks_used"><dt>Использовано атак</dt><dd>1</dd></div>
+                  <div data-field="attacks_available"><dt>Доступно атак</dt><dd>2</dd></div>
+                  <div data-field="stars_earned"><dt>Получено звёзд</dt><dd>2</dd></div>
+                  <div data-field="average_stars"><dt>Среднее звёзд</dt><dd>2,00</dd></div>
+                  <div data-field="last_war_date"><dt>Последняя война</dt><dd><time datetime="2026-07-12">12 июля 2026</time></dd></div>
+                </dl>
+              </div>
+            </details>
           </article>
         </div>
       </div>
     </section>
 
-    <section class="section" id="roster" aria-labelledby="roster-title">
+    <section class="section" id="wars" aria-labelledby="wars-title">
       <div class="container">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">Следующий содержательный этап</p>
-            <h2 id="roster-title">Будущий состав клана</h2>
+            <p class="eyebrow">Войны</p>
+            <h2 id="wars-title">История клановых войн</h2>
           </div>
-          <p>Структура уже определена, но ни один участник не будет добавлен без подтверждённого источника.</p>
+          <p>Карточки дают короткий итог войны без персональных негативных списков и автоматических выводов.</p>
         </div>
 
-        <div class="table-shell" tabindex="0" aria-label="Структура будущей таблицы состава">
-          <table class="roster-table">
-            <thead>
-              <tr>
-                <th scope="col">Игрок</th>
-                <th scope="col">Должность</th>
-                <th scope="col">Ратуша</th>
-                <th scope="col">Общая активность</th>
-                <th scope="col">Последняя КВ</th>
-                <th scope="col">Статус проверки</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="empty-row">
-                <td colspan="6">
-                  <div class="empty-state">
-                    <span class="empty-state__mark" aria-hidden="true"></span>
-                    <div><strong>Данные пока не подключены</strong><span>Состав появится после подключения подтверждённого источника данных.</span></div>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="demo-note" role="note">
+          <span class="status-badge status-badge--prototype">Демо-данные</span>
+          <p>Соперники, даты и результаты ниже вымышлены. Подключения к Clash of Clans API нет.</p>
+        </div>
+
+        <div class="war-grid">
+          <article class="war-card">
+            <div class="war-card__top">
+              <div><p class="war-card__date"><time datetime="2026-07-15">15 июля 2026</time></p><h3>[Соперник A]</h3></div>
+              <span class="neutral-indicator neutral-indicator--steady">Победа · демо</span>
+            </div>
+            <div class="war-score" aria-label="Демонстрационный счёт 35:31"><strong>35</strong><span>:</span><strong>31</strong></div>
+            <dl class="war-meta">
+              <div><dt>Формат</dt><dd>15 × 15</dd></div>
+              <div><dt>Разрушение</dt><dd>92,4%</dd></div>
+              <div><dt>Атаки</dt><dd>28 / 30</dd></div>
+            </dl>
+          </article>
+
+          <article class="war-card">
+            <div class="war-card__top">
+              <div><p class="war-card__date"><time datetime="2026-07-12">12 июля 2026</time></p><h3>[Соперник B]</h3></div>
+              <span class="neutral-indicator neutral-indicator--limited">Поражение · демо</span>
+            </div>
+            <div class="war-score" aria-label="Демонстрационный счёт 27:29"><strong>27</strong><span>:</span><strong>29</strong></div>
+            <dl class="war-meta">
+              <div><dt>Формат</dt><dd>15 × 15</dd></div>
+              <div><dt>Разрушение</dt><dd>84,6%</dd></div>
+              <div><dt>Атаки</dt><dd>27 / 30</dd></div>
+            </dl>
+          </article>
         </div>
       </div>
     </section>
 
-    <section class="section section--surface" id="wars" aria-labelledby="wars-title">
-      <div class="container rules-layout">
-        <div class="rules-intro">
-          <p class="eyebrow">Понятные правила без длинного регламента</p>
-          <h2 id="wars-title">Как будет работать статистика КВ</h2>
-          <p>Показатели должны объяснять участие, а не автоматически оценивать человека. Спорные случаи остаются предметом отдельного решения.</p>
-          <span class="rules-label">Политика прототипа</span>
-        </div>
-        <ol class="rules-list">
-          <li><span>01</span><div><h3>Первая атака – по зеркалу</h3><p>Это ожидаемая цель по умолчанию. Возможны согласованные тактические исключения.</p></div></li>
-          <li><span>02</span><div><h3>Ненужная атака – не пропуск</h3><p>Если полезных целей не осталось, вторая атака получает нейтральный статус <code>not_needed</code>.</p></div></li>
-          <li><span>03</span><div><h3>Проверка по двум КВ</h3><p>После двух обычных войн без спорных ситуаций игрок может получить статус проверенного.</p></div></li>
-          <li><span>04</span><div><h3>Обычные КВ – примерно 50/50</h3><p>Состав сочетает проверенных и проверяемых игроков. В ЛВК используется больше проверенных.</p></div></li>
-        </ol>
-      </div>
-    </section>
-
-    <section class="section" id="roadmap" aria-labelledby="roadmap-title">
+    <section class="section section--surface" id="analytics" aria-labelledby="analytics-title">
       <div class="container">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">От структуры к проверенным данным</p>
-            <h2 id="roadmap-title">Этапы развития</h2>
+            <p class="eyebrow">Аналитика состава</p>
+            <h2 id="analytics-title">Общий срез без рейтинга игроков</h2>
           </div>
-          <p>Сайт уже опубликован. Новые разделы появляются только после локальной проверки содержания и безопасности.</p>
+          <p>Только нейтральные агрегаты: масштаб состава, опыт и полнота доступных данных.</p>
         </div>
-        <ol class="roadmap-list">
-          <li class="roadmap-item roadmap-item--active"><span class="roadmap-number">01</span><div><span class="status-badge status-badge--prototype">Сейчас</span><h3>Информационный прототип</h3><p>Назначение, структура и правила публичной части.</p></div></li>
-          <li class="roadmap-item"><span class="roadmap-number">02</span><div><h3>Состав клана</h3><p>Только из подтверждённого источника.</p></div></li>
-          <li class="roadmap-item"><span class="roadmap-number">03</span><div><h3>Карточки игроков</h3><p>Базовые разрешённые игровые поля.</p></div></li>
-          <li class="roadmap-item"><span class="roadmap-number">04</span><div><h3>Обычные КВ</h3><p>История войн, участия и атак.</p></div></li>
-          <li class="roadmap-item"><span class="roadmap-number">05</span><div><h3>Метрики и активности</h3><p>Рекомендации состава, ЛВК, рейды, пожертвования и Игры кланов.</p></div></li>
-          <li class="roadmap-item"><span class="roadmap-number">06</span><div><h3>GitHub Pages</h3><p>Опубликовано. Сайт доступен постоянно и обновляется после проверенного push.</p></div></li>
-        </ol>
+
+        <div class="demo-note" role="note">
+          <span class="status-badge status-badge--prototype">Пример среза</span>
+          <p>Показатели рассчитаны по двум демонстрационным карточкам выше и не описывают реальный клан.</p>
+        </div>
+
+        <div class="analytics-grid">
+          <article class="metric-card"><span>Участники</span><strong>2</strong><small>демо-карточки</small></article>
+          <article class="metric-card"><span>Участие в последней войне</span><strong>2</strong><small>из 2 примеров</small></article>
+          <article class="metric-card"><span>Мало данных</span><strong>1</strong><small>нейтральный индикатор</small></article>
+          <article class="metric-card"><span>Использование атак</span><strong>5 / 6</strong><small>по демо-войнам</small></article>
+          <article class="metric-card"><span>Общий опыт</span><strong>3</strong><small>участия в войнах</small></article>
+
+          <article class="metric-card metric-card--wide">
+            <div class="metric-card__heading"><span>Распределение ратуш</span><small>2 демо-игрока</small></div>
+            <div class="distribution" aria-label="TH16: один игрок. TH15: один игрок.">
+              <div><span>TH16</span><span class="distribution__track"><span style="width: 50%"></span></span><strong>1</strong></div>
+              <div><span>TH15</span><span class="distribution__track"><span style="width: 50%"></span></span><strong>1</strong></div>
+            </div>
+          </article>
+        </div>
       </div>
     </section>
 
-    <section class="section section--privacy" id="privacy" aria-labelledby="privacy-title">
-      <div class="container privacy-card">
-        <div class="privacy-icon" aria-hidden="true">
-          <svg viewBox="0 0 64 64"><path d="M32 5 54 13v17c0 15-9 25-22 31C19 55 10 45 10 30V13l22-8Z" fill="none" stroke="currentColor" stroke-width="3"/><path d="M23 31h18v13H23zM27 31v-5a5 5 0 0 1 10 0v5" fill="none" stroke="currentColor" stroke-width="3"/></svg>
+    <section class="section section--privacy" id="about" aria-labelledby="about-title">
+      <div class="container about-layout">
+        <div class="about-copy">
+          <p class="eyebrow">О проекте</p>
+          <h2 id="about-title">Прозрачный интерфейс с приватностью по умолчанию</h2>
+          <p>Clan Analytics развивается как публичная витрина разрешённых игровых данных. Сейчас это статический демо-прототип: API, автоматическое обновление и реальные игровые данные не подключены.</p>
+          <p>Внутренние заметки руководства проектируются как отдельная локальная функция и не входят в публичный сайт, Git-репозиторий или экспорт данных.</p>
         </div>
-        <div>
-          <p class="eyebrow">Приватность по умолчанию</p>
-          <h2 id="privacy-title">Публичное – только после разрешения</h2>
-          <p>Сайт будет содержать только разрешённые игровые данные. Внутренние заметки руководства, причины отсутствия и личные комментарии не публикуются. Аналитика должна давать контекст, а не становиться «доской позора».</p>
+
+        <div class="about-principles">
+          <article><span aria-hidden="true">01</span><div><h3>Только разрешённые поля</h3><p>Публикация начинается после проверки источника и назначения каждого поля.</p></div></article>
+          <article><span aria-hidden="true">02</span><div><h3>Без персональных оценок</h3><p>Агрегаты помогают увидеть картину состава, но не ранжируют людей.</p></div></article>
+          <article><span aria-hidden="true">03</span><div><h3>Без скрытых подключений</h3><p>Страница не обращается к API, CDN или внешним сервисам.</p></div></article>
         </div>
-        <ul class="privacy-points">
-          <li>Только согласованные публичные поля</li>
-          <li>Без личных и оценочных комментариев</li>
-          <li>Без секретов и внутренних данных</li>
-        </ul>
       </div>
     </section>
   </main>

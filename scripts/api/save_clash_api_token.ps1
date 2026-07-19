@@ -57,6 +57,70 @@ function Assert-NoReparsePath {
     }
 }
 
+function Set-PrivateAccessAcl {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $Path,
+        [Parameter(Mandatory = $true)]
+        [System.Security.Principal.SecurityIdentifier] $UserSid,
+        [Parameter(Mandatory = $true)]
+        [System.Security.AccessControl.InheritanceFlags] $InheritanceFlags,
+        [Parameter(Mandatory = $true)]
+        [string] $FailureMessage
+    )
+
+    $systemSid = [System.Security.Principal.SecurityIdentifier]::new('S-1-5-18')
+    $none = [System.Security.AccessControl.PropagationFlags]::None
+    $allow = [System.Security.AccessControl.AccessControlType]::Allow
+    try {
+        $acl = Get-Acl -LiteralPath $Path
+        $ownerBefore = $acl.Owner
+        $groupBefore = $acl.Group
+        $acl.SetAccessRuleProtection($true, $false)
+        foreach ($rule in @($acl.Access)) {
+            $acl.RemoveAccessRuleSpecific($rule)
+        }
+        foreach ($sid in @($UserSid, $systemSid)) {
+            $acl.AddAccessRule([System.Security.AccessControl.FileSystemAccessRule]::new(
+                $sid, 'FullControl', $InheritanceFlags, $none, $allow
+            ))
+        }
+        Set-Acl -LiteralPath $Path -AclObject $acl
+
+        $verifiedAcl = Get-Acl -LiteralPath $Path
+        $rules = @($verifiedAcl.Access)
+        if (-not $verifiedAcl.AreAccessRulesProtected -or
+            $verifiedAcl.Owner -ne $ownerBefore -or
+            $verifiedAcl.Group -ne $groupBefore -or
+            $rules.Count -ne 2) {
+            throw 'Private access rule verification failed.'
+        }
+
+        $expectedSids = @($UserSid.Value, $systemSid.Value) | Sort-Object
+        $actualSids = @(
+            foreach ($rule in $rules) {
+                if ($rule.IsInherited -or
+                    $rule.AccessControlType -ne $allow -or
+                    ($rule.FileSystemRights -band [System.Security.AccessControl.FileSystemRights]::FullControl) -ne
+                        [System.Security.AccessControl.FileSystemRights]::FullControl -or
+                    $rule.InheritanceFlags -ne $InheritanceFlags -or
+                    $rule.PropagationFlags -ne $none) {
+                    throw 'Private access rule verification failed.'
+                }
+                $rule.IdentityReference.Translate(
+                    [System.Security.Principal.SecurityIdentifier]
+                ).Value
+            }
+        ) | Sort-Object
+        if (($actualSids -join ',') -ne ($expectedSids -join ',')) {
+            throw 'Private access identity verification failed.'
+        }
+    }
+    catch {
+        throw [System.InvalidOperationException]::new($FailureMessage, $_.Exception)
+    }
+}
+
 function Set-PrivateDirectoryAcl {
     param(
         [Parameter(Mandatory = $true)]
@@ -65,19 +129,12 @@ function Set-PrivateDirectoryAcl {
         [System.Security.Principal.SecurityIdentifier] $UserSid
     )
 
-    $systemSid = [System.Security.Principal.SecurityIdentifier]::new('S-1-5-18')
     $inheritance = [System.Security.AccessControl.InheritanceFlags]'ContainerInherit, ObjectInherit'
-    $none = [System.Security.AccessControl.PropagationFlags]::None
-    $allow = [System.Security.AccessControl.AccessControlType]::Allow
-    $acl = [System.Security.AccessControl.DirectorySecurity]::new()
-    $acl.SetAccessRuleProtection($true, $false)
-    $acl.AddAccessRule([System.Security.AccessControl.FileSystemAccessRule]::new(
-        $UserSid, 'FullControl', $inheritance, $none, $allow
-    ))
-    $acl.AddAccessRule([System.Security.AccessControl.FileSystemAccessRule]::new(
-        $systemSid, 'FullControl', $inheritance, $none, $allow
-    ))
-    Set-Acl -LiteralPath $Path -AclObject $acl
+    Set-PrivateAccessAcl `
+        -Path $Path `
+        -UserSid $UserSid `
+        -InheritanceFlags $inheritance `
+        -FailureMessage 'Failed to restrict DPAPI secret directory access.'
 }
 
 function Set-PrivateFileAcl {
@@ -88,17 +145,11 @@ function Set-PrivateFileAcl {
         [System.Security.Principal.SecurityIdentifier] $UserSid
     )
 
-    $systemSid = [System.Security.Principal.SecurityIdentifier]::new('S-1-5-18')
-    $allow = [System.Security.AccessControl.AccessControlType]::Allow
-    $acl = [System.Security.AccessControl.FileSecurity]::new()
-    $acl.SetAccessRuleProtection($true, $false)
-    $acl.AddAccessRule([System.Security.AccessControl.FileSystemAccessRule]::new(
-        $UserSid, 'FullControl', $allow
-    ))
-    $acl.AddAccessRule([System.Security.AccessControl.FileSystemAccessRule]::new(
-        $systemSid, 'FullControl', $allow
-    ))
-    Set-Acl -LiteralPath $Path -AclObject $acl
+    Set-PrivateAccessAcl `
+        -Path $Path `
+        -UserSid $UserSid `
+        -InheritanceFlags ([System.Security.AccessControl.InheritanceFlags]::None) `
+        -FailureMessage 'Failed to restrict DPAPI secret file access.'
 }
 
 if ([System.Environment]::OSVersion.Platform -ne [System.PlatformID]::Win32NT) {

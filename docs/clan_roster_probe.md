@@ -75,6 +75,8 @@ Token передаётся только через имя environment variable. 
 
 Настоящий token вводится один раз скрытым prompt в `save_clash_api_token.ps1`. Скрипт сохраняет только Windows DPAPI ciphertext по default path `%LOCALAPPDATA%\ClashClanAnalytics\secrets\coc_api_token.dpapi`, физически вне workspace. Plaintext на диск не записывается. Secret связан с текущими Windows user identity и компьютером; после смены пользователя или компьютера его нужно сохранить заново. После смены API token повторите save с `-Overwrite`. После смены allowlisted public IP может понадобиться новый API key.
 
+Save-script рассчитан на обычную Windows user identity и не требует запуска от Administrator или привилегии `SeSecurityPrivilege`. Он изменяет только DACL каталога и файла: отключает наследование и оставляет FullControl текущему пользователю и SYSTEM. Owner, primary group и SACL не модифицируются. Если metadata-проверка после предыдущего неудачного сохранения подтвердила наличие target, следующий настоящий save выполняется с `-Overwrite`; при отсутствии target флаг не нужен. Plaintext и ciphertext не выводятся.
+
 Runner расшифровывает secret только для запуска child process, временно устанавливает `COC_API_TOKEN` в собственном environment и удаляет его после завершения. Ciphertext не входит в Git или Codebase Memory.
 
 Для настоящего token запрещены `.env`, `config.json`, PowerShell profile, `setx`, user-level и machine-level persistent environment variables, любые файлы внутри `D:\coc`, GitHub repository, Obsidian, `AGENTS.md` и Codebase Memory notes. Эти места хранят plaintext либо делают постоянное значение слишком широко доступным.

@@ -75,23 +75,3 @@ if ("IntersectionObserver" in window) {
 
   sections.forEach((section) => sectionObserver.observe(section));
 }
-
-document.querySelectorAll(".player-details").forEach((details) => {
-  const summary = details.querySelector("summary");
-
-  if (!summary) {
-    return;
-  }
-
-  const syncExpandedState = () => {
-    summary.setAttribute("aria-expanded", String(details.open));
-  };
-
-  details.addEventListener("toggle", syncExpandedState);
-  summary.addEventListener("keydown", (event) => {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      details.open = !details.open;
-    }
-  });
-});

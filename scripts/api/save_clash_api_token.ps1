@@ -57,6 +57,18 @@ function Assert-NoReparsePath {
     }
 }
 
+function Get-InnermostExceptionType {
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Exception] $Exception
+    )
+
+    while ($null -ne $Exception.InnerException) {
+        $Exception = $Exception.InnerException
+    }
+    return $Exception.GetType().Name
+}
+
 function Test-PrivateAccessAcl {
     param(
         [Parameter(Mandatory = $true)]
@@ -163,11 +175,7 @@ function Set-PrivateAccessAcl {
         }
     }
     catch {
-        $causeException = $_.Exception
-        while ($null -ne $causeException.InnerException) {
-            $causeException = $causeException.InnerException
-        }
-        $cause = $causeException.GetType().Name
+        $cause = Get-InnermostExceptionType -Exception $_.Exception
         throw [System.InvalidOperationException]::new(
             "$FailureMessage Stage: $stage. Cause: $cause."
         )
@@ -205,6 +213,140 @@ function Set-PrivateFileAcl {
         -FailureMessage 'Failed to restrict DPAPI secret file access.'
 }
 
+function Publish-PrivateSecretFile {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $TemporaryPath,
+        [Parameter(Mandatory = $true)]
+        [string] $TargetPath,
+        [Parameter(Mandatory = $true)]
+        [string] $ParentPath,
+        [Parameter(Mandatory = $true)]
+        [System.Security.Principal.SecurityIdentifier] $UserSid,
+        [switch] $OverwriteExisting
+    )
+
+    $stage = 'verify_target_file'
+    $backupPath = $null
+    $replaceCompleted = $false
+    $saveCompleted = $false
+    try {
+        if ($OverwriteExisting) {
+            $targetItem = Get-Item -LiteralPath $TargetPath -Force -ErrorAction Stop
+            if ($targetItem.PSIsContainer -or
+                ($targetItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint)) {
+                throw 'Secret target must be a regular file and not a reparse point.'
+            }
+            if (-not (Test-PrivateAccessAcl `
+                -Path $TargetPath `
+                -UserSid $UserSid `
+                -InheritanceFlags ([System.Security.AccessControl.InheritanceFlags]::None))) {
+                throw 'Existing DPAPI secret target must already have a private DACL.'
+            }
+
+            $stage = 'prepare_backup_path'
+            $backupName = '.coc-api-token-backup-{0}.tmp' -f (
+                [System.Guid]::NewGuid().ToString('N')
+            )
+            $backupPath = [System.IO.Path]::GetFullPath((Join-Path $ParentPath $backupName))
+            $expectedParent = [System.IO.Path]::GetFullPath($ParentPath).TrimEnd('\', '/')
+            $backupParent = [System.IO.Path]::GetDirectoryName($backupPath).TrimEnd('\', '/')
+            $targetParent = [System.IO.Path]::GetDirectoryName(
+                [System.IO.Path]::GetFullPath($TargetPath)
+            ).TrimEnd('\', '/')
+            $temporaryParent = [System.IO.Path]::GetDirectoryName(
+                [System.IO.Path]::GetFullPath($TemporaryPath)
+            ).TrimEnd('\', '/')
+            if (-not [System.IO.Path]::IsPathRooted($backupPath) -or
+                -not $backupParent.Equals(
+                    $expectedParent,
+                    [System.StringComparison]::OrdinalIgnoreCase
+                ) -or
+                -not $targetParent.Equals(
+                    $expectedParent,
+                    [System.StringComparison]::OrdinalIgnoreCase
+                ) -or
+                -not $temporaryParent.Equals(
+                    $expectedParent,
+                    [System.StringComparison]::OrdinalIgnoreCase
+                ) -or
+                (Test-Path -LiteralPath $backupPath)) {
+                throw 'Recovery backup path validation failed.'
+            }
+
+            $stage = 'replace_target'
+            [System.IO.File]::Replace(
+                [string] $TemporaryPath,
+                [string] $TargetPath,
+                [string] $backupPath
+            )
+            $replaceCompleted = $true
+
+            $stage = 'verify_replace_paths'
+            if ([System.IO.File]::Exists($TemporaryPath)) {
+                throw 'Temporary secret file remained after replacement.'
+            }
+            $targetItem = Get-Item -LiteralPath $TargetPath -Force -ErrorAction Stop
+            $backupItem = Get-Item -LiteralPath $backupPath -Force -ErrorAction Stop
+            foreach ($item in @($targetItem, $backupItem)) {
+                if ($item.PSIsContainer -or
+                    ($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint)) {
+                    throw 'Published secret files must be regular files without reparse points.'
+                }
+            }
+
+            $stage = 'verify_target_acl'
+            Set-PrivateFileAcl -Path $TargetPath -UserSid $UserSid
+            $stage = 'verify_backup_acl'
+            Set-PrivateFileAcl -Path $backupPath -UserSid $UserSid
+            $stage = 'verify_target_file'
+            $targetItem = Get-Item -LiteralPath $TargetPath -Force -ErrorAction Stop
+            if ($targetItem.Length -le 0) {
+                throw 'Published DPAPI secret file must not be empty.'
+            }
+
+            $stage = 'delete_backup'
+            [System.IO.File]::Delete($backupPath)
+            $stage = 'verify_backup_cleanup'
+            if ([System.IO.File]::Exists($backupPath)) {
+                throw 'Recovery backup cleanup failed.'
+            }
+            $saveCompleted = $true
+            return
+        }
+
+        $stage = 'publish_initial_target'
+        [System.IO.File]::Move($TemporaryPath, $TargetPath)
+        $stage = 'verify_replace_paths'
+        if ([System.IO.File]::Exists($TemporaryPath)) {
+            throw 'Temporary secret file remained after publication.'
+        }
+        $stage = 'verify_target_acl'
+        Set-PrivateFileAcl -Path $TargetPath -UserSid $UserSid
+        $stage = 'verify_target_file'
+        $targetItem = Get-Item -LiteralPath $TargetPath -Force -ErrorAction Stop
+        if ($targetItem.PSIsContainer -or
+            ($targetItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -or
+            $targetItem.Length -le 0) {
+            throw 'Published DPAPI secret target validation failed.'
+        }
+        $saveCompleted = $true
+    }
+    catch {
+        $cause = Get-InnermostExceptionType -Exception $_.Exception
+        $message = "Failed to publish DPAPI secret. Stage: $stage. Cause: $cause."
+        $recoveryBackupExists = -not [string]::IsNullOrWhiteSpace($backupPath) -and
+            [System.IO.File]::Exists($backupPath)
+        if (-not $saveCompleted -and
+            ($replaceCompleted -or $recoveryBackupExists) -and
+            $recoveryBackupExists) {
+            $message += ' DPAPI secret replacement did not complete validation.'
+            $message += ' A protected recovery backup was retained in the secret directory.'
+        }
+        throw [System.InvalidOperationException]::new($message)
+    }
+}
+
 if ([System.Environment]::OSVersion.Platform -ne [System.PlatformID]::Win32NT) {
     throw 'DPAPI token storage is supported only on Windows.'
 }
@@ -235,6 +377,16 @@ if ($null -ne $existingItem) {
 
 [System.IO.Directory]::CreateDirectory($parentPath) | Out-Null
 Assert-NoReparsePath -Path $parentPath
+$recoveryBackups = @(
+    Get-ChildItem `
+        -LiteralPath $parentPath `
+        -Filter '.coc-api-token-backup-*.tmp' `
+        -Force `
+        -ErrorAction Stop
+)
+if ($recoveryBackups.Count -gt 0) {
+    throw 'A protected DPAPI recovery backup already exists. Resolve it before saving another token.'
+}
 $identity = [System.Security.Principal.WindowsIdentity]::GetCurrent()
 $userSid = $identity.User
 Set-PrivateDirectoryAcl -Path $parentPath -UserSid $userSid
@@ -255,13 +407,12 @@ try {
     )
     Set-PrivateFileAcl -Path $temporaryPath -UserSid $userSid
 
-    if ($null -ne $existingItem) {
-        [System.IO.File]::Replace($temporaryPath, $targetPath, $null)
-    }
-    else {
-        [System.IO.File]::Move($temporaryPath, $targetPath)
-    }
-    Set-PrivateFileAcl -Path $targetPath -UserSid $userSid
+    Publish-PrivateSecretFile `
+        -TemporaryPath $temporaryPath `
+        -TargetPath $targetPath `
+        -ParentPath $parentPath `
+        -UserSid $userSid `
+        -OverwriteExisting:($null -ne $existingItem)
     Write-Output "DPAPI secret saved: $targetPath"
     Write-Output 'The secret is bound to the current Windows user identity.'
 }

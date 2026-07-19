@@ -79,6 +79,8 @@ Save-script рассчитан на обычную Windows user identity и не
 
 ACL helpers идемпотентны: уже корректный private DACL не переприменяется, что важно при повторном save с `-Overwrite`. При фактическом изменении безопасная stage diagnostics сообщает только этап и тип исключения без descriptor или secret data. Target, оставшийся после неудачного save, не считается валидированным до успешного overwrite; runner до этого использовать нельзя.
 
+Overwrite использует явный уникальный recovery backup в том же private directory; `$null` как backup argument больше не передаётся. Backup удаляется только после проверки нового target и private ACL обоих файлов. При ошибке после replace backup сохраняется для ручного recovery, а следующий save блокируется до разрешения этого состояния. Текущий target после неудачных запусков всё ещё требует успешного `-Overwrite`; до него runner использовать нельзя.
+
 Runner расшифровывает secret только для запуска child process, временно устанавливает `COC_API_TOKEN` в собственном environment и удаляет его после завершения. Ciphertext не входит в Git или Codebase Memory.
 
 Для настоящего token запрещены `.env`, `config.json`, PowerShell profile, `setx`, user-level и machine-level persistent environment variables, любые файлы внутри `D:\coc`, GitHub repository, Obsidian, `AGENTS.md` и Codebase Memory notes. Эти места хранят plaintext либо делают постоянное значение слишком широко доступным.

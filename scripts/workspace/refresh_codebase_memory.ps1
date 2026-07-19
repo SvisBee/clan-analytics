@@ -443,7 +443,7 @@ function Invoke-CodebaseMemoryRefresh {
         $null = Assert-ProjectSet -Projects $projectsBefore
 
         $script:CurrentStage = 'index'
-        $payload = @{ repo_path = $workspaceRoot; name = $projectName } | ConvertTo-Json -Compress
+        $payload = @{ repo_path = $workspaceRoot; name = $projectName; mode = 'full' } | ConvertTo-Json -Compress
         $script:IndexRuns++
         $indexResult = Invoke-CbmCli -Tool 'index_repository' -TimeoutSeconds $IndexTimeoutSeconds -StandardInput $payload
         Assert-CbmProcessSucceeded -Result $indexResult -Label 'index_repository' -Warnings $warnings
@@ -501,6 +501,7 @@ try {
     Write-Output 'Codebase Memory refresh: PASS'
     Write-Output "Project: $projectName"
     Write-Output "Workspace root: $workspaceRoot"
+    Write-Output 'Index mode: full'
     Write-Output "Index runs: $script:IndexRuns"
     Write-Output "Nodes: $($result.Nodes)"
     Write-Output "Edges: $($result.Edges)"

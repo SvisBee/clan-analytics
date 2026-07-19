@@ -59,7 +59,17 @@ class ProbeError(ValueError):
 
 class _ProbeArgumentParser(argparse.ArgumentParser):
     def error(self, message: str) -> None:
-        raise ProbeError(f"invalid arguments: {message}")
+        if message.startswith("the following arguments are required:"):
+            missing = [
+                action.option_strings[0]
+                for action in self._actions
+                if action.required
+                and action.option_strings
+                and any(option in message for option in action.option_strings)
+            ]
+            if missing:
+                raise ProbeError(f"missing required arguments: {', '.join(missing)}")
+        raise ProbeError("invalid command-line arguments")
 
 
 @dataclass(frozen=True)

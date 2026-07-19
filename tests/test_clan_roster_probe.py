@@ -111,6 +111,23 @@ class ClanRosterProbeTests(unittest.TestCase):
         )
         return exit_code, stdout.getvalue(), stderr.getvalue()
 
+    def assert_argument_value_redacted(
+        self,
+        arguments: list[str],
+        *,
+        allowed_root: Path,
+    ) -> None:
+        transport = FakeTransport(response_for())
+        result = self.run_main(
+            arguments,
+            allowed_root=allowed_root,
+            transport=transport,
+        )
+        self.assertNotEqual(result[0], 0)
+        self.assertNotIn(FAKE_TOKEN, result[1])
+        self.assertNotIn(FAKE_TOKEN, result[2])
+        self.assertEqual(transport.calls, [])
+
     def test_dry_run_does_not_read_environment_or_call_network(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -141,11 +158,51 @@ class ClanRosterProbeTests(unittest.TestCase):
             self.assertNotIn(FAKE_TOKEN, result[1] + result[2])
 
     def test_token_value_cli_argument_is_rejected_without_echo(self) -> None:
+        stdout = io.StringIO()
         stderr = io.StringIO()
-        exit_code = main(["--token", FAKE_TOKEN], stderr=stderr)
+        transport = FakeTransport(response_for())
+        exit_code = main(
+            ["--token", FAKE_TOKEN],
+            transport=transport,
+            stdout=stdout,
+            stderr=stderr,
+        )
         self.assertEqual(exit_code, 2)
+        self.assertNotIn(FAKE_TOKEN, stdout.getvalue())
         self.assertNotIn(FAKE_TOKEN, stderr.getvalue())
         self.assertIn("--token-env", stderr.getvalue())
+        self.assertEqual(transport.calls, [])
+
+    def test_unknown_api_token_option_does_not_echo_value(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.assert_argument_value_redacted(
+                self.arguments(root / "run", "--api-token", FAKE_TOKEN),
+                allowed_root=root,
+            )
+
+    def test_unknown_credential_option_does_not_echo_value(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.assert_argument_value_redacted(
+                self.arguments(root / "run", "--credential", FAKE_TOKEN),
+                allowed_root=root,
+            )
+
+    def test_invalid_integer_does_not_echo_value(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            arguments = self.arguments(root / "run")
+            arguments[arguments.index("15")] = FAKE_TOKEN
+            self.assert_argument_value_redacted(arguments, allowed_root=root)
+
+    def test_extra_positional_argument_does_not_echo_value(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.assert_argument_value_redacted(
+                self.arguments(root / "run", FAKE_TOKEN),
+                allowed_root=root,
+            )
 
     def test_unexpected_transport_error_does_not_expose_token(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -208,11 +265,13 @@ class ClanRosterProbeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             arguments = self.arguments(root / "run", "--dry-run")
+            arguments[arguments.index("#DEMOCLAN")] = FAKE_TOKEN
             index = arguments.index("--timeout-seconds")
             del arguments[index : index + 2]
             result = self.run_main(arguments, allowed_root=root)
             self.assertEqual(result[0], 2)
             self.assertIn("--timeout-seconds", result[2])
+            self.assertNotIn(FAKE_TOKEN, result[1] + result[2])
 
     def test_timeout_range_is_enforced(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

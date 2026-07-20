@@ -77,14 +77,35 @@ class CurrentWarProjectionTests(unittest.TestCase):
         self.assertEqual(public["attacks_available"], 4)
         self.assertEqual(public["stars_earned"], 5)
         self.assertEqual(public["end_time"], "2026-07-20")
+        self.assertEqual(public["members"][0]["war_position"], 1)
         self.assertEqual(public["members"][0]["nickname"], "Alpha")
         self.assertEqual(public["members"][0]["average_stars"], 2.5)
+        self.assertEqual(public["members"][1]["war_position"], 2)
 
         rendered = json.dumps(public)
         self.assertNotIn("#DEMO", rendered)
         self.assertNotIn("#TARGET", rendered)
         self.assertNotIn("Fixture Opponent", rendered)
         self.assertNotIn("player_tag", rendered)
+
+    def test_map_position_must_be_positive_and_unique(self) -> None:
+        payload = load_fixture()
+        payload["clan"]["members"][0]["mapPosition"] = 0
+        with self.assertRaisesRegex(ValueError, "mapPosition must be one or greater"):
+            normalize_current_war(
+                payload,
+                collected_at="2026-07-20T00:00:00Z",
+                raw_source_reference="inline",
+            )
+
+        payload = load_fixture()
+        payload["clan"]["members"][1]["mapPosition"] = 2
+        with self.assertRaisesRegex(ValueError, "duplicate map positions"):
+            normalize_current_war(
+                payload,
+                collected_at="2026-07-20T00:00:00Z",
+                raw_source_reference="inline",
+            )
 
     def test_not_in_war_response_is_valid_and_explicit(self) -> None:
         normalized = normalize_current_war(

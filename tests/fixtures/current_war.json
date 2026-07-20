@@ -11,7 +11,8 @@
         "tag": "#DEMO002",
         "name": "Beta",
         "townhallLevel": 9,
-        "attacks": []
+        "attacks": [],
+        "mapPosition": 2
       },
       {
         "tag": "#DEMO001",
@@ -32,12 +33,15 @@
             "destructionPercentage": 87,
             "order": 3
           }
-        ]
+        ],
+        "mapPosition": 1
       }
     ]
   },
   "opponent": {
     "tag": "#TARGETCLAN",
     "name": "Fixture Opponent"
-  }
+  },
+  "preparationStartTime": "20260719T170000.000Z",
+  "startTime": "20260720T170000.000Z"
 }

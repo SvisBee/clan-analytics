@@ -98,6 +98,7 @@ def build_public_current_war_preview(war: Any) -> dict[str, Any]:
         stars_earned = sum(attack.stars for attack in member.attacks)
         public_members.append(
             {
+                "war_position": member.map_position,
                 "nickname": member.display_name,
                 "town_hall_level": member.town_hall_level,
                 "attacks_used": attacks_used,
@@ -113,8 +114,9 @@ def build_public_current_war_preview(war: Any) -> dict[str, Any]:
 
     public_members.sort(
         key=lambda member: (
+            member["war_position"] is None,
+            member["war_position"] if member["war_position"] is not None else 0,
             str(member["nickname"]).casefold(),
-            -(member["town_hall_level"] or -1),
         )
     )
     attacks_used = sum(member["attacks_used"] for member in public_members)

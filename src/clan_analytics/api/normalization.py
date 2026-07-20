@@ -75,6 +75,14 @@ def _optional_non_negative_int(
     return value
 
 
+def _optional_positive_int(
+    payload: Mapping[str, Any], key: str, path: str
+) -> int | None:
+    value = _optional_int(payload, key, path)
+    if value is not None and value < 1:
+        raise NormalizationError(f"{path}.{key} must be one or greater")
+    return value
+
 
 
 def _optional_non_negative_number(
@@ -264,6 +272,7 @@ def normalize_current_war(
                 player_tag=_required_string(member, "tag", path),
                 display_name=_required_string(member, "name", path),
                 town_hall_level=_optional_int(member, "townhallLevel", path),
+                map_position=_optional_positive_int(member, "mapPosition", path),
                 attacks=normalize_war_attacks(_sequence(attacks_payload, f"{path}.attacks")),
             )
         )
@@ -272,11 +281,29 @@ def normalize_current_war(
     if len(tags) != len(set(tags)):
         raise NormalizationError("war.clan.members contains duplicate player tags")
 
+    positions = [member.map_position for member in members if member.map_position is not None]
+    if len(positions) != len(set(positions)):
+        raise NormalizationError("war.clan.members contains duplicate map positions")
+
     return WarSnapshot(
         state=state,
+        preparation_start_time=_optional_string(
+            war, "preparationStartTime", "war"
+        ),
+        start_time=_optional_string(war, "startTime", "war"),
         end_time=_optional_string(war, "endTime", "war"),
+        team_size=_optional_non_negative_int(war, "teamSize", "war"),
         attacks_per_member=_optional_int(war, "attacksPerMember", "war"),
-        members=tuple(sorted(members, key=lambda member: member.player_tag)),
+        members=tuple(
+            sorted(
+                members,
+                key=lambda member: (
+                    member.map_position is None,
+                    member.map_position if member.map_position is not None else 0,
+                    member.player_tag,
+                ),
+            )
+        ),
         source=source,
     )
 

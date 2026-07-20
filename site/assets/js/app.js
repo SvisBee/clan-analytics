@@ -180,8 +180,9 @@ const createPlayerCard = (member, index) => {
   card.append(header);
 
   if (hasWarData) {
-    const metrics = createElement("dl", "player-metrics");
+    const metrics = createElement("dl", "player-metrics player-metrics--history");
     const values = [
+      ["Войны", member.war_participations ?? "–"],
       ["Атаки", member.attacks_available === null ? "–" : `${member.attacks_used} / ${member.attacks_available}`],
       ["Звёзды", member.stars_earned ?? "–"],
       ["Среднее", member.average_stars ?? "–"]
@@ -264,20 +265,24 @@ const formatDate = (value, options) => {
 };
 
 const createWarMemberCard = (member, index) => {
+  const position = Number.isFinite(member.war_position)
+    ? member.war_position
+    : index + 1;
   const card = createElement("article", "player-card war-member-card");
   card.dataset.name = safeText(member.nickname, "").toLocaleLowerCase("ru");
   card.dataset.attacks = String(member.attacks_used ?? "");
   card.dataset.th = member.town_hall_level ?? "";
+  card.dataset.position = String(position);
 
   const header = createElement("div", "player-card__header");
   const avatar = createElement(
     "div",
     "player-avatar",
-    String(index + 1).padStart(2, "0")
+    String(position).padStart(2, "0")
   );
   const identity = document.createElement("div");
   identity.append(
-    createElement("p", "player-card__eyebrow", "Участник войны"),
+    createElement("p", "player-card__eyebrow", `Позиция ${position}`),
     createElement("h3", "", safeText(member.nickname, "Без имени"))
   );
 
@@ -412,9 +417,19 @@ const renderCurrentWar = (war, config) => {
     summary.append(chip);
   });
 
-  const members = [...war.members].sort((left, right) =>
-    safeText(left.nickname, "").localeCompare(safeText(right.nickname, ""), "ru")
-  );
+  const members = [...war.members].sort((left, right) => {
+    const leftPosition = Number.isFinite(left.war_position)
+      ? left.war_position
+      : Number.MAX_SAFE_INTEGER;
+    const rightPosition = Number.isFinite(right.war_position)
+      ? right.war_position
+      : Number.MAX_SAFE_INTEGER;
+    if (leftPosition !== rightPosition) return leftPosition - rightPosition;
+    return safeText(left.nickname, "").localeCompare(
+      safeText(right.nickname, ""),
+      "ru"
+    );
+  });
   const grid = document.querySelector("[data-current-war-members]");
   const search = document.querySelector("[data-war-search]");
   const attacksFilter = document.querySelector("[data-war-attacks-filter]");

@@ -61,6 +61,7 @@ class WarMemberSnapshot:
     player_tag: str
     display_name: str
     town_hall_level: int | None
+    map_position: int | None
     attacks: tuple[WarAttackSnapshot, ...]
 
 
@@ -69,7 +70,10 @@ class WarSnapshot:
     """A normalized current or historical detailed war snapshot."""
 
     state: str
+    preparation_start_time: str | None
+    start_time: str | None
     end_time: str | None
+    team_size: int | None
     attacks_per_member: int | None
     members: tuple[WarMemberSnapshot, ...]
     source: SourceMetadata

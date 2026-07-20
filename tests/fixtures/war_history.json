@@ -25,10 +25,14 @@
               "destructionPercentage": 87,
               "order": 5
             }
-          ]
+          ],
+          "mapPosition": 1
         }
       ]
-    }
+    },
+    "teamSize": 1,
+    "preparationStartTime": "20260716T000000.000Z",
+    "startTime": "20260717T000000.000Z"
   },
   {
     "state": "fixture_completed",
@@ -49,9 +53,13 @@
               "destructionPercentage": 62,
               "order": 1
             }
-          ]
+          ],
+          "mapPosition": 1
         }
       ]
-    }
+    },
+    "teamSize": 1,
+    "preparationStartTime": "20260717T000000.000Z",
+    "startTime": "20260718T000000.000Z"
   }
 ]

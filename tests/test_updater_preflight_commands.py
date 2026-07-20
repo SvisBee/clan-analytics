@@ -5,12 +5,14 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 VALIDATE = REPO_ROOT / "scripts" / "update" / "validate_war_history.py"
 GIT_CHECK = REPO_ROOT / "scripts" / "update" / "check_update_git_state.py"
+MUTEX_HELPER = REPO_ROOT / "scripts" / "update" / "workspace_mutex.ps1"
 
 
 def run(*args: str, cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
@@ -18,6 +20,58 @@ def run(*args: str, cwd: Path | None = None) -> subprocess.CompletedProcess[str]
 
 
 class HistoryPreflightCommandTests(unittest.TestCase):
+    def make_isolated_updater(self, root: Path, name: str) -> tuple[Path, Path, Path]:
+        workspace = root / name
+        repo = workspace / "repo"
+        update = repo / "scripts" / "update"
+        update.mkdir(parents=True)
+        (repo / "src").mkdir()
+        shutil.copy2(REPO_ROOT / "scripts" / "update" / "update_clan_site.ps1", update / "update_clan_site.ps1")
+        shutil.copy2(MUTEX_HELPER, update / MUTEX_HELPER.name)
+        shutil.copy2(VALIDATE, update / VALIDATE.name)
+        shutil.copytree(REPO_ROOT / "src" / "clan_analytics", repo / "src" / "clan_analytics")
+        return workspace, repo, update / "update_clan_site.ps1"
+
+    def hold_workspace_mutex(self, workspace: Path, ready: Path, release: Path) -> subprocess.Popen[str]:
+        helper = workspace / "repo" / "scripts" / "update" / MUTEX_HELPER.name
+        command = (
+            f". '{helper}'; $created=$false; $mutex=[Threading.Mutex]::new($true,"
+            f"(Get-WorkspaceMutexName '{workspace}'),[ref]$created); "
+            f"[IO.File]::WriteAllText('{ready}','ready'); "
+            f"while(-not (Test-Path -LiteralPath '{release}')) {{ Start-Sleep -Milliseconds 50 }}; "
+            f"if($created){{$mutex.ReleaseMutex()}}; $mutex.Dispose()"
+        )
+        process = subprocess.Popen(
+            ["powershell.exe", "-NoLogo", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", command],
+            text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        )
+        deadline = time.monotonic() + 5
+        while not ready.exists() and time.monotonic() < deadline:
+            time.sleep(0.05)
+        self.assertTrue(ready.exists(), "mutex holder did not become ready")
+        return process
+
+    def release_holder(self, process: subprocess.Popen[str], release: Path) -> None:
+        release.write_text("release", encoding="utf-8")
+        try:
+            process.communicate(timeout=5)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.communicate(timeout=5)
+
+    @unittest.skipUnless(shutil.which("powershell.exe"), "requires Windows PowerShell")
+    def test_workspace_mutex_identity_is_stable_and_scoped(self) -> None:
+        def mutex(path: str) -> str:
+            result = run("powershell.exe", "-NoLogo", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", f". '{MUTEX_HELPER}'; Get-WorkspaceMutexName '{path}'")
+            self.assertEqual(result.returncode, 0, result.stderr)
+            return result.stdout.strip()
+        canonical = mutex(r"D:\coc")
+        self.assertRegex(canonical, r"\ALocal\\ClashClanAnalyticsSiteUpdate-[0-9a-f]{24}\Z")
+        self.assertEqual(canonical, mutex("D:\\coc\\"))
+        self.assertEqual(canonical, mutex(r"d:\COC"))
+        self.assertNotEqual(canonical, mutex(r"D:\other-workspace"))
+        self.assertNotIn(r"D:\coc", canonical.casefold())
+
     def test_history_modes_fail_before_any_fake_probe_marker(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -53,6 +107,7 @@ class HistoryPreflightCommandTests(unittest.TestCase):
             (isolated_repo / "scripts" / "update").mkdir(parents=True)
             (isolated_repo / "src").mkdir()
             shutil.copy2(updater, isolated_repo / "scripts" / "update" / updater.name)
+            shutil.copy2(MUTEX_HELPER, isolated_repo / "scripts" / "update" / MUTEX_HELPER.name)
             shutil.copy2(VALIDATE, isolated_repo / "scripts" / "update" / VALIDATE.name)
             shutil.copytree(REPO_ROOT / "src" / "clan_analytics", isolated_repo / "src" / "clan_analytics")
             marker = workspace / "probe-called"
@@ -80,10 +135,47 @@ class HistoryPreflightCommandTests(unittest.TestCase):
                 )
                 combined = result.stdout + result.stderr
                 self.assertNotEqual(result.returncode, 0, f"{name}: {combined}")
-                self.assertRegex(combined, r"History val\s*idation preflight failed before network")
+                self.assertRegex(combined, r"History val\s*idation\s*preflight failed before network")
                 self.assertNotIn("Local updater config is missing", combined)
                 self.assertFalse(marker.exists(), name)
-                self.assertFalse((workspace / "runs").exists(), name)
+            self.assertFalse((workspace / "runs").exists(), name)
+
+    @unittest.skipUnless(shutil.which("powershell.exe"), "requires Windows PowerShell")
+    def test_same_workspace_mutex_skips_actual_updater_before_preflight(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            workspace, _, updater = self.make_isolated_updater(root, "workspace-a")
+            ready, release = root / "ready", root / "release"
+            holder = self.hold_workspace_mutex(workspace, ready, release)
+            try:
+                result = run("powershell.exe", "-NoLogo", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", str(updater), "-WorkspaceRoot", str(workspace), "-PreviewOnly")
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn("Another site update is already running", result.stdout)
+                self.assertFalse((workspace / "runs").exists())
+                self.assertFalse((workspace / "data").exists())
+            finally:
+                self.release_holder(holder, release)
+
+    @unittest.skipUnless(shutil.which("powershell.exe"), "requires Windows PowerShell")
+    def test_cross_workspace_mutex_does_not_skip_invalid_history_preflight(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            workspace_a, _, _ = self.make_isolated_updater(root, "workspace-a")
+            workspace_b, _, updater_b = self.make_isolated_updater(root, "workspace-b")
+            history = workspace_b / "data" / "war_history" / "history.json"
+            history.parent.mkdir(parents=True)
+            history.write_text(json.dumps({"schema_version": 1, "wars": []}), encoding="utf-8")
+            ready, release = root / "ready", root / "release"
+            holder = self.hold_workspace_mutex(workspace_a, ready, release)
+            try:
+                result = run("powershell.exe", "-NoLogo", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", str(updater_b), "-WorkspaceRoot", str(workspace_b), "-PreviewOnly")
+                combined = result.stdout + result.stderr
+                self.assertNotEqual(result.returncode, 0, combined)
+                self.assertNotIn("Another site update is already running", combined)
+                self.assertRegex(combined, r"History val\s*idation\s*preflight failed before network")
+                self.assertFalse((workspace_b / "runs").exists())
+            finally:
+                self.release_holder(holder, release)
 
 
 class GitPreflightCommandTests(unittest.TestCase):

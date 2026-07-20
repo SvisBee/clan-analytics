@@ -13,6 +13,7 @@
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'workspace_mutex.ps1')
 
 $RepoRoot = Join-Path $WorkspaceRoot 'repo'
 $RunRoot = Join-Path $WorkspaceRoot 'runs\site_update'
@@ -107,7 +108,8 @@ function Test-HistorySchemaPreflight {
 }
 
 $createdNew = $false
-$mutex = [Threading.Mutex]::new($true, 'Local\ClashClanAnalyticsSiteUpdate', [ref] $createdNew)
+$mutexName = Get-WorkspaceMutexName -WorkspaceRoot $WorkspaceRoot
+$mutex = [Threading.Mutex]::new($true, $mutexName, [ref] $createdNew)
 if (-not $createdNew) {
     Write-Status 'Another site update is already running. This run is skipped.'
     exit 0

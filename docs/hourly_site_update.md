@@ -1,6 +1,6 @@
 # Hourly clan site updater
 
-Status: live updater validated and Scheduled Task registered; task may be intentionally disabled during maintenance.
+Status: history schema v2 migration completed; controlled PreviewOnly API/proposal stages passed; mutex isolation fix validated offline; normal updater/publication after migration not run; Scheduled Task Disabled.
 
 ## Purpose
 
@@ -44,11 +44,13 @@ site/data/war-history.json
 
 It contains no player tags, clan tag, opponent identity, raw API data, token material, or leadership notes.
 
-The real local history remains schema v1 until a separately approved migration. Before API configuration or probes, the updater checks the local schema and refuses v1 with an instruction to use `scripts/update/migrate_war_history_v1_to_v2.py`. Offline migration tests do not change `D:\coc\data\war_history\history.json`. The Scheduled Task is disabled during this maintenance stage.
+The real local history is schema v2 after the reviewed migration. Its immutable v1 backup is retained under `D:\coc\data\war_history\backups`. Before API configuration or probes, the updater validates schema v2 and fails closed for invalid history. The Scheduled Task is disabled during this maintenance stage.
 
 Before a probe can run, the updater also requires both browser scripts, `site/assets/js/app.js` and `site/assets/js/current-war-contract.js`. When Node.js is available it runs `node --check` for both before and after the publish boundary; a missing or syntactically invalid current-war contract therefore fails closed.
 
-The real history is still v1 and the Scheduled Task remains Disabled. No live migration or live API validation occurred in this maintenance pass. The offline preflight integration test uses an isolated temporary workspace only; it proves invalid history stops before local config, probes and run-directory creation.
+The reviewed live migration completed successfully. One controlled PreviewOnly run completed all three API and proposal stages, but its overall result failed only because the nested mutex integration test shared a fixed production mutex. The mutex defect is fixed offline; normal updater/publication after migration has not run. The Scheduled Task remains Disabled. The offline preflight integration test uses an isolated temporary workspace only; it proves invalid history stops before local config, probes and run-directory creation.
+
+Updater mutual exclusion is scoped to a canonical WorkspaceRoot. The mutex name uses a stable SHA-256 path prefix, so manual and Scheduled Task runs for `D:\coc` exclude each other while an isolated test workspace does not conflict with production. The previous PreviewOnly probes and proposal passed; its final failure was only this test-isolation defect. History is now schema v2, the Scheduled Task remains Disabled, and no normal publication ran after migration.
 
 The updater reports separate persistence, public replacement, commit and push stages. A commit failure leaves the run backup and a dirty working tree for manual recovery; a push failure leaves one local data commit ahead of `origin/main` for manual inspection and push. It never silently creates a second replacement commit.
 

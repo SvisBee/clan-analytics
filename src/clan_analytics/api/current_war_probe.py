@@ -33,7 +33,11 @@ from .client import (
     build_request_url,
     normalize_clan_tag,
 )
-from .normalization import NormalizationError, normalize_current_war
+from .normalization import (
+    NormalizationError,
+    calculate_war_star_metrics,
+    normalize_current_war,
+)
 
 
 OFFICIAL_CURRENT_WAR_ENDPOINT_TEMPLATE = "/clans/{clan_tag}/currentwar"
@@ -92,6 +96,8 @@ def build_current_war_probe_plan(
 def build_public_current_war_preview(war: Any) -> dict[str, Any]:
     """Build an allowlist-only current-war view without game tags or opponent data."""
 
+    star_metrics = calculate_war_star_metrics(war)
+    contributions = star_metrics["contributions_by_player_tag"]
     public_members: list[dict[str, Any]] = []
     for member in war.members:
         attacks_used = len(member.attacks)
@@ -104,6 +110,11 @@ def build_public_current_war_preview(war: Any) -> dict[str, Any]:
                 "attacks_used": attacks_used,
                 "attacks_available": war.attacks_per_member,
                 "stars_earned": stars_earned,
+                "new_stars_contributed": (
+                    contributions.get(member.player_tag, 0)
+                    if contributions is not None
+                    else None
+                ),
                 "average_stars": (
                     round(stars_earned / attacks_used, 2)
                     if attacks_used
@@ -120,7 +131,6 @@ def build_public_current_war_preview(war: Any) -> dict[str, Any]:
         )
     )
     attacks_used = sum(member["attacks_used"] for member in public_members)
-    stars_earned = sum(member["stars_earned"] for member in public_members)
     participants = len(public_members)
     attacks_available = (
         participants * war.attacks_per_member
@@ -136,7 +146,16 @@ def build_public_current_war_preview(war: Any) -> dict[str, Any]:
         "attacks_per_member": war.attacks_per_member,
         "attacks_used": attacks_used,
         "attacks_available": attacks_available,
-        "stars_earned": stars_earned,
+        "clan_stars": star_metrics["clan_stars"],
+        # Temporary public-schema compatibility alias. Legacy app.js used this
+        # field as the clan score; new consumers must use clan_stars instead.
+        "stars_earned": star_metrics["clan_stars"],
+        "attack_stars_total": star_metrics["attack_stars_total"],
+        "reconstructed_clan_stars": star_metrics["reconstructed_clan_stars"],
+        "stars_consistency_status": star_metrics["stars_consistency_status"],
+        "new_stars_contribution_status": star_metrics[
+            "new_stars_contribution_status"
+        ],
         "members": public_members,
     }
 

@@ -75,6 +75,9 @@ class WarSnapshot:
     end_time: str | None
     team_size: int | None
     attacks_per_member: int | None
+    clan_stars: int | None
+    clan_tag: str | None
+    opponent_tag: str | None
     members: tuple[WarMemberSnapshot, ...]
     source: SourceMetadata
 

@@ -215,7 +215,9 @@ class ApiNormalizationTests(unittest.TestCase):
         war = build_public_war_summary(self.wars[0])
         self.assertEqual(war["attacks_used"], 2)
         self.assertEqual(war["attacks_available"], 2)
-        self.assertEqual(war["stars_earned"], 5)
+        self.assertIsNone(war["clan_stars"])
+        self.assertEqual(war["attack_stars_total"], 5)
+        self.assertEqual(war["stars_consistency_status"], "unavailable")
 
         composition = build_composition_summary(self.clan)
         self.assertEqual(composition["total_members"], 2)
@@ -251,7 +253,7 @@ class ApiNormalizationTests(unittest.TestCase):
         tags = re.findall(r"#[A-Z0-9-]+", fixture_text)
         self.assertTrue(tags)
         self.assertTrue(
-            all(tag.startswith(("#DEMO", "#TARGET")) for tag in tags)
+            all(tag.startswith(("#DEMO", "#TARGET", "#FIXTURE", "#P", "#D")) for tag in tags)
         )
 
     def test_normalization_modules_have_no_network_imports_or_urls(self) -> None:

@@ -184,7 +184,7 @@ const createPlayerCard = (member, index) => {
     const values = [
       ["Войны", member.war_participations ?? "–"],
       ["Атаки", member.attacks_available === null ? "–" : `${member.attacks_used} / ${member.attacks_available}`],
-      ["Звёзды", member.stars_earned ?? "–"],
+      ["Звёзды в атаках", member.stars_earned ?? "–"],
       ["Среднее", member.average_stars ?? "–"]
     ];
     values.forEach(([label, value]) => {
@@ -256,6 +256,7 @@ const currentWarStateLabels = {
   warEnded: "Война завершена",
   notInWar: "Сейчас войны нет"
 };
+const currentWarDisplay = globalThis.ClanAnalyticsCurrentWarContract?.currentWarDisplay;
 
 const formatDate = (value, options) => {
   if (!value) return "Нет данных";
@@ -294,11 +295,15 @@ const createWarMemberCard = (member, index) => {
   header.append(avatar, identity, townHall);
 
   const metrics = createElement("dl", "player-metrics");
-  [
+  const warMetrics = [
     ["Атаки", `${member.attacks_used} / ${member.attacks_available}`],
-    ["Звёзды", member.stars_earned],
+    ["Звёзды в атаках", member.stars_earned],
     ["Среднее", member.average_stars ?? "–"]
-  ].forEach(([label, value]) => {
+  ];
+  if (member.new_stars_contributed !== null && member.new_stars_contributed !== undefined) {
+    warMetrics.push(["Новые звёзды", member.new_stars_contributed]);
+  }
+  warMetrics.forEach(([label, value]) => {
     const wrapper = document.createElement("div");
     wrapper.append(
       createElement("dt", "", label),
@@ -345,9 +350,9 @@ const renderCurrentWar = (war, config) => {
     ? Math.round((war.attacks_used / war.attacks_available) * 100)
     : 0;
   const attacksLeft = Math.max(0, war.attacks_available - war.attacks_used);
-  const averageStars = war.attacks_used
-    ? (war.stars_earned / war.attacks_used).toFixed(2)
-    : "–";
+  const display = currentWarDisplay ? currentWarDisplay(war) : {
+    clanStars: "–", attackStarsTotal: null, averageStars: "–"
+  };
 
   const setAll = (selector, value) => {
     document.querySelectorAll(selector).forEach((element) => {
@@ -357,11 +362,11 @@ const renderCurrentWar = (war, config) => {
 
   setAll("[data-current-war-status]", currentWarStateLabels[war.state] || war.state);
   setAll("[data-current-war-participants]", war.participants);
-  setAll("[data-current-war-stars]", war.stars_earned);
+  setAll("[data-current-war-stars]", display.clanStars);
   setAll("[data-current-war-attacks-used]", war.attacks_used);
   setAll("[data-current-war-attacks-available]", war.attacks_available);
   setAll("[data-current-war-attacks-per-member]", war.attacks_per_member);
-  setAll("[data-current-war-average-stars]", averageStars);
+  setAll("[data-current-war-average-stars]", display.averageStars);
   setAll("[data-current-war-attacks-left]", attacksLeft);
   setAll("[data-current-war-progress-label]", `${progress}%`);
 

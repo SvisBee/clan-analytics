@@ -81,6 +81,8 @@ Detailed player history requires collecting and retaining detailed snapshots fro
 GET /clans/{clanTag}/currentwar
 ```
 
+Schema v2 also uses a matching war-log entry to confirm lifecycle completion and official aggregates. Reconciliation never invents participants, individual attacks, defender links, destruction or map positions. An unmatched entry is retained as aggregate-only evidence; multiple compatible detailed records produce an ambiguous diagnostic instead of an automatic merge.
+
 Therefore the safe sequence is:
 
 1. run this one-request war-log probe;

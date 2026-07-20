@@ -6,6 +6,7 @@
   "clan": {
     "tag": "#DEMOCLAN",
     "name": "Example Clan",
+    "stars": 5,
     "members": [
       {
         "tag": "#DEMO002",

@@ -22,6 +22,11 @@ def parser() -> argparse.ArgumentParser:
     result.add_argument("--history-path", required=True)
     result.add_argument("--site-data-dir", required=True)
     result.add_argument("--output-dir", required=True)
+    result.add_argument(
+        "--allow-history-migration",
+        action="store_true",
+        help="allow deterministic v1-to-v2 migration of the proposed history output",
+    )
     return result
 
 
@@ -35,6 +40,7 @@ def main() -> int:
             existing_history_path=Path(args.history_path),
             existing_site_data_dir=Path(args.site_data_dir),
             output_dir=Path(args.output_dir),
+            allow_history_migration=args.allow_history_migration,
         )
         print("Site update build: PASS")
         print(json.dumps(summary, ensure_ascii=False, sort_keys=True))

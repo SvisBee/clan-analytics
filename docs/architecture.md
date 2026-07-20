@@ -12,7 +12,7 @@ Clash of Clans API
 → GitHub Pages
 ```
 
-Сетевой сбор, raw storage, SQLite и публикация данных пока не реализованы. Добавлен только чистый Python-фундамент нормализации вымышленных fixtures и public allowlist-проекция без filesystem и network side effects.
+Сетевой сбор, raw run storage, public projections и публикация реализованы. Три локальных probe получают roster, current war и war log; unified updater строит allowlist-only JSON и публикует их только при изменении. SQLite пока не используется.
 
 Точное состояние проверки официальной схемы, изолированные wire assumptions, модели и формулы: [clash_api_data_foundation.md](clash_api_data_foundation.md).
 
@@ -32,7 +32,15 @@ Clash of Clans API
 
 Draft-контракт модели, источников и экспорта: [roster_data_contract.md](roster_data_contract.md).
 
-Текущая чистая нормализация не создаёт `site/data/roster.json`. Она принимает API-shaped fixture dict вместе с явно переданными `collected_at` и `raw_source_reference`, формирует immutable snapshots и возвращает allowlist-only dict. Реальный collector остаётся отдельным будущим слоем.
+Нормализация принимает API payload вместе с `collected_at` и локальной provenance, формирует внутренние snapshots и возвращает allowlist-only dict. Unified updater генерирует `site/data/roster.json`; tags и provenance в public projection не входят.
+
+## История обычных войн v2
+
+Schema v2 разделяет immutable detailed observations, monotonic canonical snapshot, официальный aggregate war log и inferred lifecycle. Идентификатор записи назначается один раз, а поздние snapshots связываются по совместимым сильным timestamps и дополнительному evidence. Progressive timestamps проходят chronology guard `preparation <= start <= end`, трёхчасовое collection window и семидневное bounded game-time window; оба окна являются project heuristics, не правилами API. Неоднозначность блокирует автоматическое объединение и фиксируется диагностически.
+
+War log может подтвердить завершение и официальный результат, но не создаёт участников, персональные атаки, defender links или map positions. Повреждённая history не заменяется пустой. Миграция v1 сохраняет единственный доступный legacy `latest` как одну observation с явной маркировкой ограничения.
+
+Подробности: [reliable_history_foundation.md](reliable_history_foundation.md).
 
 ## Предварительный поток Игр кланов
 
@@ -91,6 +99,6 @@ event_id,event_start_date,event_end_date,player_tag,points,max_points,status,abs
 
 GitHub Pages раздаёт статические файлы и не выполняет Python-код на сервере. Поэтому запросы к API, хранение токена, обновление SQLite, расчёты и подготовка экспортов должны происходить на локальном компьютере. После отдельной проверки и разрешения подготовленная публичная версия может быть отправлена в GitHub.
 
-## Будущая автоматизация
+## Автоматизация
 
-В будущем Планировщик заданий Windows сможет по расписанию запускать локальную команду обновления, сохранять отдельный run, проверять результат и готовить публичные файлы. Создание задания, автоматический commit/push и обработка ошибок проектируются отдельно и требуют явного разрешения. На текущем этапе автоматизация не создаётся.
+Unified updater и Windows Scheduled Task реализованы. Task запускается каждый час и при входе пользователя, использует mutex, пишет runs/logs, выполняет offline checks и создаёт commit/push только при изменении публичных JSON. Task можно отключать для безопасного обслуживания; изменение её состояния всегда требует отдельного разрешения.

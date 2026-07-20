@@ -1,0 +1,31 @@
+{
+  "state": "inWar",
+  "teamSize": 15,
+  "attacksPerMember": 2,
+  "preparationStartTime": "20260719T170000.000Z",
+  "startTime": "20260720T170000.000Z",
+  "endTime": "20260720T180000.000Z",
+  "clan": {
+    "tag": "#FIXTURECLAN",
+    "name": "Stars Accounting Fixture",
+    "stars": 38,
+    "members": [
+      {"tag":"#P01","name":"Player 01","townhallLevel":16,"mapPosition":1,"attacks":[{"attackerTag":"#P01","defenderTag":"#D01","stars":1,"destructionPercentage":50,"order":1},{"attackerTag":"#P01","defenderTag":"#D04","stars":3,"destructionPercentage":100,"order":7}]},
+      {"tag":"#P02","name":"Player 02","townhallLevel":16,"mapPosition":2,"attacks":[{"attackerTag":"#P02","defenderTag":"#D02","stars":2,"destructionPercentage":80,"order":2},{"attackerTag":"#P02","defenderTag":"#D05","stars":3,"destructionPercentage":100,"order":8}]},
+      {"tag":"#P03","name":"Player 03","townhallLevel":16,"mapPosition":3,"attacks":[{"attackerTag":"#P03","defenderTag":"#D03","stars":2,"destructionPercentage":75,"order":3},{"attackerTag":"#P03","defenderTag":"#D06","stars":3,"destructionPercentage":100,"order":9}]},
+      {"tag":"#P04","name":"Player 04","townhallLevel":15,"mapPosition":4,"attacks":[{"attackerTag":"#P04","defenderTag":"#D01","stars":3,"destructionPercentage":100,"order":4}]},
+      {"tag":"#P05","name":"Player 05","townhallLevel":15,"mapPosition":5,"attacks":[{"attackerTag":"#P05","defenderTag":"#D02","stars":3,"destructionPercentage":100,"order":5}]},
+      {"tag":"#P06","name":"Player 06","townhallLevel":15,"mapPosition":6,"attacks":[{"attackerTag":"#P06","defenderTag":"#D03","stars":2,"destructionPercentage":85,"order":6}]},
+      {"tag":"#P07","name":"Player 07","townhallLevel":15,"mapPosition":7,"attacks":[{"attackerTag":"#P07","defenderTag":"#D07","stars":3,"destructionPercentage":100,"order":10}]},
+      {"tag":"#P08","name":"Player 08","townhallLevel":14,"mapPosition":8,"attacks":[{"attackerTag":"#P08","defenderTag":"#D08","stars":3,"destructionPercentage":100,"order":11}]},
+      {"tag":"#P09","name":"Player 09","townhallLevel":14,"mapPosition":9,"attacks":[{"attackerTag":"#P09","defenderTag":"#D09","stars":3,"destructionPercentage":100,"order":12}]},
+      {"tag":"#P10","name":"Player 10","townhallLevel":14,"mapPosition":10,"attacks":[{"attackerTag":"#P10","defenderTag":"#D10","stars":2,"destructionPercentage":80,"order":13}]},
+      {"tag":"#P11","name":"Player 11","townhallLevel":14,"mapPosition":11,"attacks":[{"attackerTag":"#P11","defenderTag":"#D11","stars":2,"destructionPercentage":80,"order":14}]},
+      {"tag":"#P12","name":"Player 12","townhallLevel":13,"mapPosition":12,"attacks":[{"attackerTag":"#P12","defenderTag":"#D12","stars":2,"destructionPercentage":80,"order":15}]},
+      {"tag":"#P13","name":"Player 13","townhallLevel":13,"mapPosition":13,"attacks":[{"attackerTag":"#P13","defenderTag":"#D13","stars":2,"destructionPercentage":80,"order":16}]},
+      {"tag":"#P14","name":"Player 14","townhallLevel":13,"mapPosition":14,"attacks":[{"attackerTag":"#P14","defenderTag":"#D14","stars":2,"destructionPercentage":80,"order":17}]},
+      {"tag":"#P15","name":"Player 15","townhallLevel":13,"mapPosition":15,"attacks":[{"attackerTag":"#P15","defenderTag":"#D15","stars":2,"destructionPercentage":80,"order":18}]}
+    ]
+  },
+  "opponent": {"tag": "#FIXTUREOPPONENT", "name": "Fixture Opponent"}
+}

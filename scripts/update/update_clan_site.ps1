@@ -1,6 +1,8 @@
 ﻿param(
     [string] $ClanTag,
 
+    [string] $WorkspaceRoot = 'D:\coc',
+
     [ValidateRange(1, 60)]
     [int] $TimeoutSeconds = 15,
 
@@ -12,13 +14,13 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$RepoRoot = 'D:\coc\repo'
-$RunRoot = 'D:\coc\runs\site_update'
-$ApiProbeRoot = 'D:\coc\runs\api_probe'
-$HistoryPath = 'D:\coc\data\war_history\history.json'
-$LocalConfigPath = 'D:\coc\data\config\clan_site_update.json'
+$RepoRoot = Join-Path $WorkspaceRoot 'repo'
+$RunRoot = Join-Path $WorkspaceRoot 'runs\site_update'
+$ApiProbeRoot = Join-Path $WorkspaceRoot 'runs\api_probe'
+$HistoryPath = Join-Path $WorkspaceRoot 'data\war_history\history.json'
+$LocalConfigPath = Join-Path $WorkspaceRoot 'data\config\clan_site_update.json'
 $SiteDataDir = Join-Path $RepoRoot 'site\data'
-$LogRoot = 'D:\coc\local\logs\site_update'
+$LogRoot = Join-Path $WorkspaceRoot 'local\logs\site_update'
 $AllowedSiteFiles = @(
     'site/data/roster.json',
     'site/data/current-war.json',
@@ -97,6 +99,13 @@ function Restore-Backup {
     }
 }
 
+function Test-HistorySchemaPreflight {
+    & $python (Join-Path $RepoRoot 'scripts\update\validate_war_history.py') '--source' $HistoryPath
+    if ($LASTEXITCODE -ne 0) {
+        throw "History validation preflight failed before network: $HistoryPath"
+    }
+}
+
 $createdNew = $false
 $mutex = [Threading.Mutex]::new($true, 'Local\ClashClanAnalyticsSiteUpdate', [ref] $createdNew)
 if (-not $createdNew) {
@@ -113,6 +122,11 @@ try {
 
     Write-Status "Mode: $(if ($PreviewOnly) { 'preview only' } else { 'publish' })"
 
+    $python = (Get-Command python -ErrorAction Stop).Source
+
+    # This must remain before local API configuration and all probe invocations.
+    Test-HistorySchemaPreflight
+
     if ([string]::IsNullOrWhiteSpace($ClanTag)) {
         if (-not (Test-Path -LiteralPath $LocalConfigPath -PathType Leaf)) {
             throw "Local updater config is missing: $LocalConfigPath"
@@ -126,7 +140,6 @@ try {
     Write-Status "Clan tag: [REDACTED]"
 
     $git = (Get-Command git -ErrorAction Stop).Source
-    $python = (Get-Command python -ErrorAction Stop).Source
     $nodeCommand = Get-Command node -ErrorAction SilentlyContinue
     $node = if ($null -ne $nodeCommand) { $nodeCommand.Source } else { $null }
     $powershell = (Get-Command powershell.exe -ErrorAction Stop).Source
@@ -136,38 +149,19 @@ try {
         (Join-Path $RepoRoot 'scripts\api\run_clan_current_war_probe.ps1'),
         (Join-Path $RepoRoot 'scripts\api\run_clan_war_log_probe.ps1'),
         (Join-Path $RepoRoot 'scripts\update\build_site_update.py'),
-        (Join-Path $RepoRoot 'site\assets\js\app.js')
+        (Join-Path $RepoRoot 'site\assets\js\app.js'),
+        (Join-Path $RepoRoot 'site\assets\js\current-war-contract.js'),
+        (Join-Path $RepoRoot 'scripts\update\validate_war_history.py'),
+        (Join-Path $RepoRoot 'scripts\update\check_update_git_state.py')
     )) {
         if (-not (Test-Path -LiteralPath $required -PathType Leaf)) {
             throw "Required file is missing: $required"
         }
     }
 
-    $branch = (& $git -C $RepoRoot branch --show-current | Out-String).Trim()
-    if ($branch -cne 'main') {
-        throw "Updater requires branch main; current branch is $branch."
-    }
-
-    $statusBefore = @(& $git -C $RepoRoot status --porcelain=v1)
-    if ($statusBefore.Count -ne 0) {
-        throw 'Git working tree must be completely clean before an automated update.'
-    }
-
-    $counts = (& $git -C $RepoRoot rev-list --left-right --count origin/main...HEAD | Out-String).Trim() -split '\s+'
-    if ($counts.Count -ne 2) {
-        throw 'Unable to determine local/origin divergence.'
-    }
-    $behind = [int] $counts[0]
-    $ahead = [int] $counts[1]
-    if ($behind -gt 0) {
-        throw "Local main is behind origin/main by $behind commit(s). Update it manually first."
-    }
-    if ($ahead -gt 0 -and -not $PreviewOnly -and -not $NoPush) {
-        Write-Status "Publishing $ahead pending local commit(s) before collecting new data."
-        Invoke-Checked -FilePath $git -Arguments @('-C', $RepoRoot, 'push', 'origin', 'main') -Label 'Pending Git push'
-    }
-    elseif ($ahead -gt 0) {
-        throw 'Local main has unpublished commits. Publish or resolve them before preview/no-push mode.'
+    & $python (Join-Path $RepoRoot 'scripts\update\check_update_git_state.py') '--repo' $RepoRoot
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Git preflight failed before API probes.'
     }
 
     New-Item -ItemType Directory -Path $RunRoot -Force | Out-Null
@@ -225,6 +219,9 @@ try {
         Invoke-Checked -FilePath $node -Arguments @(
             '--check', (Join-Path $RepoRoot 'site\assets\js\app.js')
         ) -Label 'JavaScript syntax check'
+        Invoke-Checked -FilePath $node -Arguments @(
+            '--check', (Join-Path $RepoRoot 'site\assets\js\current-war-contract.js')
+        ) -Label 'Current-war contract syntax check'
     }
     else {
         Write-Status 'JavaScript syntax check skipped: Node.js is not installed and app.js is not modified by the hourly data update.'
@@ -279,6 +276,9 @@ try {
             Invoke-Checked -FilePath $node -Arguments @(
                 '--check', (Join-Path $RepoRoot 'site\assets\js\app.js')
             ) -Label 'Post-publish JavaScript syntax check'
+            Invoke-Checked -FilePath $node -Arguments @(
+                '--check', (Join-Path $RepoRoot 'site\assets\js\current-war-contract.js')
+            ) -Label 'Post-publish current-war contract syntax check'
         }
         Invoke-Checked -FilePath $git -Arguments @('-C', $RepoRoot, 'diff', '--check') -Label 'Git diff check'
 

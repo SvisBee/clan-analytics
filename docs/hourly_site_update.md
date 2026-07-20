@@ -1,6 +1,6 @@
 # Hourly clan site updater
 
-Status: implementation prepared and validated offline; no scheduled task has been registered and no unified live update has been executed.
+Status: live updater validated and Scheduled Task registered; task may be intentionally disabled during maintenance.
 
 ## Purpose
 
@@ -36,13 +36,23 @@ Internal detailed history is stored outside Git:
 D:\coc\data\war_history\history.json
 ```
 
-The same war is updated in place using a deterministic internal identifier. Hourly snapshots do not create duplicate wars. The public export is:
+Schema v2 stores distinct immutable observations and a monotonic canonical snapshot. Identical facts are deduplicated. Later incomplete responses cannot delete earlier members or attacks. War log reconciliation can close a lifecycle without inventing missing final personal facts. The public export is:
 
 ```text
 site/data/war-history.json
 ```
 
 It contains no player tags, clan tag, opponent identity, raw API data, token material, or leadership notes.
+
+The real local history remains schema v1 until a separately approved migration. Before API configuration or probes, the updater checks the local schema and refuses v1 with an instruction to use `scripts/update/migrate_war_history_v1_to_v2.py`. Offline migration tests do not change `D:\coc\data\war_history\history.json`. The Scheduled Task is disabled during this maintenance stage.
+
+Before a probe can run, the updater also requires both browser scripts, `site/assets/js/app.js` and `site/assets/js/current-war-contract.js`. When Node.js is available it runs `node --check` for both before and after the publish boundary; a missing or syntactically invalid current-war contract therefore fails closed.
+
+The real history is still v1 and the Scheduled Task remains Disabled. No live migration or live API validation occurred in this maintenance pass. The offline preflight integration test uses an isolated temporary workspace only; it proves invalid history stops before local config, probes and run-directory creation.
+
+The updater reports separate persistence, public replacement, commit and push stages. A commit failure leaves the run backup and a dirty working tree for manual recovery; a push failure leaves one local data commit ahead of `origin/main` for manual inspection and push. It never silently creates a second replacement commit.
+
+During maintenance, the updater does not auto-push any ahead commit. `check_update_git_state.py` fails closed, prints the pending HEAD and changed paths, and requires manual inspection and push before a new collection. This prevents Scheduled Task from publishing unrelated code or documentation.
 
 ## Local configuration
 
@@ -154,3 +164,5 @@ These locations remain outside Git and Codebase Memory.
 Hourly collection greatly reduces the risk of missing attacks. It cannot reconstruct detailed player attacks for a war if the laptop was unavailable for the entire period in which the detailed current-war endpoint exposed that war. The war log may still retain the aggregate result, but not historical per-player attacks.
 
 Codebase Memory is not refreshed hourly. It indexes source structure, not fast-changing local or public data snapshots, and remains a separate explicit maintenance action.
+
+The official clan score comes from `current war -> clan.stars`. The sum of attack results is retained separately and is not used as the clan score. A new-stars contribution is emitted only when global attack order and defender links are complete and unique.

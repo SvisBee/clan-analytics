@@ -294,6 +294,11 @@ def normalize_current_war(
         end_time=_optional_string(war, "endTime", "war"),
         team_size=_optional_non_negative_int(war, "teamSize", "war"),
         attacks_per_member=_optional_int(war, "attacksPerMember", "war"),
+        clan_stars=_optional_non_negative_int(clan, "stars", "war.clan"),
+        clan_tag=_optional_string(clan, "tag", "war.clan"),
+        opponent_tag=_optional_string(
+            _mapping(war.get("opponent", {}), "war.opponent"), "tag", "war.opponent"
+        ),
         members=tuple(
             sorted(
                 members,
@@ -484,13 +489,78 @@ def build_public_war_summary(war: WarSnapshot) -> dict[str, Any]:
         if war.attacks_per_member is not None
         else None
     )
+    star_metrics = calculate_war_star_metrics(war)
     return {
         "state": war.state,
         "end_time": _date_only(war.end_time),
         "participants": len(war.members),
         "attacks_used": len(attacks),
         "attacks_available": attacks_available,
-        "stars_earned": sum(attack.stars for attack in attacks),
+        "clan_stars": star_metrics["clan_stars"],
+        "attack_stars_total": star_metrics["attack_stars_total"],
+        "stars_consistency_status": star_metrics["stars_consistency_status"],
+    }
+
+
+def calculate_war_star_metrics(war: WarSnapshot) -> dict[str, Any]:
+    """Separate official score, attack results, and order-derived new stars.
+
+    Player and defender tags are retained only in the internal contribution map.
+    Callers building public output must project values by player and omit the map.
+    """
+
+    attacks = [attack for member in war.members for attack in member.attacks]
+    attack_stars_total = sum(attack.stars for attack in attacks)
+
+    best_by_defender: dict[str, int] = {}
+    for attack in attacks:
+        if attack.defender_tag is None:
+            continue
+        best_by_defender[attack.defender_tag] = max(
+            best_by_defender.get(attack.defender_tag, 0), attack.stars
+        )
+    defender_facts_complete = bool(attacks) and all(
+        attack.defender_tag is not None for attack in attacks
+    )
+    reconstructed_clan_stars = (
+        sum(best_by_defender.values()) if defender_facts_complete else None
+    )
+
+    if war.clan_stars is None or reconstructed_clan_stars is None:
+        consistency = "unavailable"
+    elif war.clan_stars == reconstructed_clan_stars:
+        consistency = "consistent"
+    else:
+        consistency = "inconsistent"
+
+    orders = [attack.order for attack in attacks]
+    valid_orders = (
+        all(type(order) is int and order > 0 for order in orders)
+        and len(orders) == len(set(orders))
+        and all(attack.defender_tag is not None for attack in attacks)
+    )
+    contributions: dict[str, int] | None = None
+    contribution_status = "unavailable_invalid_attack_order"
+    if valid_orders:
+        contributions = {}
+        chronological_best: dict[str, int] = {}
+        for attack in sorted(attacks, key=lambda item: item.order):
+            defender = str(attack.defender_tag)
+            previous_best = chronological_best.get(defender, 0)
+            contribution = max(0, attack.stars - previous_best)
+            contributions[attack.attacker_tag] = (
+                contributions.get(attack.attacker_tag, 0) + contribution
+            )
+            chronological_best[defender] = max(previous_best, attack.stars)
+        contribution_status = "available"
+
+    return {
+        "clan_stars": war.clan_stars,
+        "attack_stars_total": attack_stars_total,
+        "reconstructed_clan_stars": reconstructed_clan_stars,
+        "stars_consistency_status": consistency,
+        "new_stars_contribution_status": contribution_status,
+        "contributions_by_player_tag": contributions,
     }
 
 

@@ -18,7 +18,15 @@ from .api.normalization import (
     normalize_current_war,
     normalize_war_log,
 )
-from .history import build_public_war_history, detailed_wars, empty_history, merge_war_history
+from .history import (
+    HistoryError,
+    build_public_war_history,
+    detailed_wars,
+    empty_history,
+    merge_war_history,
+    reconcile_war_log,
+    write_history_atomic,
+)
 
 
 PUBLIC_FILENAMES = (
@@ -28,16 +36,19 @@ PUBLIC_FILENAMES = (
     "war-history.json",
     "site-config.json",
 )
-_FORBIDDEN_KEYS = {
-    "player_tag",
-    "clan_tag",
-    "raw_source_reference",
-    "source_timestamp",
-    "authorization",
-    "token",
-    "api_token",
+_FORBIDDEN_NORMALIZED_KEYS = {
+    "playertag", "attackertag", "defendertag", "clantag", "opponenttag",
+    "opponentname", "opponentidentity", "rawsourcereference", "sourcetimestamp",
+    "rawpayload", "rawresponse", "requestheaders", "authorization", "apitoken",
+    "accesstoken", "refreshtoken", "token", "credential", "credentials", "secret",
+    "secrets", "dpapi", "dpapiblob", "dpapimetadata", "localpath", "internalpath",
 }
 _TAG_PATTERN = re.compile(r"#[A-Z0-9]{3,20}")
+_WINDOWS_PATH_PATTERN = re.compile(r"(?:\b[A-Za-z]:[\\/]|\\\\[^\\/]+[\\/])")
+_CREDENTIAL_VALUE_PATTERN = re.compile(
+    r"(?:^\s*authorization\s*[:=]|\bbearer\s+\S|\b(?:api|access|refresh)[_ -]?token\s*[:=]|\bdpapi(?:[_ -]?(?:blob|metadata))?\s*[:=])",
+    re.IGNORECASE,
+)
 
 
 class SiteUpdateError(ValueError):
@@ -92,11 +103,17 @@ def _safe_badge_url(raw_clan: Mapping[str, Any]) -> str | None:
     return None
 
 
+def _normalize_public_key(key: object) -> str:
+    """Normalize spelling separators while preserving a predictable key policy."""
+
+    return re.sub(r"[\s_.\-/]+", "", str(key).casefold())
+
+
 def _scan_public(value: Any, path: str = "$") -> None:
     if isinstance(value, Mapping):
         for key, nested in value.items():
             key_text = str(key)
-            if key_text.casefold() in _FORBIDDEN_KEYS:
+            if _normalize_public_key(key_text) in _FORBIDDEN_NORMALIZED_KEYS:
                 raise SiteUpdateError(f"forbidden public key at {path}.{key_text}")
             _scan_public(nested, f"{path}.{key_text}")
         return
@@ -105,8 +122,9 @@ def _scan_public(value: Any, path: str = "$") -> None:
             _scan_public(nested, f"{path}[{index}]")
         return
     if isinstance(value, str):
-        lowered = value.casefold()
-        if "authorization" in lowered or "bearer " in lowered or "coc_api_token" in lowered:
+        if _WINDOWS_PATH_PATTERN.search(value):
+            raise SiteUpdateError(f"local path leaked into public output at {path}")
+        if _CREDENTIAL_VALUE_PATTERN.search(value):
             raise SiteUpdateError(f"forbidden public string at {path}")
         if _TAG_PATTERN.fullmatch(value.strip()):
             raise SiteUpdateError(f"game tag leaked into public output at {path}")
@@ -129,6 +147,7 @@ def build_site_update(
     existing_history_path: Path,
     existing_site_data_dir: Path,
     output_dir: Path,
+    allow_history_migration: bool = False,
 ) -> dict[str, Any]:
     """Build proposed public files and next internal history without applying them."""
 
@@ -164,7 +183,18 @@ def build_site_update(
     )
     if not isinstance(history, Mapping):
         raise SiteUpdateError("existing history must be an object")
-    next_history, history_changed = merge_war_history(history, current_war)
+    if history.get("schema_version") == 1 and not allow_history_migration:
+        raise SiteUpdateError(
+            "history v1 requires a separately approved migration to schema v2"
+        )
+    try:
+        next_history, detailed_changed = merge_war_history(history, current_war)
+        next_history, reconciliation_changed = reconcile_war_log(next_history, war_log)
+    except HistoryError as error:
+        raise SiteUpdateError(
+            f"history validation or migration failed: {existing_history_path}: {error}"
+        ) from error
+    history_changed = detailed_changed or reconciliation_changed
     wars = detailed_wars(next_history)
 
     roster = {
@@ -227,7 +257,7 @@ def build_site_update(
     public_dir = output_dir / "site-data"
     for name in PUBLIC_FILENAMES:
         _write_json(public_dir / name, public_files[name])
-    _write_json(output_dir / "history-next.json", next_history)
+    write_history_atomic(output_dir / "history-next.json", next_history)
 
     config_changed = config != existing_config
     summary = {

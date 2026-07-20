@@ -98,6 +98,20 @@ const createElement = (tag, className = "", content) => {
 const safeText = (value, fallback = "Нет данных") =>
   value === null || value === undefined || value === "" ? fallback : String(value);
 
+const setTextAll = (selector, value) => {
+  document.querySelectorAll(selector).forEach((element) => {
+    element.textContent = String(value);
+  });
+};
+
+const requireElement = (selector) => {
+  const element = document.querySelector(selector);
+  if (!element) {
+    throw new Error(`В HTML отсутствует обязательный элемент ${selector}`);
+  }
+  return element;
+};
+
 const calculateMedian = (values) => {
   const sorted = [...values].sort((left, right) => left - right);
   if (!sorted.length) return null;
@@ -185,7 +199,7 @@ const createPlayerCard = (member, index) => {
     createElement(
       "span",
       hasWarData ? "neutral-indicator" : "neutral-indicator neutral-indicator--limited",
-      hasWarData ? "Военные данные доступны" : "История войн не собрана"
+      hasWarData ? "Военные данные доступны" : "Накопленная история войн пока отсутствует"
     )
   );
   card.append(status);
@@ -211,8 +225,7 @@ const renderDistribution = (distribution, totalMembers) => {
     root.append(row);
   });
 
-  document.querySelector("[data-distribution-note]").textContent =
-    `${totalMembers} участников`;
+  setTextAll("[data-distribution-note]", `${totalMembers} участников`);
 };
 
 const renderRoleSummary = (members) => {
@@ -235,7 +248,230 @@ const renderRoleSummary = (members) => {
   });
 };
 
-const renderSite = (data, config) => {
+
+const currentWarStateLabels = {
+  inWar: "На момент снимка война шла",
+  preparation: "Подготовка",
+  warEnded: "Война завершена",
+  notInWar: "Сейчас войны нет"
+};
+
+const formatDate = (value, options) => {
+  if (!value) return "Нет данных";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return new Intl.DateTimeFormat("ru-RU", options).format(date);
+};
+
+const createWarMemberCard = (member, index) => {
+  const card = createElement("article", "player-card war-member-card");
+  card.dataset.name = safeText(member.nickname, "").toLocaleLowerCase("ru");
+  card.dataset.attacks = String(member.attacks_used ?? "");
+  card.dataset.th = member.town_hall_level ?? "";
+
+  const header = createElement("div", "player-card__header");
+  const avatar = createElement(
+    "div",
+    "player-avatar",
+    String(index + 1).padStart(2, "0")
+  );
+  const identity = document.createElement("div");
+  identity.append(
+    createElement("p", "player-card__eyebrow", "Участник войны"),
+    createElement("h3", "", safeText(member.nickname, "Без имени"))
+  );
+
+  const townHall = createElement("span", "town-hall");
+  townHall.append(
+    createElement("span", "", "TH"),
+    document.createTextNode(safeText(member.town_hall_level, "?"))
+  );
+  header.append(avatar, identity, townHall);
+
+  const metrics = createElement("dl", "player-metrics");
+  [
+    ["Атаки", `${member.attacks_used} / ${member.attacks_available}`],
+    ["Звёзды", member.stars_earned],
+    ["Среднее", member.average_stars ?? "–"]
+  ].forEach(([label, value]) => {
+    const wrapper = document.createElement("div");
+    wrapper.append(
+      createElement("dt", "", label),
+      createElement("dd", "", value)
+    );
+    metrics.append(wrapper);
+  });
+
+  const status = createElement("div", "player-card__status");
+  let statusText = "Все атаки использованы";
+  let statusClass = "neutral-indicator neutral-indicator--complete";
+
+  if (member.attacks_used === 0) {
+    statusText = "Атаки ещё не использованы";
+    statusClass = "neutral-indicator neutral-indicator--limited";
+  } else if (member.attacks_used < member.attacks_available) {
+    const remaining = member.attacks_available - member.attacks_used;
+    statusText = `Осталось атак: ${remaining}`;
+    statusClass = "neutral-indicator";
+  }
+
+  status.append(createElement("span", statusClass, statusText));
+  card.append(header, metrics, status);
+  return card;
+};
+
+const renderCurrentWar = (war, config) => {
+  const content = document.querySelector("[data-current-war-content]");
+  const empty = document.querySelector("[data-current-war-empty]");
+
+  if (!war || war.data_status !== "available" || war.state === "notInWar") {
+    content.hidden = true;
+    empty.hidden = false;
+    document.querySelectorAll("[data-current-war-status]").forEach((element) => {
+      element.textContent = currentWarStateLabels.notInWar;
+    });
+    return;
+  }
+
+  content.hidden = false;
+  empty.hidden = true;
+
+  const progress = war.attacks_available
+    ? Math.round((war.attacks_used / war.attacks_available) * 100)
+    : 0;
+  const attacksLeft = Math.max(0, war.attacks_available - war.attacks_used);
+  const averageStars = war.attacks_used
+    ? (war.stars_earned / war.attacks_used).toFixed(2)
+    : "–";
+
+  const setAll = (selector, value) => {
+    document.querySelectorAll(selector).forEach((element) => {
+      element.textContent = String(value);
+    });
+  };
+
+  setAll("[data-current-war-status]", currentWarStateLabels[war.state] || war.state);
+  setAll("[data-current-war-participants]", war.participants);
+  setAll("[data-current-war-stars]", war.stars_earned);
+  setAll("[data-current-war-attacks-used]", war.attacks_used);
+  setAll("[data-current-war-attacks-available]", war.attacks_available);
+  setAll("[data-current-war-attacks-per-member]", war.attacks_per_member);
+  setAll("[data-current-war-average-stars]", averageStars);
+  setAll("[data-current-war-attacks-left]", attacksLeft);
+  setAll("[data-current-war-progress-label]", `${progress}%`);
+
+  document.querySelectorAll("[data-current-war-end]").forEach((element) => {
+    element.textContent = formatDate(war.end_time, {
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    });
+    if (element instanceof HTMLTimeElement) element.dateTime = war.end_time;
+  });
+
+  if (config.current_war_collected_at) {
+    document.querySelectorAll("[data-current-war-collected-at]").forEach((element) => {
+      const collectedAt = config.current_war_collected_at;
+      element.textContent = formatDate(collectedAt, {
+        dateStyle: "medium",
+        timeStyle: "short"
+      });
+      if (element instanceof HTMLTimeElement) {
+        element.dateTime = collectedAt;
+      }
+    });
+  } else {
+    document.querySelectorAll("[data-current-war-collected-row]").forEach((element) => {
+      element.hidden = true;
+    });
+  }
+
+  const progressRoot = document.querySelector("[data-current-war-progress]");
+  progressRoot.setAttribute("aria-valuemax", String(war.attacks_available));
+  progressRoot.setAttribute("aria-valuenow", String(war.attacks_used));
+  progressRoot.setAttribute(
+    "aria-valuetext",
+    `${war.attacks_used} из ${war.attacks_available} атак`
+  );
+  requireElement("[data-current-war-progress-bar]").style.width = `${progress}%`;
+
+  const attackCounts = war.members.reduce((counts, member) => {
+    const key = String(member.attacks_used);
+    counts[key] = (counts[key] || 0) + 1;
+    return counts;
+  }, {});
+
+  const summary = document.querySelector("[data-war-attack-summary]");
+  summary.replaceChildren();
+  [0, 1, 2].forEach((attacks) => {
+    const chip = createElement("span", "role-chip");
+    chip.append(
+      document.createTextNode(`${attacks} атак: `),
+      createElement("strong", "", attackCounts[String(attacks)] || 0)
+    );
+    summary.append(chip);
+  });
+
+  const members = [...war.members].sort((left, right) =>
+    safeText(left.nickname, "").localeCompare(safeText(right.nickname, ""), "ru")
+  );
+  const grid = document.querySelector("[data-current-war-members]");
+  const search = document.querySelector("[data-war-search]");
+  const attacksFilter = document.querySelector("[data-war-attacks-filter]");
+  const townHallFilter = document.querySelector("[data-war-th-filter]");
+  const visibleCount = document.querySelector("[data-war-visible-count]");
+
+  [...new Set(
+    members
+      .map((member) => member.town_hall_level)
+      .filter((value) => Number.isFinite(value))
+  )]
+    .sort((left, right) => right - left)
+    .forEach((level) => {
+      const option = document.createElement("option");
+      option.value = String(level);
+      option.textContent = `TH ${level}`;
+      townHallFilter.append(option);
+    });
+
+  const cards = members.map(createWarMemberCard);
+  grid.replaceChildren(...cards);
+
+  const filterCards = () => {
+    const query = search.value.trim().toLocaleLowerCase("ru");
+    let shown = 0;
+
+    cards.forEach((card) => {
+      const visible =
+        (!query || card.dataset.name.includes(query)) &&
+        (!attacksFilter.value || card.dataset.attacks === attacksFilter.value) &&
+        (!townHallFilter.value || card.dataset.th === townHallFilter.value);
+      card.hidden = !visible;
+      if (visible) shown += 1;
+    });
+
+    grid.querySelector(".roster-empty")?.remove();
+    if (!shown) {
+      grid.append(
+        createElement(
+          "div",
+          "roster-empty",
+          "По выбранным фильтрам участников войны не найдено."
+        )
+      );
+    }
+    if (visibleCount) {
+      visibleCount.textContent = `Показано: ${shown} из ${cards.length}`;
+    }
+  };
+
+  search.addEventListener("input", filterCards);
+  attacksFilter.addEventListener("change", filterCards);
+  townHallFilter.addEventListener("change", filterCards);
+  filterCards();
+};
+
+const renderSite = (data, config, currentWar) => {
   const members = [...data.members].sort((left, right) => {
     const roleDifference =
       (roleOrder[left.clan_role] ?? 99) - (roleOrder[right.clan_role] ?? 99);
@@ -266,14 +502,20 @@ const renderSite = (data, config) => {
   document.querySelectorAll("[data-member-total]").forEach((element) => {
     element.textContent = data.composition.total_members;
   });
-  document.querySelector("[data-war-covered]").textContent =
-    data.war_data_coverage.members_with_data;
-  document.querySelector("[data-war-missing]").textContent =
-    data.war_data_coverage.members_without_data;
-  document.querySelector("[data-average-th]").textContent =
-    averageTownHall === null ? "–" : averageTownHall.toFixed(1);
-  document.querySelector("[data-median-th]").textContent =
-    medianTownHall === null ? "–" : String(medianTownHall);
+  document.querySelectorAll("[data-war-covered]").forEach((element) => {
+    element.textContent = data.war_data_coverage.members_with_data;
+  });
+  document.querySelectorAll("[data-war-missing]").forEach((element) => {
+    element.textContent = data.war_data_coverage.members_without_data;
+  });
+  setTextAll(
+    "[data-average-th]",
+    averageTownHall === null ? "–" : averageTownHall.toFixed(1)
+  );
+  setTextAll(
+    "[data-median-th]",
+    medianTownHall === null ? "–" : String(medianTownHall)
+  );
 
   if (config.collected_at) {
     const date = new Date(config.collected_at);
@@ -335,38 +577,57 @@ const renderSite = (data, config) => {
     if (!shown) {
       grid.append(createElement("div", "roster-empty", "По выбранным фильтрам участников не найдено."));
     }
-    visibleCount.textContent = `Показано: ${shown} из ${cards.length}`;
+    if (visibleCount) {
+      visibleCount.textContent = `Показано: ${shown} из ${cards.length}`;
+    }
   };
 
   search.addEventListener("input", filterCards);
   role.addEventListener("change", filterCards);
   townHall.addEventListener("change", filterCards);
   filterCards();
+  renderCurrentWar(currentWar, config);
 
-  document.querySelector("[data-loading]").hidden = true;
-  document.querySelector("[data-content]").hidden = false;
+  requireElement("[data-loading]").hidden = true;
+  requireElement("[data-content]").hidden = false;
 };
 
 const showError = (error) => {
-  document.querySelector("[data-loading]").hidden = true;
+  console.error("Clan Analytics render failed:", error);
+
+  const loading = document.querySelector("[data-loading]");
+  if (loading) loading.hidden = true;
+
   const target = document.querySelector("[data-error]");
+  if (!target) {
+    return;
+  }
+
   target.hidden = false;
   target.textContent =
-    `Не удалось загрузить локальные данные: ${error.message}. ` +
-    "Открывай сайт через локальный HTTP-сервер, а не как file://.";
+    `Не удалось загрузить данные сайта: ${error.message}. ` +
+    "Обнови страницу с Ctrl+F5 или проверь JSON-файлы в каталоге data.";
 };
 
 window.addEventListener("DOMContentLoaded", async () => {
   try {
-    const [rosterResponse, configResponse] = await Promise.all([
+    const [rosterResponse, configResponse, currentWarResponse] = await Promise.all([
       fetch(`data/roster.json?v=${Date.now()}`, { cache: "no-store" }),
-      fetch(`data/site-config.json?v=${Date.now()}`, { cache: "no-store" })
+      fetch(`data/site-config.json?v=${Date.now()}`, { cache: "no-store" }),
+      fetch(`data/current-war.json?v=${Date.now()}`, { cache: "no-store" })
     ]);
 
     if (!rosterResponse.ok) throw new Error(`roster.json: HTTP ${rosterResponse.status}`);
     if (!configResponse.ok) throw new Error(`site-config.json: HTTP ${configResponse.status}`);
+    if (!currentWarResponse.ok) {
+      throw new Error(`current-war.json: HTTP ${currentWarResponse.status}`);
+    }
 
-    renderSite(await rosterResponse.json(), await configResponse.json());
+    renderSite(
+      await rosterResponse.json(),
+      await configResponse.json(),
+      await currentWarResponse.json()
+    );
   } catch (error) {
     showError(error);
   }

@@ -6,9 +6,9 @@
   <meta name="description" content="Публичный обзор состава и аналитики клана Clash of Clans.">
   <meta name="theme-color" content="#0b1220">
   <title>Clan Analytics</title>
-  <link rel="stylesheet" href="assets/css/styles.css">
-  <link rel="stylesheet" href="assets/css/live.css">
-  <script src="assets/js/app.js" defer></script>
+  <link rel="stylesheet" href="assets/css/styles.css?v=current-war-v4-20260720">
+  <link rel="stylesheet" href="assets/css/live.css?v=current-war-v4-20260720">
+  <script src="assets/js/app.js?v=current-war-v4-20260720" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Перейти к содержимому</a>
@@ -56,7 +56,7 @@
             <p class="eyebrow">Актуальный снимок клана</p>
             <h1 id="hero-title">Состав клана <span data-clan-name></span></h1>
             <p class="hero-lead">
-              Текущий состав, структура ратуш и доступность военной статистики.
+              Текущий состав, структура ратуш и промежуточные данные активной войны.
               На странице нет тегов игроков, токена и внутренних заметок.
             </p>
             <div class="hero-actions" aria-label="Основные действия">
@@ -78,12 +78,15 @@
               <p class="panel-title" data-clan-name></p>
               <p class="identity-tag">Уровень клана: <strong data-clan-level></strong></p>
               <p class="panel-text">
-                В текущем снимке <strong data-member-total></strong> участников.
-                Военная история пока не подключена.
+                В составе <strong data-member-total></strong> участников.
+                На момент снимка клан участвовал в войне на
+                <strong data-current-war-participants></strong> игроков:
+                использовано <strong data-current-war-attacks-used></strong> из
+                <strong data-current-war-attacks-available></strong> атак.
               </p>
-              <span class="status-badge status-badge--pending">Состав загружен</span>
+              <span class="status-badge status-badge--pending" data-current-war-status>Снимок войны</span>
               <p class="snapshot-line" data-collected-row>
-                Снимок: <time data-collected-at></time>
+                Состав: <time data-collected-at></time>
               </p>
             </div>
           </aside>
@@ -135,26 +138,117 @@
         <div class="container">
           <div class="section-heading">
             <div>
-              <p class="eyebrow">Войны</p>
-              <h2 id="wars-title">История клановых войн</h2>
+              <p class="eyebrow">Снимок войны</p>
+              <h2 id="wars-title">Промежуточные данные войны</h2>
             </div>
             <p>
-              Этот блок не подменяет отсутствие данных нулевыми результатами.
-              Он заполнится после отдельного безопасного сбора истории войн.
+              Промежуточный снимок активной войны. Показатели обновляются только
+              после нового безопасного API-снимка и не являются финальным результатом.
             </p>
           </div>
 
-          <div class="war-grid">
-            <article class="war-card war-card--empty">
-              <div>
-                <span class="neutral-indicator neutral-indicator--limited">Данных пока нет</span>
-                <h3>Военная история не подключена</h3>
-                <p>
-                  Участников с подтверждённой историей: <strong data-war-covered></strong>.
-                  Без истории: <strong data-war-missing></strong>.
-                </p>
+          <div data-current-war-content>
+            <div class="current-war-dashboard">
+              <article class="war-card current-war-card">
+                <div class="war-card__top">
+                  <div>
+                    <p class="war-card__date">
+                      Завершение: <time data-current-war-end></time>
+                    </p>
+                    <h3>На момент снимка война шла</h3>
+                  </div>
+                  <span class="status-badge status-badge--pending">Промежуточно</span>
+                </div>
+
+                <div class="war-score current-war-score">
+                  <strong data-current-war-stars></strong>
+                  <span>звёзд заработано</span>
+                </div>
+
+                <div class="attack-progress" aria-label="Прогресс использованных атак">
+                  <div class="attack-progress__heading">
+                    <span>Использовано атак</span>
+                    <strong>
+                      <span data-current-war-attacks-used></span> /
+                      <span data-current-war-attacks-available></span>
+                    </strong>
+                  </div>
+                  <div class="attack-progress__track" role="progressbar"
+                       aria-valuemin="0"
+                       data-current-war-progress>
+                    <span data-current-war-progress-bar></span>
+                  </div>
+                  <p>
+                    Выполнено <strong data-current-war-progress-label></strong>.
+                    Снимок: <time data-current-war-collected-at></time>.
+                  </p>
+                </div>
+              </article>
+
+              <div class="current-war-metrics">
+                <article class="metric-card">
+                  <span>Участники</span>
+                  <strong data-current-war-participants></strong>
+                  <small>в составе войны</small>
+                </article>
+                <article class="metric-card">
+                  <span>Атак на игрока</span>
+                  <strong data-current-war-attacks-per-member></strong>
+                  <small>доступно каждому</small>
+                </article>
+                <article class="metric-card">
+                  <span>Среднее за атаку</span>
+                  <strong data-current-war-average-stars></strong>
+                  <small>по использованным атакам</small>
+                </article>
+                <article class="metric-card">
+                  <span>Осталось атак</span>
+                  <strong data-current-war-attacks-left></strong>
+                  <small>на момент снимка</small>
+                </article>
               </div>
-            </article>
+            </div>
+
+            <div class="war-participants-heading">
+              <div>
+                <p class="eyebrow">Участники войны</p>
+                <h3>Атаки и звёзды</h3>
+              </div>
+              <div class="war-attack-summary" data-war-attack-summary></div>
+            </div>
+
+            <div class="live-controls war-controls" aria-label="Фильтры участников войны">
+              <label class="live-field">
+                <span>Поиск по нику</span>
+                <input type="search" data-war-search placeholder="Например, SvisBee">
+              </label>
+              <label class="live-field">
+                <span>Использовано атак</span>
+                <select data-war-attacks-filter>
+                  <option value="">Любое количество</option>
+                  <option value="0">0 атак</option>
+                  <option value="1">1 атака</option>
+                  <option value="2">2 атаки</option>
+                </select>
+              </label>
+              <label class="live-field">
+                <span>Ратуша</span>
+                <select data-war-th-filter>
+                  <option value="">Все TH</option>
+                </select>
+              </label>
+            </div>
+
+            <p class="roster-count" data-war-visible-count></p>
+            <div class="player-grid current-war-player-grid" data-current-war-members></div>
+          </div>
+
+          <div class="war-card war-card--empty" data-current-war-empty hidden>
+            <div>
+              <span class="neutral-indicator neutral-indicator--limited">Сейчас войны нет</span>
+              <h3>Клан не участвует в активной войне</h3>
+              <p>Новый снимок появится после следующего безопасного запуска probe.</p>
+            </div>
           </div>
         </div>
       </section>
@@ -241,7 +335,8 @@
     <div class="container footer-inner">
       <div><strong>Аналитика клана Clash of Clans</strong><span>Публичный обзор актуального состава</span></div>
       <div class="footer-status"><span class="status-dot" aria-hidden="true"></span><span>Состав загружен</span></div>
-      <span data-collected-row>Снимок: <time data-collected-at></time></span>
+      <span data-collected-row>Состав: <time data-collected-at></time></span>
+      <span data-current-war-collected-row>Война: <time data-current-war-collected-at></time></span>
     </div>
   </footer>
 </body>

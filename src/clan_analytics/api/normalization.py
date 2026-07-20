@@ -17,6 +17,9 @@ from .models import (
     PlayerProfileSnapshot,
     SourceMetadata,
     WarAttackSnapshot,
+    WarLogEntrySnapshot,
+    WarLogSideSnapshot,
+    WarLogSnapshot,
     WarMemberSnapshot,
     WarSnapshot,
 )
@@ -71,6 +74,21 @@ def _optional_non_negative_int(
         raise NormalizationError(f"{path}.{key} must be zero or greater")
     return value
 
+
+
+
+def _optional_non_negative_number(
+    payload: Mapping[str, Any], key: str, path: str
+) -> float | None:
+    value = payload.get(key)
+    if value is None:
+        return None
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise NormalizationError(f"{path}.{key} must be a number or null")
+    numeric = float(value)
+    if numeric < 0:
+        raise NormalizationError(f"{path}.{key} must be zero or greater")
+    return numeric
 
 def _stars(payload: Mapping[str, Any], path: str) -> int:
     value = payload.get("stars")
@@ -263,6 +281,69 @@ def normalize_current_war(
     )
 
 
+
+
+def _normalize_war_log_side(
+    payload: Mapping[str, Any],
+    *,
+    path: str,
+) -> WarLogSideSnapshot:
+    side = _mapping(payload, path)
+    return WarLogSideSnapshot(
+        clan_tag=_optional_string(side, "tag", path),
+        name=_optional_string(side, "name", path),
+        stars=_optional_non_negative_int(side, "stars", path),
+        destruction_percentage=_optional_non_negative_number(
+            side, "destructionPercentage", path
+        ),
+        attacks=_optional_non_negative_int(side, "attacks", path),
+    )
+
+
+def normalize_war_log(
+    payload: Mapping[str, Any],
+    *,
+    collected_at: str,
+    raw_source_reference: str,
+) -> WarLogSnapshot:
+    """Normalize the verified war-log fields while preserving response order."""
+
+    war_log = _mapping(payload, "warLog")
+    source = _source(
+        collected_at=collected_at,
+        raw_source_reference=raw_source_reference,
+        source_timestamp=None,
+    )
+    raw_items = _sequence(war_log.get("items", []), "warLog.items")
+    entries: list[WarLogEntrySnapshot] = []
+
+    for index, raw_entry in enumerate(raw_items):
+        path = f"warLog.items[{index}]"
+        entry = _mapping(raw_entry, path)
+        entries.append(
+            WarLogEntrySnapshot(
+                end_time=_optional_string(entry, "endTime", path),
+                result=_optional_string(entry, "result", path),
+                team_size=_optional_non_negative_int(entry, "teamSize", path),
+                attacks_per_member=_optional_non_negative_int(
+                    entry, "attacksPerMember", path
+                ),
+                battle_modifier=_optional_string(entry, "battleModifier", path),
+                clan=_normalize_war_log_side(
+                    _mapping(entry.get("clan", {}), f"{path}.clan"),
+                    path=f"{path}.clan",
+                ),
+                opponent=_normalize_war_log_side(
+                    _mapping(entry.get("opponent", {}), f"{path}.opponent"),
+                    path=f"{path}.opponent",
+                ),
+                source=source,
+            )
+        )
+
+    return WarLogSnapshot(entries=tuple(entries), source=source)
+
+
 def _date_only(value: str | None) -> str | None:
     if value is None:
         return None
@@ -383,6 +464,45 @@ def build_public_war_summary(war: WarSnapshot) -> dict[str, Any]:
         "attacks_used": len(attacks),
         "attacks_available": attacks_available,
         "stars_earned": sum(attack.stars for attack in attacks),
+    }
+
+
+
+
+def build_public_war_log_summary(war_log: WarLogSnapshot) -> dict[str, Any]:
+    """Build neutral aggregate history without clan names or game tags."""
+
+    dates = [
+        parsed
+        for entry in war_log.entries
+        if (parsed := _date_only(entry.end_time)) is not None
+    ]
+    result_counts: dict[str, int] = {}
+    team_size_counts: dict[int, int] = {}
+
+    for entry in war_log.entries:
+        if entry.result is not None:
+            result_counts[entry.result] = result_counts.get(entry.result, 0) + 1
+        if entry.team_size is not None:
+            team_size_counts[entry.team_size] = (
+                team_size_counts.get(entry.team_size, 0) + 1
+            )
+
+    return {
+        "data_status": "available" if war_log.entries else "empty",
+        "wars_observed": len(war_log.entries),
+        "date_range": {
+            "oldest": min(dates) if dates else None,
+            "newest": max(dates) if dates else None,
+        },
+        "result_distribution": [
+            {"result": result, "wars": result_counts[result]}
+            for result in sorted(result_counts)
+        ],
+        "team_size_distribution": [
+            {"team_size": team_size, "wars": team_size_counts[team_size]}
+            for team_size in sorted(team_size_counts)
+        ],
     }
 
 

@@ -84,3 +84,36 @@ class ClanSnapshot:
     level: int | None
     members: tuple[ClanMemberSnapshot, ...]
     source: SourceMetadata
+
+
+@dataclass(frozen=True)
+class WarLogSideSnapshot:
+    """One clan side in a historical war-log entry."""
+
+    clan_tag: str | None
+    name: str | None
+    stars: int | None
+    destruction_percentage: float | None
+    attacks: int | None
+
+
+@dataclass(frozen=True)
+class WarLogEntrySnapshot:
+    """One historical war-log entry without a claimed stable natural key."""
+
+    end_time: str | None
+    result: str | None
+    team_size: int | None
+    attacks_per_member: int | None
+    battle_modifier: str | None
+    clan: WarLogSideSnapshot
+    opponent: WarLogSideSnapshot
+    source: SourceMetadata
+
+
+@dataclass(frozen=True)
+class WarLogSnapshot:
+    """A response-order snapshot of the official clan war log."""
+
+    entries: tuple[WarLogEntrySnapshot, ...]
+    source: SourceMetadata

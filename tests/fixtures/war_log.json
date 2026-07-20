@@ -1,0 +1,56 @@
+{
+  "items": [
+    {
+      "result": "win",
+      "endTime": "20260718T181500.000Z",
+      "teamSize": 15,
+      "attacksPerMember": 2,
+      "battleModifier": "fixture_standard",
+      "clan": {
+        "tag": "#DEMOCLAN",
+        "name": "Example Clan",
+        "stars": 35,
+        "destructionPercentage": 92.4,
+        "attacks": 28
+      },
+      "opponent": {
+        "tag": "#TARGET001",
+        "name": "Opponent A",
+        "stars": 31,
+        "destructionPercentage": 88.2,
+        "attacks": 30
+      }
+    },
+    {
+      "result": "lose",
+      "endTime": "20260712T181500.000Z",
+      "teamSize": 10,
+      "attacksPerMember": 2,
+      "clan": {
+        "tag": "#DEMOCLAN",
+        "name": "Example Clan",
+        "stars": 17,
+        "destructionPercentage": 80,
+        "attacks": 18
+      },
+      "opponent": {
+        "tag": "#TARGET002",
+        "name": "Opponent B",
+        "stars": 20,
+        "destructionPercentage": 84.6,
+        "attacks": 20
+      }
+    },
+    {
+      "endTime": null,
+      "teamSize": null,
+      "clan": {},
+      "opponent": {}
+    }
+  ],
+  "paging": {
+    "cursors": {
+      "after": "fixture-cursor"
+    }
+  }
+}

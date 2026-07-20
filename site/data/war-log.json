@@ -1,0 +1,20 @@
+{
+  "data_status": "available",
+  "date_range": {
+    "newest": "2026-07-17",
+    "oldest": "2026-07-17"
+  },
+  "result_distribution": [
+    {
+      "result": "win",
+      "wars": 1
+    }
+  ],
+  "team_size_distribution": [
+    {
+      "team_size": 10,
+      "wars": 1
+    }
+  ],
+  "wars_observed": 1
+}

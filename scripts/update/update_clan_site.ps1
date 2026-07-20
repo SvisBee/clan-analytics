@@ -14,6 +14,7 @@ $ErrorActionPreference = 'Stop'
 
 $RepoRoot = 'D:\coc\repo'
 $RunRoot = 'D:\coc\runs\site_update'
+$ApiProbeRoot = 'D:\coc\runs\api_probe'
 $HistoryPath = 'D:\coc\data\war_history\history.json'
 $LocalConfigPath = 'D:\coc\data\config\clan_site_update.json'
 $SiteDataDir = Join-Path $RepoRoot 'site\data'
@@ -174,9 +175,12 @@ try {
     $runDir = Join-Path $RunRoot $runId
     New-Item -ItemType Directory -Path $runDir | Out-Null
 
-    $rosterDir = Join-Path $runDir 'roster'
-    $currentWarDir = Join-Path $runDir 'current_war'
-    $warLogDir = Join-Path $runDir 'war_log'
+    # Existing API probe wrappers require their outputs to stay under
+    # D:\coc\runs\api_probe. Orchestration/build artifacts remain under
+    # site_update, while each probe uses its approved subtree.
+    $rosterDir = Join-Path (Join-Path $ApiProbeRoot 'clan_roster') $runId
+    $currentWarDir = Join-Path (Join-Path $ApiProbeRoot 'clan_current_war') $runId
+    $warLogDir = Join-Path (Join-Path $ApiProbeRoot 'clan_war_log') $runId
     $buildDir = Join-Path $runDir 'build'
 
     Write-Status 'Collecting current clan roster (request 1 of 3).'

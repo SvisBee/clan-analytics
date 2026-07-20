@@ -1,0 +1,43 @@
+{
+  "state": "inWar",
+  "teamSize": 2,
+  "attacksPerMember": 2,
+  "endTime": "20260720T180000.000Z",
+  "clan": {
+    "tag": "#DEMOCLAN",
+    "name": "Example Clan",
+    "members": [
+      {
+        "tag": "#DEMO002",
+        "name": "Beta",
+        "townhallLevel": 9,
+        "attacks": []
+      },
+      {
+        "tag": "#DEMO001",
+        "name": "Alpha",
+        "townhallLevel": 10,
+        "attacks": [
+          {
+            "attackerTag": "#DEMO001",
+            "defenderTag": "#TARGET001",
+            "stars": 3,
+            "destructionPercentage": 100,
+            "order": 1
+          },
+          {
+            "attackerTag": "#DEMO001",
+            "defenderTag": "#TARGET002",
+            "stars": 2,
+            "destructionPercentage": 87,
+            "order": 3
+          }
+        ]
+      }
+    ]
+  },
+  "opponent": {
+    "tag": "#TARGETCLAN",
+    "name": "Fixture Opponent"
+  }
+}

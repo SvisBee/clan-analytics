@@ -32,11 +32,11 @@
         "town_hall_level": 6
       },
       {
-        "members": 3,
+        "members": 4,
         "town_hall_level": 5
       },
       {
-        "members": 4,
+        "members": 3,
         "town_hall_level": 4
       },
       {
@@ -139,7 +139,7 @@
       "last_war_date": null,
       "nickname": "Ziklin",
       "stars_earned": null,
-      "town_hall_level": 4,
+      "town_hall_level": 5,
       "war_participations": 0
     },
     {

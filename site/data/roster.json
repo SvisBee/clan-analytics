@@ -28,11 +28,11 @@
         "town_hall_level": 7
       },
       {
-        "members": 5,
+        "members": 6,
         "town_hall_level": 6
       },
       {
-        "members": 4,
+        "members": 3,
         "town_hall_level": 5
       },
       {
@@ -99,7 +99,7 @@
       "last_war_date": "2026-07-22",
       "nickname": "Ronnurik",
       "stars_earned": 5,
-      "town_hall_level": 5,
+      "town_hall_level": 6,
       "war_participations": 2
     },
     {

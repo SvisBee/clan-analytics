@@ -5,7 +5,7 @@
   },
   "composition": {
     "members_with_limited_composition_data": 0,
-    "total_members": 27,
+    "total_members": 25,
     "town_hall_distribution": [
       {
         "members": 1,
@@ -28,7 +28,7 @@
         "town_hall_level": 7
       },
       {
-        "members": 6,
+        "members": 5,
         "town_hall_level": 6
       },
       {
@@ -38,10 +38,6 @@
       {
         "members": 4,
         "town_hall_level": 4
-      },
-      {
-        "members": 1,
-        "town_hall_level": 3
       }
     ]
   },
@@ -203,18 +199,6 @@
       "war_participations": 2
     },
     {
-      "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "clan_role": "member",
-      "data_status": "available",
-      "last_war_date": "2026-07-20",
-      "nickname": "Neron1x(fan)",
-      "stars_earned": 0,
-      "town_hall_level": 6,
-      "war_participations": 1
-    },
-    {
       "attacks_available": 4,
       "attacks_used": 1,
       "average_stars": 3.0,
@@ -233,7 +217,7 @@
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-07-20",
-      "nickname": "ayrym",
+      "nickname": "ksanaks-",
       "stars_earned": 0,
       "town_hall_level": 6,
       "war_participations": 1
@@ -311,18 +295,6 @@
       "war_participations": 2
     },
     {
-      "attacks_available": null,
-      "attacks_used": null,
-      "average_stars": null,
-      "clan_role": "member",
-      "data_status": "insufficient_data",
-      "last_war_date": null,
-      "nickname": "Fyst",
-      "stars_earned": null,
-      "town_hall_level": 3,
-      "war_participations": 0
-    },
-    {
       "attacks_available": 4,
       "attacks_used": 1,
       "average_stars": 3.0,
@@ -372,7 +344,7 @@
     }
   ],
   "war_data_coverage": {
-    "members_with_data": 19,
-    "members_without_data": 8
+    "members_with_data": 18,
+    "members_without_data": 7
   }
 }

@@ -5,7 +5,7 @@
   },
   "composition": {
     "members_with_limited_composition_data": 0,
-    "total_members": 25,
+    "total_members": 26,
     "town_hall_distribution": [
       {
         "members": 1,
@@ -38,6 +38,10 @@
       {
         "members": 4,
         "town_hall_level": 4
+      },
+      {
+        "members": 1,
+        "town_hall_level": 3
       }
     ]
   },
@@ -283,6 +287,18 @@
       "war_participations": 1
     },
     {
+      "attacks_available": null,
+      "attacks_used": null,
+      "average_stars": null,
+      "clan_role": "member",
+      "data_status": "insufficient_data",
+      "last_war_date": null,
+      "nickname": "Fyst",
+      "stars_earned": null,
+      "town_hall_level": 3,
+      "war_participations": 0
+    },
+    {
       "attacks_available": 4,
       "attacks_used": 2,
       "average_stars": 3.0,
@@ -345,6 +361,6 @@
   ],
   "war_data_coverage": {
     "members_with_data": 18,
-    "members_without_data": 7
+    "members_without_data": 8
   }
 }

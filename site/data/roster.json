@@ -36,12 +36,8 @@
         "town_hall_level": 5
       },
       {
-        "members": 3,
+        "members": 4,
         "town_hall_level": 4
-      },
-      {
-        "members": 1,
-        "town_hall_level": 3
       }
     ]
   },
@@ -49,7 +45,7 @@
     {
       "attacks_available": 2,
       "attacks_used": 1,
-      "average_stars": 3,
+      "average_stars": 3.0,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-07-22",
@@ -205,7 +201,7 @@
     {
       "attacks_available": 4,
       "attacks_used": 4,
-      "average_stars": 1,
+      "average_stars": 1.0,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-07-22",
@@ -217,7 +213,7 @@
     {
       "attacks_available": 6,
       "attacks_used": 4,
-      "average_stars": 3,
+      "average_stars": 3.0,
       "clan_role": "coLeader",
       "data_status": "available",
       "last_war_date": "2026-07-22",
@@ -247,7 +243,7 @@
     {
       "attacks_available": 4,
       "attacks_used": 2,
-      "average_stars": 3,
+      "average_stars": 3.0,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-07-22",
@@ -264,7 +260,7 @@
     {
       "attacks_available": 2,
       "attacks_used": 1,
-      "average_stars": 3,
+      "average_stars": 3.0,
       "clan_role": "leader",
       "data_status": "available",
       "last_war_date": "2026-07-22",
@@ -324,13 +320,13 @@
       "last_war_date": null,
       "nickname": "Fyst",
       "stars_earned": null,
-      "town_hall_level": 3,
+      "town_hall_level": 4,
       "war_participations": 0
     },
     {
       "attacks_available": 6,
       "attacks_used": 4,
-      "average_stars": 3,
+      "average_stars": 3.0,
       "clan_role": "coLeader",
       "data_status": "available",
       "last_war_date": "2026-07-22",
@@ -348,7 +344,7 @@
     {
       "attacks_available": 4,
       "attacks_used": 1,
-      "average_stars": 3,
+      "average_stars": 3.0,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-07-22",
@@ -384,7 +380,7 @@
     {
       "attacks_available": 6,
       "attacks_used": 5,
-      "average_stars": 3,
+      "average_stars": 3.0,
       "clan_role": "admin",
       "data_status": "available",
       "last_war_date": "2026-07-22",

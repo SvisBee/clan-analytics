@@ -1,3 +1,6 @@
+Exit code: 0
+Wall time: 0.4 seconds
+Output:
 {
   "player_metrics": [
     {
@@ -41,24 +44,36 @@
       "war_participations": 2
     },
     {
-      "attacks_available": 4,
-      "attacks_used": 2,
-      "average_stars": 2.0,
+      "attacks_available": 6,
+      "attacks_used": 5,
+      "average_stars": 2.4,
+      "data_status": "available",
       "last_war_date": "2026-07-22",
-      "new_stars_contributed": 4,
+      "manual_attacks_used": 3,
+      "manual_stars_earned": 8,
+      "manual_war_participations": 1,
+      "metrics_provenance": "api_and_screenshot",
+      "new_stars_contributed": null,
+      "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "Kedr",
-      "stars_earned": 4,
-      "war_participations": 2
+      "stars_earned": 12,
+      "war_participations": 3
     },
     {
-      "attacks_available": 4,
-      "attacks_used": 2,
+      "attacks_available": 6,
+      "attacks_used": 4,
       "average_stars": 3.0,
+      "data_status": "available",
       "last_war_date": "2026-07-22",
-      "new_stars_contributed": 4,
+      "manual_attacks_used": 2,
+      "manual_stars_earned": 6,
+      "manual_war_participations": 1,
+      "metrics_provenance": "api_and_screenshot",
+      "new_stars_contributed": null,
+      "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "kent",
-      "stars_earned": 6,
-      "war_participations": 2
+      "stars_earned": 12,
+      "war_participations": 3
     },
     {
       "attacks_available": 2,
@@ -71,14 +86,20 @@
       "war_participations": 1
     },
     {
-      "attacks_available": 4,
-      "attacks_used": 2,
-      "average_stars": 2.5,
+      "attacks_available": 6,
+      "attacks_used": 3,
+      "average_stars": 2.67,
+      "data_status": "available",
       "last_war_date": "2026-07-22",
-      "new_stars_contributed": 5,
+      "manual_attacks_used": 1,
+      "manual_stars_earned": 3,
+      "manual_war_participations": 1,
+      "metrics_provenance": "api_and_screenshot",
+      "new_stars_contributed": null,
+      "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "odlid",
-      "stars_earned": 5,
-      "war_participations": 2
+      "stars_earned": 8,
+      "war_participations": 3
     },
     {
       "attacks_available": 4,
@@ -111,14 +132,20 @@
       "war_participations": 2
     },
     {
-      "attacks_available": 4,
-      "attacks_used": 3,
+      "attacks_available": 6,
+      "attacks_used": 5,
       "average_stars": 3.0,
+      "data_status": "available",
       "last_war_date": "2026-07-22",
-      "new_stars_contributed": 9,
+      "manual_attacks_used": 2,
+      "manual_stars_earned": 6,
+      "manual_war_participations": 1,
+      "metrics_provenance": "api_and_screenshot",
+      "new_stars_contributed": null,
+      "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "SvisBee",
-      "stars_earned": 9,
-      "war_participations": 2
+      "stars_earned": 15,
+      "war_participations": 3
     },
     {
       "attacks_available": 2,
@@ -132,23 +159,34 @@
     },
     {
       "attacks_available": 4,
-      "attacks_used": 0,
-      "average_stars": null,
+      "attacks_used": 2,
+      "average_stars": 3.0,
+      "data_status": "available",
       "last_war_date": "2026-07-22",
-      "new_stars_contributed": 0,
+      "manual_attacks_used": 2,
+      "manual_stars_earned": 6,
+      "metrics_provenance": "api_and_screenshot",
+      "new_stars_contributed": null,
+      "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "utena",
-      "stars_earned": 0,
+      "stars_earned": 6,
       "war_participations": 2
     },
     {
-      "attacks_available": 4,
-      "attacks_used": 2,
+      "attacks_available": 6,
+      "attacks_used": 4,
       "average_stars": 3.0,
+      "data_status": "available",
       "last_war_date": "2026-07-22",
-      "new_stars_contributed": 6,
+      "manual_attacks_used": 2,
+      "manual_stars_earned": 6,
+      "manual_war_participations": 1,
+      "metrics_provenance": "api_and_screenshot",
+      "new_stars_contributed": null,
+      "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "VB(;",
-      "stars_earned": 6,
-      "war_participations": 2
+      "stars_earned": 12,
+      "war_participations": 3
     },
     {
       "attacks_available": 4,
@@ -181,14 +219,20 @@
       "war_participations": 1
     },
     {
-      "attacks_available": 2,
-      "attacks_used": 2,
-      "average_stars": 2.0,
+      "attacks_available": 4,
+      "attacks_used": 3,
+      "average_stars": 2.33,
+      "data_status": "available",
       "last_war_date": "2026-07-20",
-      "new_stars_contributed": 1,
+      "manual_attacks_used": 1,
+      "manual_stars_earned": 3,
+      "manual_war_participations": 1,
+      "metrics_provenance": "api_and_screenshot",
+      "new_stars_contributed": null,
+      "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "шкура",
-      "stars_earned": 4,
-      "war_participations": 1
+      "stars_earned": 7,
+      "war_participations": 2
     }
   ],
   "schema_version": 2,

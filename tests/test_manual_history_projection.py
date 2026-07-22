@@ -112,6 +112,12 @@ class ManualHistoryProjectionTests(unittest.TestCase):
         public, war = detailed_public(); result = project_manual_history(detailed_history(), overlay(), public, {"war-a": war})
         self.assertEqual(result["wars"][0]["clan_stars"], 45)
 
+    def test_missing_public_score_uses_authoritative_war_log_aggregate(self):
+        public, war = detailed_public(); war["clan_stars"] = None
+        history = detailed_history(); history["wars"][0]["war_log"] = {"clan": {"stars": 45}}
+        result = project_manual_history(history, overlay(), public, {"war-a": war})
+        self.assertEqual(result["wars"][0]["clan_stars"], 45)
+
     def test_active_war_is_not_touched_when_unlinked(self):
         public = {"schema_version": 2, "wars": [{"lifecycle_status": "active"}], "wars_observed": 1}
         result = project_manual_history({"wars": []}, overlay(), public, {})

@@ -214,6 +214,11 @@ def project_manual_history(history: Mapping[str, Any], overlay: Any, public_hist
                    "attack_stars_total": None, "stars_consistency_status": "unavailable",
                    "new_stars_contribution_status": "unavailable", "members": []}
             projected.setdefault("wars", []).append(war)
+        clan = war_log.get("clan") if isinstance(war_log, Mapping) else None
+        if war.get("clan_stars") is None and isinstance(clan, Mapping):
+            # This is the authoritative aggregate already retained in history,
+            # not a manual screenshot-derived value.
+            war["clan_stars"] = clan.get("stars")
         counts = item["metrics"]["classification_counts"]
         coverage = "official_partial_detail_with_manual_supplement" if isinstance(canonical, Mapping) else "official_aggregate_only_with_manual_detail"
         provenance = "mixed_sources" if isinstance(canonical, Mapping) else "screenshot"

@@ -338,6 +338,40 @@ class WarLifecycleAndReconciliationTests(unittest.TestCase):
         self.assertEqual(len(aggregate), 2)
         self.assertTrue(all(item["lifecycle_status"] == "closed_war_log_only" for item in aggregate))
 
+    def test_aggregate_only_null_canonical_survives_history_merge(self) -> None:
+        log = normalize_war_log(load("war_log.json"), collected_at="2026-07-20T19:00:00Z", raw_source_reference="fixture")
+        aggregate_history, _ = reconcile_war_log(empty_history(), log)
+        aggregate_before = json.loads(json.dumps(
+            next(record for record in aggregate_history["wars"] if record["canonical"] is None)
+        ))
+
+        # This is the exact nullable access that failed before the fix.
+        with self.assertRaises(AttributeError):
+            aggregate_before.get("canonical", {}).get("end_time")
+
+        merged, changed = merge_war_history(aggregate_history, normalized())
+        self.assertTrue(changed)
+        preserved = next(record for record in merged["wars"] if record["war_id"] == aggregate_before["war_id"])
+        self.assertIsNone(preserved["canonical"])
+        self.assertEqual(preserved["war_log"], aggregate_before["war_log"])
+        self.assertEqual(preserved["lifecycle_status"], "closed_war_log_only")
+        self.assertEqual(preserved["reconciliation_status"], "unmatched_aggregate_only")
+
+    def test_null_canonical_sort_is_deterministic_for_mixed_history(self) -> None:
+        log = normalize_war_log(load("war_log.json"), collected_at="2026-07-20T19:00:00Z", raw_source_reference="fixture")
+        aggregate_history, _ = reconcile_war_log(empty_history(), log)
+        first, _ = merge_war_history(aggregate_history, normalized())
+        second, _ = merge_war_history(
+            json.loads(json.dumps(aggregate_history)), normalized()
+        )
+
+        self.assertEqual(
+            [(record["war_id"], record["canonical"]) for record in first["wars"]],
+            [(record["war_id"], record["canonical"]) for record in second["wars"]],
+        )
+        self.assertTrue(any(record["canonical"] is None for record in first["wars"]))
+        self.assertTrue(any(isinstance(record["canonical"], dict) for record in first["wars"]))
+
     def test_war_log_only_later_detailed_merges_one_record(self) -> None:
         payload = load("war_log.json")
         entry = payload["items"][0]

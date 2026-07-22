@@ -909,7 +909,7 @@ def merge_war_history(
         record["lifecycle_status"] = _lifecycle_for_state(war.state)
     records.sort(
         key=lambda item: (
-            _iso_key(item.get("canonical", {}).get("end_time")), item["war_id"]
+            _iso_key((item.get("canonical") or {}).get("end_time")), item["war_id"]
         )
     )
     return current, True

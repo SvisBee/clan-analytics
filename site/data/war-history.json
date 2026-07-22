@@ -42,8 +42,8 @@
     },
     {
       "attacks_available": 6,
-      "attacks_used": 5,
-      "average_stars": 2.4,
+      "attacks_used": 6,
+      "average_stars": 2.5,
       "data_status": "available",
       "last_war_date": "2026-07-22",
       "manual_attacks_used": 3,
@@ -53,7 +53,7 @@
       "new_stars_contributed": null,
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "Kedr",
-      "stars_earned": 12,
+      "stars_earned": 15,
       "war_participations": 3
     },
     {
@@ -235,11 +235,11 @@
   "schema_version": 2,
   "wars": [
     {
-      "attack_stars_total": 49,
+      "attack_stars_total": 52,
       "attacks_available": 30,
       "attacks_per_member": 2,
-      "attacks_used": 20,
-      "clan_stars": 44,
+      "attacks_used": 21,
+      "clan_stars": 45,
       "end_time": "2026-07-22",
       "lifecycle_status": "active",
       "members": [
@@ -295,11 +295,11 @@
         },
         {
           "attacks_available": 2,
-          "attacks_used": 1,
-          "average_stars": 1.0,
-          "new_stars_contributed": 1,
+          "attacks_used": 2,
+          "average_stars": 2.0,
+          "new_stars_contributed": 2,
           "nickname": "Kedr",
-          "stars_earned": 1,
+          "stars_earned": 4,
           "town_hall_level": 7,
           "war_position": 6
         },

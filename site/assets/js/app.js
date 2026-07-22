@@ -494,6 +494,30 @@ const renderCurrentWar = (war, config) => {
 const renderWarHistory = (history) => {
   const root = document.querySelector("[data-history-wars]");
   if (!root || !history?.wars) return;
+  const coverageLabels = {
+    official_aggregate_only_with_manual_detail: "Официальный итог + детализация по скриншотам",
+    official_partial_detail_with_manual_supplement: "API + дополнение по скриншотам"
+  };
+  const provenanceLabels = {
+    screenshot: "Скриншоты",
+    api_and_screenshot: "API + скриншот",
+    mixed_sources: "API и скриншоты"
+  };
+  const sourceLabels = {
+    api_and_screenshot: "API + скриншот",
+    screenshot_only: "Только скриншот",
+    ambiguous: "Недостаточно данных"
+  };
+  const position = (value) => value === null || value === undefined ? "–" : `№${value}`;
+  const detailList = (title, rows, renderRow) => {
+    const details = document.createElement("details");
+    details.className = "history-details";
+    details.append(createElement("summary", "", title));
+    const list = createElement("div", "history-details__list");
+    rows.forEach((row) => list.append(renderRow(row)));
+    details.append(list);
+    return details;
+  };
   const completed = history.wars.filter((war) => war.lifecycle_status !== "active");
   root.replaceChildren(...completed.map((war) => {
     const card = createElement("article", "war-card");
@@ -503,18 +527,41 @@ const renderWarHistory = (history) => {
       createElement("p", "war-card__date", formatDate(war.end_time, { dateStyle: "medium" })),
       createElement("h3", "", `Официальный API: ${score} звёзд`),
       createElement("p", "", detail
-        ? "Детализация восстановлена по скриншотам."
+        ? provenanceLabels[detail.provenance] || "Дополнительная детализация доступна."
         : "Доступны только штатные API-данные.")
     );
     if (detail) {
       const metrics = createElement("dl", "player-metrics");
-      [["Скриншот", `${detail.manual_attacks} атак, ${detail.screenshot_attack_stars} звёзд`],
-       ["Только скриншот", detail.manual_only_attacks],
-       ["Конфликт источников", detail.source_conflicts.length]].forEach(([label, value]) => {
+      const summary = detail.summary || {};
+      const rows = [
+        ["Участники", summary.participants],
+        ["Детальные API-атаки", summary.api_detailed_attacks],
+        ["Атаки на скриншотах", summary.screenshot_attacks],
+        ["Звёзды в атаках", summary.screenshot_attack_stars],
+        ["Официальный вклад", summary.official_contribution],
+        ["Совпали с API", summary.exact_api_matches],
+        ["Только на скриншотах", summary.screenshot_only_attacks],
+        ["Конфликты источников", summary.unresolved_conflicts]
+      ].filter(([, value]) => value !== undefined && value !== null);
+      rows.forEach(([label, value]) => {
         const row = document.createElement("div"); row.append(createElement("dt", "", label), createElement("dd", "", value)); metrics.append(row);
       });
-      card.append(metrics, createElement("span", "neutral-indicator", detail.coverage_status));
-      if (detail.source_conflicts.length) card.append(createElement("p", "", "Конфликты источников остаются unresolved."));
+      card.append(metrics, createElement("span", "neutral-indicator", coverageLabels[detail.coverage_status] || "Дополнительная детализация"));
+      if (Array.isArray(detail.participants) && detail.participants.length) {
+        card.append(detailList("Участники", detail.participants, (member) =>
+          createElement("p", "history-row", `${position(member.war_position)} · ${safeText(member.nickname, "Без имени")}`)
+        ));
+      }
+      if (Array.isArray(detail.attacks) && detail.attacks.length) {
+        card.append(detailList("Подтверждённые атаки", detail.attacks, (attack) =>
+          createElement("p", "history-row", `${position(attack.attacker_map_position)} → ${position(attack.defender_map_position)}, слот ${attack.screenshot_slot}: ${attack.stars} зв., ${attack.destruction_percentage}% · ${sourceLabels[attack.source] || "Источник не указан"}`)
+        ));
+      }
+      if (Array.isArray(detail.source_conflicts) && detail.source_conflicts.length) {
+        card.append(detailList("Конфликты источников", detail.source_conflicts, (conflict) =>
+          createElement("p", "history-row", `${position(conflict.attacker_map_position)} → ${position(conflict.defender_map_position)}, ${conflict.destruction_percentage}%: API ${conflict.api_stars} зв., скриншот ${conflict.screenshot_stars} зв. · Не разрешён`)
+        ));
+      }
     }
     return card;
   }));

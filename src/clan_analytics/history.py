@@ -1167,11 +1167,17 @@ def _public_member(
     }
 
 
-def build_public_war_history(history: Mapping[str, Any]) -> dict[str, Any]:
-    """Build neutral detailed history without stable game identifiers."""
+def _build_public_war_history_with_index(
+    history: Mapping[str, Any],
+) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
+    """Build public history and retain an in-memory exact record map.
+
+    The map is an assembly aid only.  Its keys are never included in the
+    returned payload and therefore cannot reach the public JSON export.
+    """
 
     current = ensure_history_v2(history)
-    public_wars: list[dict[str, Any]] = []
+    indexed_wars: list[tuple[str, dict[str, Any]]] = []
     player_totals: dict[str, dict[str, Any]] = {}
     for record in current["wars"]:
         if not isinstance(record.get("canonical"), Mapping):
@@ -1196,8 +1202,8 @@ def build_public_war_history(history: Mapping[str, Any]) -> dict[str, Any]:
             if war.attacks_per_member is not None
             else None
         )
-        public_wars.append(
-            {
+        indexed_wars.append(
+            (str(record["war_id"]), {
                 "state": war.state,
                 "lifecycle_status": record["lifecycle_status"],
                 "reconciliation_status": record["reconciliation_status"],
@@ -1214,7 +1220,7 @@ def build_public_war_history(history: Mapping[str, Any]) -> dict[str, Any]:
                     "new_stars_contribution_status"
                 ],
                 "members": members,
-            }
+            })
         )
         date = _date_only(war.end_time)
         for member in war.members:
@@ -1245,9 +1251,10 @@ def build_public_war_history(history: Mapping[str, Any]) -> dict[str, Any]:
             if date and (totals["last_war_date"] is None or date >= totals["last_war_date"]):
                 totals["last_war_date"] = date
                 totals["nickname"] = member.display_name
-    public_wars.sort(
-        key=lambda item: (_iso_key(item["end_time"]), item["participants"]), reverse=True
+    indexed_wars.sort(
+        key=lambda item: (_iso_key(item[1]["end_time"]), item[1]["participants"]), reverse=True
     )
+    public_wars = [item[1] for item in indexed_wars]
     public_players = []
     for totals in player_totals.values():
         attacks_used = totals["attacks_used"]
@@ -1256,12 +1263,28 @@ def build_public_war_history(history: Mapping[str, Any]) -> dict[str, Any]:
         )
         public_players.append(totals)
     public_players.sort(key=lambda item: str(item["nickname"]).casefold())
-    return {
+    payload = {
         "schema_version": HISTORY_SCHEMA_VERSION,
         "wars_observed": len(public_wars),
         "wars": public_wars,
         "player_metrics": public_players,
     }
+    return payload, {war_id: public for war_id, public in indexed_wars}
+
+
+def build_public_war_history(history: Mapping[str, Any]) -> dict[str, Any]:
+    """Build neutral detailed history without stable game identifiers."""
+
+    payload, _ = _build_public_war_history_with_index(history)
+    return payload
+
+
+def build_public_war_history_with_index(
+    history: Mapping[str, Any],
+) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
+    """Build public history plus a private, in-memory exact record map."""
+
+    return _build_public_war_history_with_index(history)
 
 
 def load_history(path: Path) -> dict[str, Any]:

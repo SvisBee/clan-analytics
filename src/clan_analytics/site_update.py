@@ -21,7 +21,7 @@ from .api.normalization import (
 )
 from .history import (
     HistoryError,
-    build_public_war_history,
+    build_public_war_history_with_index,
     detailed_wars,
     empty_history,
     merge_war_history,
@@ -47,6 +47,8 @@ _FORBIDDEN_NORMALIZED_KEYS = {
     "rawpayload", "rawresponse", "requestheaders", "authorization", "apitoken",
     "accesstoken", "refreshtoken", "token", "credential", "credentials", "secret",
     "secrets", "dpapi", "dpapiblob", "dpapimetadata", "localpath", "internalpath",
+    "warid", "linkedwarid", "evidenceid", "sourcefiles", "sourcehashes",
+    "order", "attackorder", "globalorder",
 }
 _TAG_PATTERN = re.compile(r"#[A-Z0-9]{3,20}")
 _WINDOWS_PATH_PATTERN = re.compile(r"(?:\b[A-Za-z]:[\\/]|\\\\[^\\/]+[\\/])")
@@ -223,11 +225,13 @@ def build_site_update(
     }
     current_war_public = build_public_current_war_preview(current_war)
     war_log_public = build_public_war_log_summary(war_log)
-    war_history_public = build_public_war_history(next_history)
+    war_history_public, public_war_index = build_public_war_history_with_index(next_history)
     overlay = _optional_manual_overlay(existing_history_path)
     if overlay is not None:
         try:
-            war_history_public = project_manual_history(next_history, overlay, war_history_public)
+            war_history_public = project_manual_history(
+                next_history, overlay, war_history_public, public_war_index
+            )
         except ManualHistoryProjectionError as error:
             warnings.warn(f"manual history overlay rejected: {error}; publishing API-only history", stacklevel=2)
 

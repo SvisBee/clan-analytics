@@ -281,6 +281,31 @@
   background: #6ec9a8;
 }
 
+.history-details {
+  margin-top: 0.8rem;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.history-details summary {
+  cursor: pointer;
+  padding: 0.8rem 0 0.45rem;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.history-details__list {
+  display: grid;
+  gap: 0.35rem;
+  padding-bottom: 0.3rem;
+}
+
+.history-row {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
 @media (max-width: 68rem) {
   .current-war-dashboard {
     grid-template-columns: 1fr;

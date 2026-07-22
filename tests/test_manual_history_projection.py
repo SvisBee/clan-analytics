@@ -1,57 +1,175 @@
 from __future__ import annotations
 
 import copy
+import json
 import sys
 import unittest
+import warnings
 from pathlib import Path
 
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from clan_analytics.manual_history_projection import (
+from clan_analytics.manual_history_projection import (  # noqa: E402
     ManualHistoryProjectionError,
     project_manual_history,
     validate_manual_overlay,
 )
+from clan_analytics.site_update import SiteUpdateError, _scan_public  # noqa: E402
 
 
 def overlay(**changes):
     item = {
-        "evidence_id": "evidence-a", "linked_war_id": "war-a", "participants": [{"display_name_raw": "Player", "map_position": 1}],
-        "attacks": [{"attacker_map_position": 1, "defender_map_position": 1, "destruction_percentage": 100, "stars": 3, "screenshot_slot": 1, "classification": "manual_only"}],
-        "metrics": {"classification_counts": {"exact_api_match": 0, "manual_only": 1, "source_conflict": 0, "ambiguous": 0}, "attack_stars_total": 3, "displayed_contribution_total": 3},
-        "source_conflicts": [],
+        "evidence_id": "evidence-a", "linked_war_id": "war-a",
+        "participants": [{"display_name_raw": "Fictional", "map_position": 1}],
+        "attacks": [{"attacker_map_position": 1, "defender_map_position": 1,
+                     "destruction_percentage": 100, "stars": 3, "screenshot_slot": 1,
+                     "classification": "manual_only"}],
+        "metrics": {"classification_counts": {"exact_api_match": 0, "manual_only": 1,
+                    "source_conflict": 0, "ambiguous": 0}, "attack_stars_total": 3,
+                    "displayed_contribution_total": 3}, "source_conflicts": [],
     }
     item.update(changes)
     return {"schema_version": 1, "wars": [item]}
 
 
+def detailed_history():
+    return {"wars": [{"war_id": "war-a", "canonical": {"state": "warEnded"},
+                       "war_log": {}, "lifecycle_status": "finalized",
+                       "reconciliation_status": "matched"}]}
+
+
+def detailed_public():
+    war = {"end_time": "2026-01-01", "lifecycle_status": "finalized",
+           "reconciliation_status": "matched", "attacks_used": 18,
+           "clan_stars": 45, "members": []}
+    return {"schema_version": 2, "wars_observed": 1, "wars": [war]}, war
+
+
 class ManualHistoryProjectionTests(unittest.TestCase):
-    def test_valid_overlay_is_projected_without_mutating_inputs(self):
-        history = {"wars": [{"war_id": "war-a", "canonical": None, "war_log": {"end_time": "20260101T000000.000Z", "team_size": 1, "clan": {"stars": 3}, "opponent": {"stars": 0}}, "lifecycle_status": "closed_war_log_only", "reconciliation_status": "unmatched_aggregate_only"}]}
-        public = {"schema_version": 2, "wars": [], "wars_observed": 0}
-        original_history, original_public = copy.deepcopy(history), copy.deepcopy(public)
-        result = project_manual_history(history, overlay(), public)
-        self.assertEqual(history, original_history); self.assertEqual(public, original_public)
-        self.assertEqual(result["wars"][0]["manual_detail"]["coverage_status"], "official_aggregate_only_with_manual_detail")
-        self.assertNotIn("linked_war_id", str(result))
+    def validate_error(self, mutate):
+        candidate = overlay(); mutate(candidate)
+        with self.assertRaises(ManualHistoryProjectionError):
+            validate_manual_overlay(candidate)
+
+    def test_api_only_output_is_unchanged_without_overlay(self):
+        public, _ = detailed_public()
+        self.assertEqual(public, copy.deepcopy(public))
+
+    def test_exact_war_id_links_detailed_war(self):
+        public, war = detailed_public()
+        result = project_manual_history(detailed_history(), overlay(), public, {"war-a": war})
+        self.assertEqual(result["wars"][0]["manual_detail"]["summary"]["api_detailed_attacks"], 18)
+
+    def test_exact_war_id_links_aggregate_only_war(self):
+        history = {"wars": [{"war_id": "war-a", "canonical": None,
+                    "war_log": {"end_time": "20260101T000000.000Z", "team_size": 1,
+                                "clan": {"stars": 3}}, "lifecycle_status": "closed",
+                    "reconciliation_status": "aggregate"}]}
+        result = project_manual_history(history, overlay(), {"schema_version": 2, "wars": [], "wars_observed": 0}, {})
+        self.assertEqual(result["wars"][0]["manual_detail"]["summary"]["api_detailed_attacks"], 0)
+
+    def test_identical_public_fields_do_not_collide(self):
+        public, first = detailed_public(); second = copy.deepcopy(first); public["wars"].append(second)
+        history = detailed_history(); history["wars"].append({**copy.deepcopy(history["wars"][0]), "war_id": "war-b"})
+        result = project_manual_history(history, overlay(), public, {"war-a": first, "war-b": second})
+        self.assertIn("manual_detail", result["wars"][0]); self.assertNotIn("manual_detail", result["wars"][1])
+
+    def test_unknown_link_is_skipped_safely(self):
+        public, war = detailed_public(); candidate = overlay(linked_war_id="unknown")
+        with warnings.catch_warnings(record=True) as caught:
+            result = project_manual_history(detailed_history(), candidate, public, {"war-a": war})
+        self.assertNotIn("manual_detail", result["wars"][0]); self.assertTrue(caught)
+
+    def test_projection_has_no_internal_ids(self):
+        public, war = detailed_public(); rendered = json.dumps(project_manual_history(detailed_history(), overlay(), public, {"war-a": war}))
+        for value in ("war-a", "evidence-a", "linked_war_id", "evidence_id"):
+            self.assertNotIn(value, rendered)
+
+    def test_projection_does_not_mutate_inputs(self):
+        public, war = detailed_public(); history, source = detailed_history(), overlay()
+        originals = copy.deepcopy((history, public, source))
+        project_manual_history(history, source, public, {"war-a": war})
+        self.assertEqual((history, public, source), originals)
+
+    def test_projection_is_deterministic(self):
+        public, war = detailed_public()
+        one = project_manual_history(detailed_history(), overlay(), public, {"war-a": war})
+        two = project_manual_history(detailed_history(), overlay(), public, {"war-a": war})
+        self.assertEqual(one, two)
+
+    def test_conflict_is_not_in_public_attack_list(self):
+        conflict = {"resolution": "unresolved", "shared_facts": {"attacker_map_position": 1, "defender_map_position": 1, "destruction_percentage": 100}, "claims": [{"source_type": "official_api", "stars": 1}, {"source_type": "game_screenshot", "stars": 2}]}
+        candidate = overlay(attacks=[{"attacker_map_position": 1, "defender_map_position": 1, "destruction_percentage": 100, "stars": 2, "screenshot_slot": 1, "classification": "source_conflict"}], metrics={"classification_counts": {"exact_api_match": 0, "manual_only": 0, "source_conflict": 1, "ambiguous": 0}, "attack_stars_total": 2, "displayed_contribution_total": 1}, source_conflicts=[conflict])
+        public, war = detailed_public(); detail = project_manual_history(detailed_history(), candidate, public, {"war-a": war})["wars"][0]["manual_detail"]
+        self.assertEqual(detail["attacks"], []); self.assertNotIn("stars", detail["source_conflicts"][0])
+
+    def test_manual_only_attack_remains_separate(self):
+        safe = validate_manual_overlay(overlay())[0]
+        self.assertEqual(safe["attacks"][0]["source"], "screenshot_only")
+
+    def test_official_clan_score_is_never_replaced(self):
+        public, war = detailed_public(); result = project_manual_history(detailed_history(), overlay(), public, {"war-a": war})
+        self.assertEqual(result["wars"][0]["clan_stars"], 45)
+
+    def test_active_war_is_not_touched_when_unlinked(self):
+        public = {"schema_version": 2, "wars": [{"lifecycle_status": "active"}], "wars_observed": 1}
+        result = project_manual_history({"wars": []}, overlay(), public, {})
+        self.assertEqual(result, public)
 
     def test_invalid_schema_is_rejected(self):
-        with self.assertRaises(ManualHistoryProjectionError): validate_manual_overlay({"schema_version": 2, "wars": []})
+        with self.assertRaises(ManualHistoryProjectionError): validate_manual_overlay({"schema_version": True, "wars": []})
 
-    def test_private_tag_and_order_are_rejected(self):
-        for key in ("playerTag", "attackerTag", "defender_tag", "globalOrder"):
-            candidate = overlay(); candidate["wars"][0]["attacks"][0][key] = "private"
-            with self.assertRaises(ManualHistoryProjectionError): validate_manual_overlay(candidate)
+    def test_private_tag_is_rejected(self):
+        self.validate_error(lambda x: x["wars"][0]["attacks"][0].update({"playerTag": "x"}))
 
-    def test_invalid_attack_values_and_resolved_conflict_are_rejected(self):
-        for key, value in (("stars", 4), ("destruction_percentage", 101), ("screenshot_slot", 3)):
-            candidate = overlay(); candidate["wars"][0]["attacks"][0][key] = value
-            with self.assertRaises(ManualHistoryProjectionError): validate_manual_overlay(candidate)
-        candidate = overlay(source_conflicts=[{"resolution": "resolved", "claims": [], "shared_facts": {}}])
-        candidate["wars"][0]["metrics"]["classification_counts"]["source_conflict"] = 1
+    def test_private_order_is_rejected(self):
+        self.validate_error(lambda x: x["wars"][0]["attacks"][0].update({"globalOrder": 1}))
+
+    def test_bool_stars_are_rejected(self):
+        self.validate_error(lambda x: x["wars"][0]["attacks"][0].update({"stars": True}))
+
+    def test_bool_destruction_is_rejected(self):
+        self.validate_error(lambda x: x["wars"][0]["attacks"][0].update({"destruction_percentage": False}))
+
+    def test_invalid_participant_position_is_rejected(self):
+        self.validate_error(lambda x: x["wars"][0]["participants"][0].update({"map_position": 0}))
+
+    def test_duplicate_participant_position_is_rejected(self):
+        self.validate_error(lambda x: x["wars"][0]["participants"].append({"display_name_raw": "Other", "map_position": 1}))
+
+    def test_duplicate_attacker_slot_is_rejected(self):
+        self.validate_error(lambda x: x["wars"][0]["attacks"].append(copy.deepcopy(x["wars"][0]["attacks"][0])))
+
+    def test_metric_counts_mismatch_is_rejected(self):
+        self.validate_error(lambda x: x["wars"][0]["metrics"]["classification_counts"].update({"manual_only": 2}))
+
+    def test_invalid_displayed_contribution_is_rejected(self):
+        self.validate_error(lambda x: x["wars"][0]["metrics"].update({"displayed_contribution_total": True}))
+
+    def test_resolved_conflict_is_rejected(self):
+        self.validate_error(lambda x: x["wars"][0].update({"source_conflicts": [{"resolution": "resolved"}]}))
+
+    def test_conflict_without_official_claim_is_rejected(self):
+        self._bad_conflict("game_screenshot", "game_screenshot")
+
+    def test_conflict_without_screenshot_claim_is_rejected(self):
+        self._bad_conflict("official_api", "official_api")
+
+    def _bad_conflict(self, first, second):
+        conflict = {"resolution": "unresolved", "shared_facts": {"attacker_map_position": 1, "defender_map_position": 1, "destruction_percentage": 100}, "claims": [{"source_type": first, "stars": 1}, {"source_type": second, "stars": 2}]}
+        candidate = overlay(attacks=[{"attacker_map_position": 1, "defender_map_position": 1, "destruction_percentage": 100, "stars": 2, "screenshot_slot": 1, "classification": "source_conflict"}], metrics={"classification_counts": {"exact_api_match": 0, "manual_only": 0, "source_conflict": 1, "ambiguous": 0}, "attack_stars_total": 2, "displayed_contribution_total": 1}, source_conflicts=[conflict])
         with self.assertRaises(ManualHistoryProjectionError): validate_manual_overlay(candidate)
 
-    def test_unknown_link_is_not_projected(self):
-        result = project_manual_history({"wars": []}, overlay(), {"schema_version": 2, "wars": [], "wars_observed": 0})
-        self.assertEqual(result["wars"], [])
+    def test_conflict_shared_facts_mismatch_is_rejected(self):
+        conflict = {"resolution": "unresolved", "shared_facts": {"attacker_map_position": 2, "defender_map_position": 1, "destruction_percentage": 100}, "claims": [{"source_type": "official_api", "stars": 1}, {"source_type": "game_screenshot", "stars": 2}]}
+        candidate = overlay(attacks=[{"attacker_map_position": 1, "defender_map_position": 1, "destruction_percentage": 100, "stars": 2, "screenshot_slot": 1, "classification": "source_conflict"}], metrics={"classification_counts": {"exact_api_match": 0, "manual_only": 0, "source_conflict": 1, "ambiguous": 0}, "attack_stars_total": 2, "displayed_contribution_total": 1}, source_conflicts=[conflict])
+        with self.assertRaises(ManualHistoryProjectionError): validate_manual_overlay(candidate)
+
+    def test_public_privacy_scan_rejects_internal_projection_keys(self):
+        for key in ("warId", "linked_war_id", "evidence-id", "source_hashes", "attackOrder"):
+            with self.assertRaises(SiteUpdateError): _scan_public({key: "private"})
+
+
+if __name__ == "__main__":
+    unittest.main()

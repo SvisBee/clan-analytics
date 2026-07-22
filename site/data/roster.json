@@ -44,13 +44,13 @@
   "members": [
     {
       "attacks_available": 2,
-      "attacks_used": 1,
+      "attacks_used": 2,
       "average_stars": 3.0,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-07-22",
       "nickname": "SvisBuha",
-      "stars_earned": 3,
+      "stars_earned": 6,
       "town_hall_level": 8,
       "war_participations": 1
     },
@@ -128,13 +128,13 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
+      "attacks_used": 2,
+      "average_stars": 3.0,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-07-22",
       "nickname": "077zvr",
-      "stars_earned": 0,
+      "stars_earned": 6,
       "town_hall_level": 8,
       "war_participations": 1
     },
@@ -379,7 +379,7 @@
     },
     {
       "attacks_available": 6,
-      "attacks_used": 5,
+      "attacks_used": 6,
       "average_stars": 3.0,
       "clan_role": "admin",
       "data_status": "available",
@@ -391,7 +391,7 @@
       "new_stars_contributed": null,
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "SvisBee",
-      "stars_earned": 15,
+      "stars_earned": 18,
       "town_hall_level": 7,
       "war_participations": 3
     }

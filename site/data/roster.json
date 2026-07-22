@@ -5,7 +5,7 @@
   },
   "composition": {
     "members_with_limited_composition_data": 0,
-    "total_members": 27,
+    "total_members": 28,
     "town_hall_distribution": [
       {
         "members": 1,
@@ -36,7 +36,7 @@
         "town_hall_level": 5
       },
       {
-        "members": 5,
+        "members": 6,
         "town_hall_level": 4
       }
     ]
@@ -208,6 +208,18 @@
       "nickname": "Арче",
       "stars_earned": null,
       "town_hall_level": 11,
+      "war_participations": 0
+    },
+    {
+      "attacks_available": null,
+      "attacks_used": null,
+      "average_stars": null,
+      "clan_role": "member",
+      "data_status": "insufficient_data",
+      "last_war_date": null,
+      "nickname": "MiKiRi",
+      "stars_earned": null,
+      "town_hall_level": 4,
       "war_participations": 0
     },
     {
@@ -410,6 +422,6 @@
   ],
   "war_data_coverage": {
     "members_with_data": 18,
-    "members_without_data": 9
+    "members_without_data": 10
   }
 }

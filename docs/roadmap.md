@@ -12,9 +12,14 @@
 4. **Безопасный live source состава – завершено.**
 5. **Состав и базовые карточки игроков – завершено для текущего public scope.**
 6. **Current war и hourly updater – завершено для базового live scope.**
-7. **Надёжная history foundation – реализована offline; full preflight, migration command и compatibility rollout покрыты tests. Real history остаётся v1, Scheduled Task Disabled, live migration/API validation ожидают отдельного решения.**
-8. Исторические dashboard и метрики обычных КВ после накопления данных.
-9. Остальные аналитические модули.
+7. **Clan War History v1 – завершено: schema v2, lifecycle, reconciliation, manual evidence, public metrics, Pages и hourly updater.**
+8. **collection_reliability_v1** – повысить наблюдаемость и устойчивость регулярного сбора.
+9. **clan_snapshot_history_v1** – накопить сопоставимые снимки состава во времени.
+10. **clan_games_v1** – определить безопасный источник и публичные агрегаты Игр кланов.
+11. **donations_weekly_v1** – добавить недельные нейтральные агрегаты пожертвований.
+12. **cwl_history_v1** – отделить историю ЛВК от обычных КВ.
+13. **capital_raids_v1** – добавить историю рейдовых выходных.
+14. **leadership_tools_v1** – спроектировать локальные, непубличные инструменты руководства.
 
 Реальные roster/current-war/war-log snapshots получаются автоматически. История пока содержит мало завершённых войн, поэтому рейтинг силы, надёжности и рекомендации состава не публикуются.
 
@@ -35,7 +40,7 @@
 
 Контракт состава реализован для текущего live public roster. Он остаётся основой allowlist и не заменяет будущую roster lifecycle history.
 
-Fail-closed probes и unified updater прошли live validation. Текущий технический приоритет – безопасная migration history v1 -> v2, live lifecycle validation и накопление завершённых detailed wars. В текущем offline pass реальная history остаётся v1, Scheduled Task Disabled, migration и API validation не выполнялись; будущая validation сверяет фактический `clan.stars`, а не фиксированное 45.
+Fail-closed probes и unified updater прошли live validation. Clan War History v1 закрыт; следующий технический приоритет – collection reliability и накопление длинной истории без изменения публичной семантики v1.
 
 Инженерная готовность дополнена project-local skills и правилами reuse-first/minimal diff. Strix readiness подготовлен документально, но остаётся неактивным: установка, выполнение и CI не выполнялись. Реальный security scan рассматривается только после появления backend, API или другого динамического attack surface и после отдельных разрешений на инструмент, runtime, LLM, сеть, target, mode, команду и обработку результатов.
 

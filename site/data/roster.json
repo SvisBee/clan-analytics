@@ -24,19 +24,19 @@
         "town_hall_level": 8
       },
       {
-        "members": 8,
+        "members": 9,
         "town_hall_level": 7
       },
       {
-        "members": 5,
+        "members": 4,
         "town_hall_level": 6
       },
       {
-        "members": 4,
+        "members": 5,
         "town_hall_level": 5
       },
       {
-        "members": 6,
+        "members": 5,
         "town_hall_level": 4
       }
     ]
@@ -116,8 +116,8 @@
     },
     {
       "attacks_available": 4,
-      "attacks_used": 3,
-      "average_stars": 2.33,
+      "attacks_used": 4,
+      "average_stars": 1.75,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-07-22",
@@ -128,8 +128,8 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
+      "attacks_used": 2,
+      "average_stars": 0.0,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-07-22",
@@ -219,7 +219,7 @@
       "last_war_date": null,
       "nickname": "MiKiRi",
       "stars_earned": null,
-      "town_hall_level": 4,
+      "town_hall_level": 5,
       "war_participations": 0
     },
     {
@@ -261,7 +261,7 @@
       "last_war_date": "2026-07-20",
       "nickname": "ksanaks-",
       "stars_earned": 0,
-      "town_hall_level": 6,
+      "town_hall_level": 7,
       "war_participations": 1
     },
     {
@@ -307,13 +307,13 @@
     },
     {
       "attacks_available": 4,
-      "attacks_used": 3,
-      "average_stars": 2.33,
+      "attacks_used": 4,
+      "average_stars": 2.25,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-07-22",
       "nickname": "PANDA",
-      "stars_earned": 7,
+      "stars_earned": 9,
       "town_hall_level": 5,
       "war_participations": 2
     },

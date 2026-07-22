@@ -12,8 +12,8 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
+      "attacks_used": 2,
+      "average_stars": 0.0,
       "last_war_date": "2026-07-22",
       "new_stars_contributed": 0,
       "nickname": "Alican",
@@ -110,18 +110,18 @@
     },
     {
       "attacks_available": 4,
-      "attacks_used": 3,
-      "average_stars": 2.33,
+      "attacks_used": 4,
+      "average_stars": 2.25,
       "last_war_date": "2026-07-22",
       "new_stars_contributed": 7,
       "nickname": "PANDA",
-      "stars_earned": 7,
+      "stars_earned": 9,
       "war_participations": 2
     },
     {
       "attacks_available": 4,
-      "attacks_used": 3,
-      "average_stars": 2.33,
+      "attacks_used": 4,
+      "average_stars": 1.75,
       "last_war_date": "2026-07-22",
       "new_stars_contributed": 7,
       "nickname": "Ronnurik",
@@ -235,13 +235,13 @@
   "schema_version": 2,
   "wars": [
     {
-      "attack_stars_total": 52,
+      "attack_stars_total": 54,
       "attacks_available": 30,
       "attacks_per_member": 2,
-      "attacks_used": 21,
+      "attacks_used": 25,
       "clan_stars": 45,
       "end_time": "2026-07-22",
-      "lifecycle_status": "active",
+      "lifecycle_status": "finalized_detailed",
       "members": [
         {
           "attacks_available": 2,
@@ -365,8 +365,8 @@
         },
         {
           "attacks_available": 2,
-          "attacks_used": 0,
-          "average_stars": null,
+          "attacks_used": 2,
+          "average_stars": 0.0,
           "new_stars_contributed": 0,
           "nickname": "Alican",
           "stars_earned": 0,
@@ -375,8 +375,8 @@
         },
         {
           "attacks_available": 2,
-          "attacks_used": 1,
-          "average_stars": 2.0,
+          "attacks_used": 2,
+          "average_stars": 1.0,
           "new_stars_contributed": 2,
           "nickname": "Ronnurik",
           "stars_earned": 2,
@@ -385,11 +385,11 @@
         },
         {
           "attacks_available": 2,
-          "attacks_used": 1,
-          "average_stars": 3.0,
+          "attacks_used": 2,
+          "average_stars": 2.5,
           "new_stars_contributed": 3,
           "nickname": "PANDA",
-          "stars_earned": 3,
+          "stars_earned": 5,
           "town_hall_level": 5,
           "war_position": 15
         }
@@ -398,7 +398,7 @@
       "participants": 15,
       "reconciliation_status": "not_reconciled",
       "stars_consistency_status": "consistent",
-      "state": "inWar",
+      "state": "warEnded",
       "team_size": 15
     },
     {

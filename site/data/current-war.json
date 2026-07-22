@@ -1,8 +1,8 @@
 {
-  "attack_stars_total": 52,
+  "attack_stars_total": 54,
   "attacks_available": 30,
   "attacks_per_member": 2,
-  "attacks_used": 21,
+  "attacks_used": 25,
   "clan_stars": 45,
   "data_status": "available",
   "end_time": "2026-07-22",
@@ -129,8 +129,8 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
+      "attacks_used": 2,
+      "average_stars": 0.0,
       "new_stars_contributed": 0,
       "nickname": "Alican",
       "stars_earned": 0,
@@ -139,8 +139,8 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 1,
-      "average_stars": 2.0,
+      "attacks_used": 2,
+      "average_stars": 1.0,
       "new_stars_contributed": 2,
       "nickname": "Ronnurik",
       "stars_earned": 2,
@@ -149,11 +149,11 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 1,
-      "average_stars": 3.0,
+      "attacks_used": 2,
+      "average_stars": 2.5,
       "new_stars_contributed": 3,
       "nickname": "PANDA",
-      "stars_earned": 3,
+      "stars_earned": 5,
       "town_hall_level": 5,
       "war_position": 15
     }
@@ -163,5 +163,5 @@
   "reconstructed_clan_stars": 45,
   "stars_consistency_status": "consistent",
   "stars_earned": 45,
-  "state": "inWar"
+  "state": "warEnded"
 }

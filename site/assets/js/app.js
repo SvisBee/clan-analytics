@@ -491,7 +491,36 @@ const renderCurrentWar = (war, config) => {
   filterCards();
 };
 
-const renderSite = (data, config, currentWar) => {
+const renderWarHistory = (history) => {
+  const root = document.querySelector("[data-history-wars]");
+  if (!root || !history?.wars) return;
+  const completed = history.wars.filter((war) => war.lifecycle_status !== "active");
+  root.replaceChildren(...completed.map((war) => {
+    const card = createElement("article", "war-card");
+    const detail = war.manual_detail;
+    const score = war.clan_stars ?? "–";
+    card.append(
+      createElement("p", "war-card__date", formatDate(war.end_time, { dateStyle: "medium" })),
+      createElement("h3", "", `Официальный API: ${score} звёзд`),
+      createElement("p", "", detail
+        ? "Детализация восстановлена по скриншотам."
+        : "Доступны только штатные API-данные.")
+    );
+    if (detail) {
+      const metrics = createElement("dl", "player-metrics");
+      [["Скриншот", `${detail.manual_attacks} атак, ${detail.screenshot_attack_stars} звёзд`],
+       ["Только скриншот", detail.manual_only_attacks],
+       ["Конфликт источников", detail.source_conflicts.length]].forEach(([label, value]) => {
+        const row = document.createElement("div"); row.append(createElement("dt", "", label), createElement("dd", "", value)); metrics.append(row);
+      });
+      card.append(metrics, createElement("span", "neutral-indicator", detail.coverage_status));
+      if (detail.source_conflicts.length) card.append(createElement("p", "", "Конфликты источников остаются unresolved."));
+    }
+    return card;
+  }));
+};
+
+const renderSite = (data, config, currentWar, history) => {
   const members = [...data.members].sort((left, right) => {
     const roleDifference =
       (roleOrder[left.clan_role] ?? 99) - (roleOrder[right.clan_role] ?? 99);
@@ -607,6 +636,7 @@ const renderSite = (data, config, currentWar) => {
   townHall.addEventListener("change", filterCards);
   filterCards();
   renderCurrentWar(currentWar, config);
+  renderWarHistory(history);
 
   requireElement("[data-loading]").hidden = true;
   requireElement("[data-content]").hidden = false;
@@ -631,10 +661,11 @@ const showError = (error) => {
 
 window.addEventListener("DOMContentLoaded", async () => {
   try {
-    const [rosterResponse, configResponse, currentWarResponse] = await Promise.all([
+    const [rosterResponse, configResponse, currentWarResponse, historyResponse] = await Promise.all([
       fetch(`data/roster.json?v=${Date.now()}`, { cache: "no-store" }),
       fetch(`data/site-config.json?v=${Date.now()}`, { cache: "no-store" }),
-      fetch(`data/current-war.json?v=${Date.now()}`, { cache: "no-store" })
+      fetch(`data/current-war.json?v=${Date.now()}`, { cache: "no-store" }),
+      fetch(`data/war-history.json?v=${Date.now()}`, { cache: "no-store" })
     ]);
 
     if (!rosterResponse.ok) throw new Error(`roster.json: HTTP ${rosterResponse.status}`);
@@ -642,11 +673,13 @@ window.addEventListener("DOMContentLoaded", async () => {
     if (!currentWarResponse.ok) {
       throw new Error(`current-war.json: HTTP ${currentWarResponse.status}`);
     }
+    if (!historyResponse.ok) throw new Error(`war-history.json: HTTP ${historyResponse.status}`);
 
     renderSite(
       await rosterResponse.json(),
       await configResponse.json(),
-      await currentWarResponse.json()
+      await currentWarResponse.json(),
+      await historyResponse.json()
     );
   } catch (error) {
     showError(error);

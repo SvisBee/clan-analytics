@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+import warnings
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping
@@ -26,6 +27,10 @@ from .history import (
     merge_war_history,
     reconcile_war_log,
     write_history_atomic,
+)
+from .manual_history_projection import (
+    ManualHistoryProjectionError,
+    project_manual_history,
 )
 
 
@@ -87,6 +92,21 @@ def _load_probe(run_dir: Path, *, raw_name: str) -> ProbePayload:
 
 def _load_existing(path: Path, default: Any) -> Any:
     return _read_json(path) if path.is_file() else default
+
+
+def _optional_manual_overlay(history_path: Path) -> Any | None:
+    """Load a local screenshot overlay without making it a pipeline dependency."""
+
+    try:
+        workspace_root = history_path.resolve().parents[2]
+        path = workspace_root / "data" / "manual" / "war_evidence" / "linked_manual_evidence.json"
+        if not path.is_file():
+            warnings.warn("manual history overlay is unavailable; publishing API-only history", stacklevel=2)
+            return None
+        return _read_json(path)
+    except (OSError, SiteUpdateError) as error:
+        warnings.warn(f"manual history overlay is unavailable: {error}; publishing API-only history", stacklevel=2)
+        return None
 
 
 def _safe_badge_url(raw_clan: Mapping[str, Any]) -> str | None:
@@ -204,6 +224,12 @@ def build_site_update(
     current_war_public = build_public_current_war_preview(current_war)
     war_log_public = build_public_war_log_summary(war_log)
     war_history_public = build_public_war_history(next_history)
+    overlay = _optional_manual_overlay(existing_history_path)
+    if overlay is not None:
+        try:
+            war_history_public = project_manual_history(next_history, overlay, war_history_public)
+        except ManualHistoryProjectionError as error:
+            warnings.warn(f"manual history overlay rejected: {error}; publishing API-only history", stacklevel=2)
 
     existing_roster = _load_existing(existing_site_data_dir / "roster.json", None)
     existing_current = _load_existing(existing_site_data_dir / "current-war.json", None)

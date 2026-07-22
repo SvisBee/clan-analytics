@@ -69,3 +69,7 @@ API-токены, ключи и данные доступа. Хранятся т
 - Публиковать можно только явно разрешённые поля; отсутствие поля в denylist не делает его публичным.
 - `player_tag` используется для связи записей; отображаемое имя не является стабильным ключом.
 - История сохраняется; исправления и изменения логики версионируются.
+
+### Manual evidence для старых войн
+
+Локальный overlay `linked_manual_evidence.json` остаётся отдельным от authoritative API history. Штатная сборка может безопасно добавить в public history только разрешённую проекцию screenshot evidence: coverage, нейтральные counts, позиции на карте и unresolved source conflicts. Manual facts не меняют API observations, canonical attacks, lifecycle или reconciliation. Локальные пути, hashes, evidence IDs, tags, order и provenance metadata не публикуются. Отсутствующий или невалидный overlay не останавливает updater: сайт продолжает API-only publication.

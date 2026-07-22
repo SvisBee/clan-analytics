@@ -444,14 +444,6 @@
           },
           {
             "attacker_map_position": 6,
-            "defender_map_position": 6,
-            "destruction_percentage": 69,
-            "screenshot_slot": 1,
-            "source": "source_conflict",
-            "stars": 2
-          },
-          {
-            "attacker_map_position": 6,
             "defender_map_position": 7,
             "destruction_percentage": 100,
             "screenshot_slot": 2,
@@ -516,14 +508,6 @@
           },
           {
             "attacker_map_position": 14,
-            "defender_map_position": 11,
-            "destruction_percentage": 80,
-            "screenshot_slot": 1,
-            "source": "source_conflict",
-            "stars": 2
-          },
-          {
-            "attacker_map_position": 14,
             "defender_map_position": 12,
             "destruction_percentage": 100,
             "screenshot_slot": 2,
@@ -537,27 +521,9 @@
             "screenshot_slot": 1,
             "source": "api_and_screenshot",
             "stars": 3
-          },
-          {
-            "attacker_map_position": 15,
-            "defender_map_position": 11,
-            "destruction_percentage": 68,
-            "screenshot_slot": 2,
-            "source": "source_conflict",
-            "stars": 2
           }
         ],
-        "classification_counts": {
-          "ambiguous": 0,
-          "exact_api_match": 15,
-          "manual_only": 4,
-          "source_conflict": 3
-        },
         "coverage_status": "official_partial_detail_with_manual_supplement",
-        "exact_api_matches": 15,
-        "manual_attacks": 22,
-        "manual_only_attacks": 4,
-        "official_contribution": 45,
         "participants": [
           {
             "nickname": "kent",
@@ -620,8 +586,7 @@
             "war_position": 15
           }
         ],
-        "provenance": "screenshot",
-        "screenshot_attack_stars": 58,
+        "provenance": "mixed_sources",
         "source_conflicts": [
           {
             "api_stars": 1,
@@ -647,7 +612,17 @@
             "resolution": "unresolved",
             "screenshot_stars": 2
           }
-        ]
+        ],
+        "summary": {
+          "api_detailed_attacks": 18,
+          "exact_api_matches": 15,
+          "official_contribution": 45,
+          "participants": 15,
+          "screenshot_attack_stars": 58,
+          "screenshot_attacks": 22,
+          "screenshot_only_attacks": 4,
+          "unresolved_conflicts": 3
+        }
       },
       "members": [
         {
@@ -923,17 +898,7 @@
             "stars": 3
           }
         ],
-        "classification_counts": {
-          "ambiguous": 0,
-          "exact_api_match": 0,
-          "manual_only": 13,
-          "source_conflict": 0
-        },
         "coverage_status": "official_aggregate_only_with_manual_detail",
-        "exact_api_matches": 0,
-        "manual_attacks": 13,
-        "manual_only_attacks": 13,
-        "official_contribution": 30,
         "participants": [
           {
             "nickname": "kent",
@@ -977,8 +942,17 @@
           }
         ],
         "provenance": "screenshot",
-        "screenshot_attack_stars": 38,
-        "source_conflicts": []
+        "source_conflicts": [],
+        "summary": {
+          "api_detailed_attacks": 0,
+          "exact_api_matches": 0,
+          "official_contribution": 30,
+          "participants": 10,
+          "screenshot_attack_stars": 38,
+          "screenshot_attacks": 13,
+          "screenshot_only_attacks": 13,
+          "unresolved_conflicts": 0
+        }
       },
       "members": [],
       "new_stars_contribution_status": "unavailable",

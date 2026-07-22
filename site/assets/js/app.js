@@ -144,6 +144,14 @@ const applyClanBadge = (badgeUrl) => {
 };
 
 const createPlayerCard = (member, index) => {
+  const russianCount = (value, forms) => {
+    const remainder100 = Math.abs(value) % 100;
+    const remainder10 = remainder100 % 10;
+    if (remainder100 >= 11 && remainder100 <= 14) return forms[2];
+    if (remainder10 === 1) return forms[0];
+    if (remainder10 >= 2 && remainder10 <= 4) return forms[1];
+    return forms[2];
+  };
   const hasWarData = member.data_status === "available";
   const card = createElement(
     "article",
@@ -208,8 +216,8 @@ const createPlayerCard = (member, index) => {
     const attacks = member.manual_attacks_used || 0;
     status.append(createElement(
       "small",
-      "",
-      `Включены восстановленные данные: ${wars} войн, ${attacks} атак`
+      "player-card__manual-note",
+      `Учтены восстановленные данные: ${wars} ${russianCount(wars, ["война", "войны", "войн"])}, ${attacks} ${russianCount(attacks, ["атака", "атаки", "атак"])}`
     ));
   }
   if (member.manual_conflict_sources === true) {

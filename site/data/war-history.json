@@ -171,7 +171,7 @@
     },
     {
       "attacks_available": 6,
-      "attacks_used": 4,
+      "attacks_used": 6,
       "average_stars": 3.0,
       "data_status": "available",
       "last_war_date": "2026-07-22",
@@ -182,7 +182,7 @@
       "new_stars_contributed": null,
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "VB(;",
-      "stars_earned": 12,
+      "stars_earned": 18,
       "war_participations": 3
     },
     {
@@ -235,11 +235,11 @@
   "schema_version": 2,
   "wars": [
     {
-      "attack_stars_total": 25,
+      "attack_stars_total": 31,
       "attacks_available": 30,
       "attacks_per_member": 2,
-      "attacks_used": 12,
-      "clan_stars": 25,
+      "attacks_used": 14,
+      "clan_stars": 31,
       "end_time": "2026-07-22",
       "lifecycle_status": "active",
       "members": [
@@ -285,11 +285,11 @@
         },
         {
           "attacks_available": 2,
-          "attacks_used": 0,
-          "average_stars": null,
-          "new_stars_contributed": 0,
+          "attacks_used": 2,
+          "average_stars": 3.0,
+          "new_stars_contributed": 6,
           "nickname": "VB(;",
-          "stars_earned": 0,
+          "stars_earned": 6,
           "town_hall_level": 7,
           "war_position": 5
         },

@@ -203,6 +203,18 @@ const createPlayerCard = (member, index) => {
       hasWarData ? "Военные данные доступны" : "Накопленная история войн пока отсутствует"
     )
   );
+  if ((member.manual_war_participations || 0) > 0 || (member.manual_attacks_used || 0) > 0) {
+    const wars = member.manual_war_participations || 0;
+    const attacks = member.manual_attacks_used || 0;
+    status.append(createElement(
+      "small",
+      "",
+      `Включены восстановленные данные: ${wars} войн, ${attacks} атак`
+    ));
+  }
+  if (member.manual_conflict_sources === true) {
+    status.append(createElement("small", "", "Часть показателей имеет конфликт источников"));
+  }
   card.append(status);
   return card;
 };

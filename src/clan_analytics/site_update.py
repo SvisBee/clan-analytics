@@ -21,7 +21,7 @@ from .api.normalization import (
 )
 from .history import (
     HistoryError,
-    build_public_war_history_with_index,
+    build_public_war_history_with_indexes,
     detailed_wars,
     empty_history,
     merge_war_history,
@@ -223,14 +223,23 @@ def build_site_update(
         **build_public_roster(clan, wars),
         "composition": build_composition_summary(clan),
     }
+    public_roster_index = {
+        member.player_tag: roster["members"][index]
+        for index, member in enumerate(clan.members)
+    }
     current_war_public = build_public_current_war_preview(current_war)
     war_log_public = build_public_war_log_summary(war_log)
-    war_history_public, public_war_index = build_public_war_history_with_index(next_history)
+    (
+        war_history_public,
+        public_war_index,
+        public_player_index,
+    ) = build_public_war_history_with_indexes(next_history)
     overlay = _optional_manual_overlay(existing_history_path)
     if overlay is not None:
         try:
             war_history_public = project_manual_history(
-                next_history, overlay, war_history_public, public_war_index
+                next_history, overlay, war_history_public, public_war_index,
+                public_player_index, public_roster_index, clan.members,
             )
         except ManualHistoryProjectionError as error:
             warnings.warn(f"manual history overlay rejected: {error}; publishing API-only history", stacklevel=2)

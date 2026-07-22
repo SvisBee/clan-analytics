@@ -175,7 +175,181 @@ def _date(value: Any) -> str | None:
     return value[:8][0:4] + "-" + value[:8][4:6] + "-" + value[:8][6:8] if isinstance(value, str) and len(value) >= 8 else None
 
 
-def project_manual_history(history: Mapping[str, Any], overlay: Any, public_history: Mapping[str, Any], public_war_index: Mapping[str, dict[str, Any]] | None = None) -> dict[str, Any]:
+def _display_key(value: Any) -> str | None:
+    if not isinstance(value, str):
+        return None
+    normalized = " ".join(value.strip().casefold().split())
+    return normalized or None
+
+
+def _authoritative_aliases(
+    history: Mapping[str, Any], current_members: Any,
+) -> dict[str, set[str]]:
+    aliases: dict[str, set[str]] = {}
+
+    def add(name: Any, tag: Any) -> None:
+        key = _display_key(name)
+        if key and isinstance(tag, str) and tag:
+            aliases.setdefault(key, set()).add(tag)
+
+    for record in history.get("wars", []):
+        if not isinstance(record, Mapping):
+            continue
+        snapshots = [record.get("canonical")]
+        snapshots.extend(
+            observation.get("snapshot")
+            for observation in record.get("observations", [])
+            if isinstance(observation, Mapping)
+        )
+        for snapshot in snapshots:
+            if not isinstance(snapshot, Mapping):
+                continue
+            for member in snapshot.get("members", []):
+                if isinstance(member, Mapping):
+                    add(member.get("display_name"), member.get("player_tag"))
+    for member in current_members or ():
+        add(getattr(member, "display_name", None), getattr(member, "player_tag", None))
+    return aliases
+
+
+def _canonical_position_index(record: Mapping[str, Any]) -> dict[int, str]:
+    canonical = record.get("canonical")
+    if not isinstance(canonical, Mapping):
+        return {}
+    index: dict[int, str] = {}
+    for member in canonical.get("members", []):
+        if not isinstance(member, Mapping):
+            continue
+        position, tag = member.get("map_position"), member.get("player_tag")
+        if isinstance(position, int) and not isinstance(position, bool) and isinstance(tag, str) and tag:
+            index[position] = tag
+    return index
+
+
+def _rebind_index(
+    source_items: list[dict[str, Any]], copy_items: list[dict[str, Any]], index: Mapping[str, dict[str, Any]] | None,
+) -> dict[str, dict[str, Any]]:
+    positions = {id(item): position for position, item in enumerate(source_items)}
+    return {
+        key: copy_items[positions[id(item)]]
+        for key, item in (index or {}).items()
+        if id(item) in positions
+    }
+
+
+def _empty_metric(nickname: str) -> dict[str, Any]:
+    return {"nickname": nickname, "war_participations": 0, "attacks_used": 0,
+            "attacks_available": 0, "stars_earned": 0, "average_stars": None,
+            "last_war_date": None, "data_status": "available"}
+
+
+def _apply_manual_player_metrics(
+    history: Mapping[str, Any], evidence: list[dict[str, Any]], projected: dict[str, Any],
+    player_index: Mapping[str, dict[str, Any]] | None, roster_index: Mapping[str, dict[str, Any]] | None,
+    current_members: Any,
+) -> None:
+    """Apply manual deltas once to private indexes, then copy safe totals to roster."""
+    records = {str(record.get("war_id")): record for record in history.get("wars", []) if isinstance(record, Mapping) and isinstance(record.get("war_id"), str)}
+    aliases = _authoritative_aliases(history, current_members)
+    bridge_aliases: dict[str, set[str]] = {}
+    for item in evidence:
+        record = records.get(item["linked_war_id"])
+        if record is None:
+            continue
+        positions = _canonical_position_index(record)
+        for participant in item["participants"]:
+            tag = positions.get(participant["war_position"])
+            key = _display_key(participant["nickname"])
+            if tag and key:
+                bridge_aliases.setdefault(key, set()).add(tag)
+
+    private_metrics = dict(player_index or {})
+    current_names = {getattr(member, "player_tag", None): getattr(member, "display_name", None) for member in current_members or ()}
+    for item in evidence:
+        record = records.get(item["linked_war_id"])
+        if record is None:
+            continue
+        canonical_positions = _canonical_position_index(record)
+        canonical_tags = set(canonical_positions.values())
+        war_log = record.get("war_log") if isinstance(record.get("war_log"), Mapping) else {}
+        canonical = record.get("canonical")
+        date = _date((canonical or {}).get("end_time") if isinstance(canonical, Mapping) else war_log.get("end_time"))
+        attacks_per_member = ((canonical or {}).get("attacks_per_member") if isinstance(canonical, Mapping) else war_log.get("attacks_per_member"))
+        normal_by_position: dict[int, list[dict[str, Any]]] = {}
+        for attack in item["attacks"]:
+            normal_by_position.setdefault(attack["attacker_map_position"], []).append(attack)
+        conflicts_by_position: dict[int, int] = {}
+        for conflict in item["conflicts"]:
+            position = conflict["attacker_map_position"]
+            conflicts_by_position[position] = conflicts_by_position.get(position, 0) + 1
+        for participant in item["participants"]:
+            position, nickname = participant["war_position"], participant["nickname"]
+            key = _display_key(nickname)
+            candidates = bridge_aliases.get(key, set()) if key else set()
+            if len(candidates) != 1:
+                candidates = aliases.get(key, set()) if key else set()
+            if len(candidates) != 1:
+                warnings.warn("manual participant could not be linked uniquely; metrics skipped", stacklevel=2)
+                continue
+            tag = next(iter(candidates))
+            api_participation = tag in canonical_tags
+            normal_attacks = normal_by_position.get(position, [])
+            if api_participation:
+                additions = [attack for attack in normal_attacks if attack["source"] == "screenshot_only"]
+                conflict_used = 0
+                add_participation = False
+            else:
+                additions = [attack for attack in normal_attacks if attack["source"] != "ambiguous"]
+                conflict_used = conflicts_by_position.get(position, 0)
+                add_participation = True
+            if not additions and not conflict_used and not add_participation:
+                continue
+            metric = private_metrics.get(tag)
+            has_api_metric = metric is not None
+            if metric is None:
+                metric = _empty_metric(current_names.get(tag) or nickname)
+                private_metrics[tag] = metric
+                projected.setdefault("player_metrics", []).append(metric)
+            was_api_only = has_api_metric and metric.get("metrics_provenance", "official_api") == "official_api"
+            metric["data_status"] = "available"
+            if add_participation:
+                metric["war_participations"] = int(metric.get("war_participations") or 0) + 1
+                if isinstance(attacks_per_member, int) and not isinstance(attacks_per_member, bool):
+                    metric["attacks_available"] = int(metric.get("attacks_available") or 0) + attacks_per_member
+                else:
+                    metric["attacks_available"] = None
+                metric["manual_war_participations"] = int(metric.get("manual_war_participations") or 0) + 1
+            used = len(additions) + conflict_used
+            stars = sum(attack["stars"] for attack in additions)
+            metric["attacks_used"] = int(metric.get("attacks_used") or 0) + used
+            metric["stars_earned"] = int(metric.get("stars_earned") or 0) + stars
+            metric["manual_attacks_used"] = int(metric.get("manual_attacks_used") or 0) + used
+            metric["manual_stars_earned"] = int(metric.get("manual_stars_earned") or 0) + stars
+            metric["last_war_date"] = max(filter(None, [metric.get("last_war_date"), date]), default=None)
+            metric["average_stars"] = (round(metric["stars_earned"] / metric["attacks_used"], 2) if metric["attacks_used"] else None)
+            metric["metrics_provenance"] = "api_and_screenshot" if has_api_metric else "screenshot"
+            metric["new_stars_contributed"] = None
+            metric["new_stars_contribution_status"] = "unavailable_with_manual_evidence"
+            if conflict_used:
+                metric["manual_conflict_sources"] = True
+
+    for tag, roster_member in (roster_index or {}).items():
+        metric = private_metrics.get(tag)
+        if metric is None:
+            continue
+        for key in ("data_status", "war_participations", "attacks_used", "attacks_available",
+                    "stars_earned", "average_stars", "last_war_date", "manual_war_participations",
+                    "manual_attacks_used", "manual_stars_earned", "metrics_provenance"):
+            if key in metric:
+                roster_member[key] = metric[key]
+        if "new_stars_contribution_status" in metric:
+            roster_member["new_stars_contributed"] = metric["new_stars_contributed"]
+            roster_member["new_stars_contribution_status"] = metric["new_stars_contribution_status"]
+        if metric.get("manual_conflict_sources") is True:
+            roster_member["manual_conflict_sources"] = True
+
+
+def project_manual_history(history: Mapping[str, Any], overlay: Any, public_history: Mapping[str, Any], public_war_index: Mapping[str, dict[str, Any]] | None = None, public_player_index: Mapping[str, dict[str, Any]] | None = None, public_roster_index: Mapping[str, dict[str, Any]] | None = None, current_members: Any = ()) -> dict[str, Any]:
     """Attach allowlisted evidence using exact private links only during assembly."""
     projected = copy.deepcopy(dict(public_history))
     # Rebind exact indexed records to this copy by their object position, never by public fields.
@@ -187,13 +361,18 @@ def project_manual_history(history: Mapping[str, Any], overlay: Any, public_hist
         for war_id, item in public_war_index.items():
             if id(item) in positions:
                 copy_index[war_id] = copy_wars[positions[id(item)]]
+    player_copy_index = _rebind_index(
+        list(public_history.get("player_metrics", [])),
+        list(projected.get("player_metrics", [])),
+        public_player_index,
+    )
     records = {str(record.get("war_id")): record for record in history.get("wars", []) if isinstance(record, Mapping) and isinstance(record.get("war_id"), str)}
     try:
         evidence = validate_manual_overlay(overlay)
     except ManualHistoryProjectionError:
         raise
     for item in evidence:
-        war_id = item.pop("linked_war_id")
+        war_id = item["linked_war_id"]
         record = records.get(war_id)
         if record is None:
             warnings.warn("manual history evidence references an unknown war; record skipped", stacklevel=2)
@@ -228,6 +407,11 @@ def project_manual_history(history: Mapping[str, Any], overlay: Any, public_hist
                         "official_contribution": item["metrics"]["displayed_contribution_total"], "exact_api_matches": counts["exact_api_match"],
                         "screenshot_only_attacks": counts["manual_only"], "unresolved_conflicts": counts["source_conflict"]},
             "participants": item["participants"], "attacks": item["attacks"], "source_conflicts": item["conflicts"]}
+    if isinstance(projected.get("player_metrics"), list):
+        _apply_manual_player_metrics(
+            history, evidence, projected, player_copy_index, public_roster_index, current_members
+        )
+        projected["player_metrics"].sort(key=lambda item: str(item["nickname"]).casefold())
     projected["wars"].sort(key=lambda war: (war.get("end_time") or "", war.get("participants") or 0), reverse=True)
     projected["wars_observed"] = len(projected["wars"])
     return projected

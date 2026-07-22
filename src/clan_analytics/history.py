@@ -1169,7 +1169,7 @@ def _public_member(
 
 def _build_public_war_history_with_index(
     history: Mapping[str, Any],
-) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
+) -> tuple[dict[str, Any], dict[str, dict[str, Any]], dict[str, dict[str, Any]]]:
     """Build public history and retain an in-memory exact record map.
 
     The map is an assembly aid only.  Its keys are never included in the
@@ -1269,13 +1269,17 @@ def _build_public_war_history_with_index(
         "wars": public_wars,
         "player_metrics": public_players,
     }
-    return payload, {war_id: public for war_id, public in indexed_wars}
+    return (
+        payload,
+        {war_id: public for war_id, public in indexed_wars},
+        {player_tag: totals for player_tag, totals in player_totals.items()},
+    )
 
 
 def build_public_war_history(history: Mapping[str, Any]) -> dict[str, Any]:
     """Build neutral detailed history without stable game identifiers."""
 
-    payload, _ = _build_public_war_history_with_index(history)
+    payload, _, _ = _build_public_war_history_with_index(history)
     return payload
 
 
@@ -1283,6 +1287,15 @@ def build_public_war_history_with_index(
     history: Mapping[str, Any],
 ) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
     """Build public history plus a private, in-memory exact record map."""
+
+    payload, war_index, _ = _build_public_war_history_with_index(history)
+    return payload, war_index
+
+
+def build_public_war_history_with_indexes(
+    history: Mapping[str, Any],
+) -> tuple[dict[str, Any], dict[str, dict[str, Any]], dict[str, dict[str, Any]]]:
+    """Build public history plus private war and player indexes for assembly."""
 
     return _build_public_war_history_with_index(history)
 

@@ -6,6 +6,7 @@ import sys
 import unittest
 import warnings
 from pathlib import Path
+from types import SimpleNamespace
 
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
@@ -175,6 +176,76 @@ class ManualHistoryProjectionTests(unittest.TestCase):
     def test_public_privacy_scan_rejects_internal_projection_keys(self):
         for key in ("warId", "linked_war_id", "evidence-id", "source_hashes", "attackOrder"):
             with self.assertRaises(SiteUpdateError): _scan_public({key: "private"})
+
+
+class ManualPlayerMetricTests(unittest.TestCase):
+    def _inputs(self, *, aggregate=False, source="manual_only"):
+        canonical = None if aggregate else {"state": "warEnded", "end_time": "20260101T000000.000Z", "attacks_per_member": 2, "members": [{"player_tag": "tag-a", "display_name": "Alpha", "map_position": 1}]}
+        history = {"wars": [{"war_id": "war-a", "canonical": canonical,
+                    "war_log": {"end_time": "20260101T000000.000Z", "attacks_per_member": 2, "clan": {"stars": 3}},
+                    "lifecycle_status": "closed", "reconciliation_status": "matched", "observations": []}]}
+        item = overlay()["wars"][0]; item["participants"][0]["display_name_raw"] = "Alpha"; item["attacks"][0]["classification"] = source
+        item["metrics"]["classification_counts"] = {"exact_api_match": int(source == "exact_api_match"), "manual_only": int(source == "manual_only"), "source_conflict": 0, "ambiguous": 0}
+        public_war = {"end_time": "2026-01-01", "attacks_used": 1, "clan_stars": 3, "members": []}
+        public = {"schema_version": 2, "wars": [] if aggregate else [public_war], "wars_observed": 0 if aggregate else 1,
+                  "player_metrics": [{"nickname": "Alpha", "data_status": "available", "war_participations": 2, "attacks_used": 3, "attacks_available": 4, "stars_earned": 9, "average_stars": 3, "last_war_date": "2026-01-02", "new_stars_contributed": 4}]}
+        roster = {"nickname": "Alpha", "data_status": "available", "war_participations": 2, "attacks_used": 3, "attacks_available": 4, "stars_earned": 9, "average_stars": 3, "last_war_date": "2026-01-02"}
+        return history, {"schema_version": 1, "wars": [item]}, public, public_war, roster
+
+    def _project(self, *, aggregate=False, source="manual_only"):
+        history, evidence, public, war, roster = self._inputs(aggregate=aggregate, source=source)
+        return project_manual_history(history, evidence, public, {} if aggregate else {"war-a": war}, {"tag-a": public["player_metrics"][0]}, {"tag-a": roster}, [SimpleNamespace(player_tag="tag-a", display_name="Alpha")]), roster
+
+    def test_aggregate_manual_participation_increments_wars(self):
+        result, _ = self._project(aggregate=True)
+        self.assertEqual(result["player_metrics"][0]["war_participations"], 3)
+
+    def test_aggregate_manual_attacks_increment_used_and_available(self):
+        result, _ = self._project(aggregate=True)
+        metric = result["player_metrics"][0]
+        self.assertEqual((metric["attacks_used"], metric["attacks_available"]), (4, 6))
+
+    def test_aggregate_manual_stars_increment_earned(self):
+        result, _ = self._project(aggregate=True)
+        self.assertEqual(result["player_metrics"][0]["stars_earned"], 12)
+
+    def test_partial_exact_api_attack_is_not_double_counted(self):
+        result, _ = self._project(source="exact_api_match")
+        self.assertEqual(result["player_metrics"][0]["attacks_used"], 3)
+
+    def test_partial_screenshot_only_attack_is_added(self):
+        result, _ = self._project(source="manual_only")
+        self.assertEqual(result["player_metrics"][0]["attacks_used"], 4)
+
+    def test_manual_metric_nulls_new_star_contribution(self):
+        result, _ = self._project(aggregate=True)
+        metric = result["player_metrics"][0]
+        self.assertIsNone(metric["new_stars_contributed"])
+        self.assertEqual(metric["new_stars_contribution_status"], "unavailable_with_manual_evidence")
+
+    def test_roster_and_history_metrics_are_equal(self):
+        result, roster = self._project(aggregate=True)
+        metric = result["player_metrics"][0]
+        for key in ("war_participations", "attacks_used", "attacks_available", "stars_earned", "average_stars"):
+            self.assertEqual(metric[key], roster[key])
+
+    def test_repeated_projection_is_non_accumulating(self):
+        one, _ = self._project(aggregate=True)
+        two, _ = self._project(aggregate=True)
+        self.assertEqual(one, two)
+
+    def test_ambiguous_alias_is_not_linked(self):
+        history, evidence, public, war, roster = self._inputs(aggregate=True)
+        history["wars"][0]["observations"] = [{"snapshot": {"members": [{"player_tag": "tag-b", "display_name": "Alpha"}]}}]
+        result = project_manual_history(history, evidence, public, {}, {"tag-a": public["player_metrics"][0]}, {"tag-a": roster}, [SimpleNamespace(player_tag="tag-a", display_name="Alpha")])
+        self.assertEqual(result["player_metrics"][0]["war_participations"], 2)
+
+    def test_bridge_alias_links_variant_across_aggregate_war(self):
+        history, evidence, public, _, roster = self._inputs(aggregate=True)
+        history["wars"].append({"war_id": "war-b", "canonical": {"members": [{"player_tag": "tag-a", "display_name": "Alpha API", "map_position": 1}]}, "observations": []})
+        evidence["wars"][0]["participants"][0]["display_name_raw"] = "Alpha API"
+        result = project_manual_history(history, evidence, public, {}, {"tag-a": public["player_metrics"][0]}, {"tag-a": roster}, [SimpleNamespace(player_tag="tag-a", display_name="Alpha")])
+        self.assertEqual(result["player_metrics"][0]["war_participations"], 3)
 
 
 if __name__ == "__main__":

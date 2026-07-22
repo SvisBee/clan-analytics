@@ -368,6 +368,287 @@
       "clan_stars": null,
       "end_time": "2026-07-20",
       "lifecycle_status": "closed_war_log_without_final_detail",
+      "manual_detail": {
+        "attacks": [
+          {
+            "attacker_map_position": 1,
+            "defender_map_position": 3,
+            "destruction_percentage": 100,
+            "screenshot_slot": 1,
+            "source": "api_and_screenshot",
+            "stars": 3
+          },
+          {
+            "attacker_map_position": 1,
+            "defender_map_position": 6,
+            "destruction_percentage": 100,
+            "screenshot_slot": 2,
+            "source": "screenshot_only",
+            "stars": 3
+          },
+          {
+            "attacker_map_position": 2,
+            "defender_map_position": 2,
+            "destruction_percentage": 100,
+            "screenshot_slot": 1,
+            "source": "api_and_screenshot",
+            "stars": 3
+          },
+          {
+            "attacker_map_position": 2,
+            "defender_map_position": 8,
+            "destruction_percentage": 100,
+            "screenshot_slot": 2,
+            "source": "api_and_screenshot",
+            "stars": 3
+          },
+          {
+            "attacker_map_position": 3,
+            "defender_map_position": 3,
+            "destruction_percentage": 99,
+            "screenshot_slot": 1,
+            "source": "api_and_screenshot",
+            "stars": 2
+          },
+          {
+            "attacker_map_position": 4,
+            "defender_map_position": 4,
+            "destruction_percentage": 100,
+            "screenshot_slot": 1,
+            "source": "api_and_screenshot",
+            "stars": 3
+          },
+          {
+            "attacker_map_position": 4,
+            "defender_map_position": 5,
+            "destruction_percentage": 100,
+            "screenshot_slot": 2,
+            "source": "api_and_screenshot",
+            "stars": 3
+          },
+          {
+            "attacker_map_position": 5,
+            "defender_map_position": 1,
+            "destruction_percentage": 100,
+            "screenshot_slot": 1,
+            "source": "api_and_screenshot",
+            "stars": 3
+          },
+          {
+            "attacker_map_position": 5,
+            "defender_map_position": 9,
+            "destruction_percentage": 100,
+            "screenshot_slot": 2,
+            "source": "screenshot_only",
+            "stars": 3
+          },
+          {
+            "attacker_map_position": 6,
+            "defender_map_position": 6,
+            "destruction_percentage": 69,
+            "screenshot_slot": 1,
+            "source": "source_conflict",
+            "stars": 2
+          },
+          {
+            "attacker_map_position": 6,
+            "defender_map_position": 7,
+            "destruction_percentage": 100,
+            "screenshot_slot": 2,
+            "source": "api_and_screenshot",
+            "stars": 3
+          },
+          {
+            "attacker_map_position": 7,
+            "defender_map_position": 10,
+            "destruction_percentage": 100,
+            "screenshot_slot": 1,
+            "source": "api_and_screenshot",
+            "stars": 3
+          },
+          {
+            "attacker_map_position": 8,
+            "defender_map_position": 11,
+            "destruction_percentage": 100,
+            "screenshot_slot": 1,
+            "source": "screenshot_only",
+            "stars": 3
+          },
+          {
+            "attacker_map_position": 8,
+            "defender_map_position": 9,
+            "destruction_percentage": 100,
+            "screenshot_slot": 2,
+            "source": "screenshot_only",
+            "stars": 3
+          },
+          {
+            "attacker_map_position": 12,
+            "defender_map_position": 12,
+            "destruction_percentage": 66,
+            "screenshot_slot": 1,
+            "source": "api_and_screenshot",
+            "stars": 2
+          },
+          {
+            "attacker_map_position": 12,
+            "defender_map_position": 14,
+            "destruction_percentage": 100,
+            "screenshot_slot": 2,
+            "source": "api_and_screenshot",
+            "stars": 3
+          },
+          {
+            "attacker_map_position": 13,
+            "defender_map_position": 13,
+            "destruction_percentage": 100,
+            "screenshot_slot": 1,
+            "source": "api_and_screenshot",
+            "stars": 3
+          },
+          {
+            "attacker_map_position": 13,
+            "defender_map_position": 12,
+            "destruction_percentage": 0,
+            "screenshot_slot": 2,
+            "source": "api_and_screenshot",
+            "stars": 0
+          },
+          {
+            "attacker_map_position": 14,
+            "defender_map_position": 11,
+            "destruction_percentage": 80,
+            "screenshot_slot": 1,
+            "source": "source_conflict",
+            "stars": 2
+          },
+          {
+            "attacker_map_position": 14,
+            "defender_map_position": 12,
+            "destruction_percentage": 100,
+            "screenshot_slot": 2,
+            "source": "api_and_screenshot",
+            "stars": 3
+          },
+          {
+            "attacker_map_position": 15,
+            "defender_map_position": 15,
+            "destruction_percentage": 100,
+            "screenshot_slot": 1,
+            "source": "api_and_screenshot",
+            "stars": 3
+          },
+          {
+            "attacker_map_position": 15,
+            "defender_map_position": 11,
+            "destruction_percentage": 68,
+            "screenshot_slot": 2,
+            "source": "source_conflict",
+            "stars": 2
+          }
+        ],
+        "classification_counts": {
+          "ambiguous": 0,
+          "exact_api_match": 15,
+          "manual_only": 4,
+          "source_conflict": 3
+        },
+        "coverage_status": "official_partial_detail_with_manual_supplement",
+        "exact_api_matches": 15,
+        "manual_attacks": 22,
+        "manual_only_attacks": 4,
+        "official_contribution": 45,
+        "participants": [
+          {
+            "nickname": "kent",
+            "war_position": 1
+          },
+          {
+            "nickname": "VBI;",
+            "war_position": 2
+          },
+          {
+            "nickname": "odlid",
+            "war_position": 3
+          },
+          {
+            "nickname": "SvisBee",
+            "war_position": 4
+          },
+          {
+            "nickname": "KeDR",
+            "war_position": 5
+          },
+          {
+            "nickname": "АЛИ",
+            "war_position": 6
+          },
+          {
+            "nickname": "oleg",
+            "war_position": 7
+          },
+          {
+            "nickname": "utena",
+            "war_position": 8
+          },
+          {
+            "nickname": "aYR?M",
+            "war_position": 9
+          },
+          {
+            "nickname": "NeRONIx(fan)",
+            "war_position": 10
+          },
+          {
+            "nickname": "залупий",
+            "war_position": 11
+          },
+          {
+            "nickname": "RONNURIK",
+            "war_position": 12
+          },
+          {
+            "nickname": "frog1",
+            "war_position": 13
+          },
+          {
+            "nickname": "шкура",
+            "war_position": 14
+          },
+          {
+            "nickname": "PANDA",
+            "war_position": 15
+          }
+        ],
+        "provenance": "screenshot",
+        "screenshot_attack_stars": 58,
+        "source_conflicts": [
+          {
+            "api_stars": 1,
+            "attacker_map_position": 6,
+            "defender_map_position": 6,
+            "destruction_percentage": 69,
+            "resolution": "unresolved",
+            "screenshot_stars": 2
+          },
+          {
+            "api_stars": 1,
+            "attacker_map_position": 14,
+            "defender_map_position": 11,
+            "destruction_percentage": 80,
+            "resolution": "unresolved",
+            "screenshot_stars": 2
+          },
+          {
+            "api_stars": 1,
+            "attacker_map_position": 15,
+            "defender_map_position": 11,
+            "destruction_percentage": 68,
+            "resolution": "unresolved",
+            "screenshot_stars": 2
+          }
+        ]
+      },
       "members": [
         {
           "attacks_available": 2,
@@ -526,7 +807,187 @@
       "stars_consistency_status": "unavailable",
       "state": "inWar",
       "team_size": 15
+    },
+    {
+      "attack_stars_total": null,
+      "attacks_available": null,
+      "attacks_per_member": 2,
+      "attacks_used": 0,
+      "clan_stars": 30,
+      "end_time": "2026-07-17",
+      "lifecycle_status": "closed_war_log_only",
+      "manual_detail": {
+        "attacks": [
+          {
+            "attacker_map_position": 1,
+            "defender_map_position": 2,
+            "destruction_percentage": 100,
+            "screenshot_slot": 1,
+            "source": "screenshot_only",
+            "stars": 3
+          },
+          {
+            "attacker_map_position": 2,
+            "defender_map_position": 1,
+            "destruction_percentage": 100,
+            "screenshot_slot": 1,
+            "source": "screenshot_only",
+            "stars": 3
+          },
+          {
+            "attacker_map_position": 2,
+            "defender_map_position": 4,
+            "destruction_percentage": 100,
+            "screenshot_slot": 2,
+            "source": "screenshot_only",
+            "stars": 3
+          },
+          {
+            "attacker_map_position": 3,
+            "defender_map_position": 3,
+            "destruction_percentage": 100,
+            "screenshot_slot": 1,
+            "source": "screenshot_only",
+            "stars": 3
+          },
+          {
+            "attacker_map_position": 5,
+            "defender_map_position": 5,
+            "destruction_percentage": 100,
+            "screenshot_slot": 1,
+            "source": "screenshot_only",
+            "stars": 3
+          },
+          {
+            "attacker_map_position": 5,
+            "defender_map_position": 4,
+            "destruction_percentage": 100,
+            "screenshot_slot": 2,
+            "source": "screenshot_only",
+            "stars": 3
+          },
+          {
+            "attacker_map_position": 6,
+            "defender_map_position": 6,
+            "destruction_percentage": 100,
+            "screenshot_slot": 1,
+            "source": "screenshot_only",
+            "stars": 3
+          },
+          {
+            "attacker_map_position": 6,
+            "defender_map_position": 1,
+            "destruction_percentage": 100,
+            "screenshot_slot": 2,
+            "source": "screenshot_only",
+            "stars": 3
+          },
+          {
+            "attacker_map_position": 8,
+            "defender_map_position": 10,
+            "destruction_percentage": 100,
+            "screenshot_slot": 1,
+            "source": "screenshot_only",
+            "stars": 3
+          },
+          {
+            "attacker_map_position": 8,
+            "defender_map_position": 7,
+            "destruction_percentage": 100,
+            "screenshot_slot": 2,
+            "source": "screenshot_only",
+            "stars": 3
+          },
+          {
+            "attacker_map_position": 9,
+            "defender_map_position": 9,
+            "destruction_percentage": 100,
+            "screenshot_slot": 1,
+            "source": "screenshot_only",
+            "stars": 3
+          },
+          {
+            "attacker_map_position": 9,
+            "defender_map_position": 1,
+            "destruction_percentage": 71,
+            "screenshot_slot": 2,
+            "source": "screenshot_only",
+            "stars": 2
+          },
+          {
+            "attacker_map_position": 10,
+            "defender_map_position": 8,
+            "destruction_percentage": 100,
+            "screenshot_slot": 1,
+            "source": "screenshot_only",
+            "stars": 3
+          }
+        ],
+        "classification_counts": {
+          "ambiguous": 0,
+          "exact_api_match": 0,
+          "manual_only": 13,
+          "source_conflict": 0
+        },
+        "coverage_status": "official_aggregate_only_with_manual_detail",
+        "exact_api_matches": 0,
+        "manual_attacks": 13,
+        "manual_only_attacks": 13,
+        "official_contribution": 30,
+        "participants": [
+          {
+            "nickname": "kent",
+            "war_position": 1
+          },
+          {
+            "nickname": "Thomas",
+            "war_position": 2
+          },
+          {
+            "nickname": "odlid",
+            "war_position": 3
+          },
+          {
+            "nickname": "SPIDER",
+            "war_position": 4
+          },
+          {
+            "nickname": "VBI;",
+            "war_position": 5
+          },
+          {
+            "nickname": "SvisBee",
+            "war_position": 6
+          },
+          {
+            "nickname": "lev18134",
+            "war_position": 7
+          },
+          {
+            "nickname": "VSHIRSHI",
+            "war_position": 8
+          },
+          {
+            "nickname": "KeDR",
+            "war_position": 9
+          },
+          {
+            "nickname": "шкура",
+            "war_position": 10
+          }
+        ],
+        "provenance": "screenshot",
+        "screenshot_attack_stars": 38,
+        "source_conflicts": []
+      },
+      "members": [],
+      "new_stars_contribution_status": "unavailable",
+      "participants": 0,
+      "reconciliation_status": "unmatched_aggregate_only",
+      "stars_consistency_status": "unavailable",
+      "state": "warEnded",
+      "team_size": 10
     }
   ],
-  "wars_observed": 2
+  "wars_observed": 3
 }

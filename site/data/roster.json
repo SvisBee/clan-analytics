@@ -5,7 +5,7 @@
   },
   "composition": {
     "members_with_limited_composition_data": 0,
-    "total_members": 26,
+    "total_members": 27,
     "town_hall_distribution": [
       {
         "members": 1,
@@ -36,7 +36,7 @@
         "town_hall_level": 5
       },
       {
-        "members": 4,
+        "members": 5,
         "town_hall_level": 4
       }
     ]
@@ -83,6 +83,18 @@
       "stars_earned": 12,
       "town_hall_level": 7,
       "war_participations": 3
+    },
+    {
+      "attacks_available": null,
+      "attacks_used": null,
+      "average_stars": null,
+      "clan_role": "member",
+      "data_status": "insufficient_data",
+      "last_war_date": null,
+      "nickname": "frogi2",
+      "stars_earned": null,
+      "town_hall_level": 4,
+      "war_participations": 0
     },
     {
       "attacks_available": 6,
@@ -259,13 +271,13 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 1,
+      "attacks_used": 2,
       "average_stars": 3.0,
       "clan_role": "leader",
       "data_status": "available",
       "last_war_date": "2026-07-22",
       "nickname": "кума88",
-      "stars_earned": 3,
+      "stars_earned": 6,
       "town_hall_level": 9,
       "war_participations": 1
     },
@@ -398,6 +410,6 @@
   ],
   "war_data_coverage": {
     "members_with_data": 18,
-    "members_without_data": 8
+    "members_without_data": 9
   }
 }

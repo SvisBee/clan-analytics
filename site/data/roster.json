@@ -32,11 +32,11 @@
         "town_hall_level": 6
       },
       {
-        "members": 6,
+        "members": 7,
         "town_hall_level": 5
       },
       {
-        "members": 3,
+        "members": 2,
         "town_hall_level": 4
       }
     ]
@@ -93,7 +93,7 @@
       "last_war_date": null,
       "nickname": "frogi2",
       "stars_earned": null,
-      "town_hall_level": 4,
+      "town_hall_level": 5,
       "war_participations": 0
     },
     {

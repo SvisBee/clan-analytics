@@ -150,7 +150,7 @@
     },
     {
       "attacks_available": 8,
-      "attacks_used": 7,
+      "attacks_used": 8,
       "average_stars": 3.0,
       "data_status": "available",
       "last_war_date": "2026-07-25",
@@ -161,17 +161,17 @@
       "new_stars_contributed": null,
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "SvisBee",
-      "stars_earned": 21,
+      "stars_earned": 24,
       "war_participations": 4
     },
     {
       "attacks_available": 4,
-      "attacks_used": 3,
+      "attacks_used": 4,
       "average_stars": 3.0,
       "last_war_date": "2026-07-25",
-      "new_stars_contributed": 9,
+      "new_stars_contributed": 10,
       "nickname": "SvisBuha",
-      "stars_earned": 9,
+      "stars_earned": 12,
       "war_participations": 2
     },
     {
@@ -255,11 +255,11 @@
   "schema_version": 2,
   "wars": [
     {
-      "attack_stars_total": 41,
+      "attack_stars_total": 47,
       "attacks_available": 30,
       "attacks_per_member": 2,
-      "attacks_used": 16,
-      "clan_stars": 40,
+      "attacks_used": 18,
+      "clan_stars": 42,
       "end_time": "2026-07-25",
       "lifecycle_status": "active",
       "members": [
@@ -275,11 +275,11 @@
         },
         {
           "attacks_available": 2,
-          "attacks_used": 1,
+          "attacks_used": 2,
           "average_stars": 3.0,
-          "new_stars_contributed": 3,
+          "new_stars_contributed": 4,
           "nickname": "SvisBuha",
-          "stars_earned": 3,
+          "stars_earned": 6,
           "town_hall_level": 8,
           "war_position": 2
         },
@@ -325,11 +325,11 @@
         },
         {
           "attacks_available": 2,
-          "attacks_used": 1,
+          "attacks_used": 2,
           "average_stars": 3.0,
-          "new_stars_contributed": 3,
+          "new_stars_contributed": 4,
           "nickname": "SvisBee",
-          "stars_earned": 3,
+          "stars_earned": 6,
           "town_hall_level": 7,
           "war_position": 7
         },

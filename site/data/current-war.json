@@ -1,9 +1,9 @@
 {
-  "attack_stars_total": 21,
+  "attack_stars_total": 41,
   "attacks_available": 30,
   "attacks_per_member": 2,
-  "attacks_used": 8,
-  "clan_stars": 21,
+  "attacks_used": 16,
+  "clan_stars": 40,
   "data_status": "available",
   "end_time": "2026-07-25",
   "members": [
@@ -49,11 +49,11 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 2,
+      "average_stars": 3.0,
+      "new_stars_contributed": 6,
       "nickname": "VB(;",
-      "stars_earned": 0,
+      "stars_earned": 6,
       "town_hall_level": 7,
       "war_position": 5
     },
@@ -89,31 +89,31 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 2,
+      "average_stars": 1.0,
+      "new_stars_contributed": 2,
       "nickname": "frogi",
-      "stars_earned": 0,
+      "stars_earned": 2,
       "town_hall_level": 8,
       "war_position": 9
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 2,
+      "average_stars": 3.0,
+      "new_stars_contributed": 6,
       "nickname": "ksanaks-",
-      "stars_earned": 0,
+      "stars_earned": 6,
       "town_hall_level": 7,
       "war_position": 10
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 2,
+      "average_stars": 3.0,
+      "new_stars_contributed": 5,
       "nickname": "BoRziY",
-      "stars_earned": 0,
+      "stars_earned": 6,
       "town_hall_level": 7,
       "war_position": 11
     },
@@ -160,8 +160,8 @@
   ],
   "new_stars_contribution_status": "available",
   "participants": 15,
-  "reconstructed_clan_stars": 21,
+  "reconstructed_clan_stars": 40,
   "stars_consistency_status": "consistent",
-  "stars_earned": 21,
+  "stars_earned": 40,
   "state": "inWar"
 }

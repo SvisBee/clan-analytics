@@ -52,8 +52,8 @@
     },
     {
       "attacks_available": 8,
-      "attacks_used": 6,
-      "average_stars": 2.5,
+      "attacks_used": 7,
+      "average_stars": 2.57,
       "data_status": "available",
       "last_war_date": "2026-07-25",
       "manual_attacks_used": 3,
@@ -63,7 +63,7 @@
       "new_stars_contributed": null,
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "Kedr",
-      "stars_earned": 15,
+      "stars_earned": 18,
       "war_participations": 4
     },
     {
@@ -207,12 +207,12 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
+      "attacks_used": 1,
+      "average_stars": 3.0,
       "last_war_date": "2026-07-25",
-      "new_stars_contributed": 0,
+      "new_stars_contributed": 3,
       "nickname": "Ziklin",
-      "stars_earned": 0,
+      "stars_earned": 3,
       "war_participations": 1
     },
     {
@@ -255,11 +255,11 @@
   "schema_version": 2,
   "wars": [
     {
-      "attack_stars_total": 15,
+      "attack_stars_total": 21,
       "attacks_available": 30,
       "attacks_per_member": 2,
-      "attacks_used": 6,
-      "clan_stars": 15,
+      "attacks_used": 8,
+      "clan_stars": 21,
       "end_time": "2026-07-25",
       "lifecycle_status": "active",
       "members": [
@@ -335,11 +335,11 @@
         },
         {
           "attacks_available": 2,
-          "attacks_used": 0,
-          "average_stars": null,
-          "new_stars_contributed": 0,
+          "attacks_used": 1,
+          "average_stars": 3.0,
+          "new_stars_contributed": 3,
           "nickname": "Kedr",
-          "stars_earned": 0,
+          "stars_earned": 3,
           "town_hall_level": 7,
           "war_position": 8
         },
@@ -405,11 +405,11 @@
         },
         {
           "attacks_available": 2,
-          "attacks_used": 0,
-          "average_stars": null,
-          "new_stars_contributed": 0,
+          "attacks_used": 1,
+          "average_stars": 3.0,
+          "new_stars_contributed": 3,
           "nickname": "Ziklin",
-          "stars_earned": 0,
+          "stars_earned": 3,
           "town_hall_level": 5,
           "war_position": 15
         }

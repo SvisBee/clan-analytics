@@ -68,8 +68,8 @@
     },
     {
       "attacks_available": 8,
-      "attacks_used": 6,
-      "average_stars": 2.5,
+      "attacks_used": 7,
+      "average_stars": 2.57,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-07-25",
@@ -80,7 +80,7 @@
       "new_stars_contributed": null,
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "Kedr",
-      "stars_earned": 15,
+      "stars_earned": 18,
       "town_hall_level": 7,
       "war_participations": 4
     },
@@ -152,13 +152,13 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
+      "attacks_used": 1,
+      "average_stars": 3.0,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-07-25",
       "nickname": "Ziklin",
-      "stars_earned": 0,
+      "stars_earned": 3,
       "town_hall_level": 5,
       "war_participations": 1
     },

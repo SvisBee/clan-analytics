@@ -28,11 +28,11 @@
         "town_hall_level": 7
       },
       {
-        "members": 4,
+        "members": 5,
         "town_hall_level": 6
       },
       {
-        "members": 5,
+        "members": 4,
         "town_hall_level": 5
       },
       {
@@ -283,13 +283,13 @@
     },
     {
       "attacks_available": 4,
-      "attacks_used": 2,
+      "attacks_used": 3,
       "average_stars": 3.0,
       "clan_role": "leader",
       "data_status": "available",
       "last_war_date": "2026-07-25",
       "nickname": "кума88",
-      "stars_earned": 6,
+      "stars_earned": 9,
       "town_hall_level": 9,
       "war_participations": 2
     },
@@ -332,7 +332,7 @@
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "шкура",
       "stars_earned": 7,
-      "town_hall_level": 5,
+      "town_hall_level": 6,
       "war_participations": 2
     },
     {

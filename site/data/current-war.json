@@ -1,19 +1,19 @@
 {
-  "attack_stars_total": 47,
+  "attack_stars_total": 50,
   "attacks_available": 30,
   "attacks_per_member": 2,
-  "attacks_used": 18,
-  "clan_stars": 42,
+  "attacks_used": 19,
+  "clan_stars": 45,
   "data_status": "available",
   "end_time": "2026-07-25",
   "members": [
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 1,
+      "average_stars": 3.0,
+      "new_stars_contributed": 3,
       "nickname": "кума88",
-      "stars_earned": 0,
+      "stars_earned": 3,
       "town_hall_level": 9,
       "war_position": 1
     },
@@ -160,8 +160,8 @@
   ],
   "new_stars_contribution_status": "available",
   "participants": 15,
-  "reconstructed_clan_stars": 42,
+  "reconstructed_clan_stars": 45,
   "stars_consistency_status": "consistent",
-  "stars_earned": 42,
+  "stars_earned": 45,
   "state": "inWar"
 }

@@ -24,7 +24,7 @@
         "town_hall_level": 8
       },
       {
-        "members": 9,
+        "members": 10,
         "town_hall_level": 7
       },
       {
@@ -32,7 +32,7 @@
         "town_hall_level": 6
       },
       {
-        "members": 7,
+        "members": 6,
         "town_hall_level": 5
       },
       {
@@ -183,7 +183,7 @@
       "last_war_date": "2026-07-25",
       "nickname": "BoRziY",
       "stars_earned": 0,
-      "town_hall_level": 6,
+      "town_hall_level": 7,
       "war_participations": 1
     },
     {
@@ -219,7 +219,7 @@
       "last_war_date": null,
       "nickname": "MiKiRi",
       "stars_earned": null,
-      "town_hall_level": 5,
+      "town_hall_level": 6,
       "war_participations": 0
     },
     {

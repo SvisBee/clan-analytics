@@ -44,13 +44,13 @@
   "members": [
     {
       "attacks_available": 4,
-      "attacks_used": 2,
+      "attacks_used": 3,
       "average_stars": 3.0,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-07-25",
       "nickname": "SvisBuha",
-      "stars_earned": 6,
+      "stars_earned": 9,
       "town_hall_level": 8,
       "war_participations": 2
     },
@@ -98,8 +98,8 @@
     },
     {
       "attacks_available": 8,
-      "attacks_used": 3,
-      "average_stars": 2.67,
+      "attacks_used": 4,
+      "average_stars": 2.75,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-07-25",
@@ -110,7 +110,7 @@
       "new_stars_contributed": null,
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "odlid",
-      "stars_earned": 8,
+      "stars_earned": 11,
       "town_hall_level": 7,
       "war_participations": 4
     },
@@ -140,13 +140,13 @@
     },
     {
       "attacks_available": 4,
-      "attacks_used": 2,
-      "average_stars": 3.0,
+      "attacks_used": 4,
+      "average_stars": 2.75,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-07-25",
       "nickname": "077zvr",
-      "stars_earned": 6,
+      "stars_earned": 11,
       "town_hall_level": 8,
       "war_participations": 2
     },
@@ -307,13 +307,13 @@
     },
     {
       "attacks_available": 6,
-      "attacks_used": 4,
-      "average_stars": 2.25,
+      "attacks_used": 5,
+      "average_stars": 2.0,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-07-25",
       "nickname": "PANDA",
-      "stars_earned": 9,
+      "stars_earned": 10,
       "town_hall_level": 5,
       "war_participations": 3
     },
@@ -403,7 +403,7 @@
     },
     {
       "attacks_available": 8,
-      "attacks_used": 6,
+      "attacks_used": 7,
       "average_stars": 3.0,
       "clan_role": "admin",
       "data_status": "available",
@@ -415,7 +415,7 @@
       "new_stars_contributed": null,
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "SvisBee",
-      "stars_earned": 18,
+      "stars_earned": 21,
       "town_hall_level": 7,
       "war_participations": 4
     }

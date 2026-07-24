@@ -1,9 +1,9 @@
 {
-  "attack_stars_total": 0,
+  "attack_stars_total": 15,
   "attacks_available": 30,
   "attacks_per_member": 2,
-  "attacks_used": 0,
-  "clan_stars": 0,
+  "attacks_used": 6,
+  "clan_stars": 15,
   "data_status": "available",
   "end_time": "2026-07-25",
   "members": [
@@ -19,21 +19,21 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 1,
+      "average_stars": 3.0,
+      "new_stars_contributed": 3,
       "nickname": "SvisBuha",
-      "stars_earned": 0,
+      "stars_earned": 3,
       "town_hall_level": 8,
       "war_position": 2
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 2,
+      "average_stars": 2.5,
+      "new_stars_contributed": 5,
       "nickname": "077zvr",
-      "stars_earned": 0,
+      "stars_earned": 5,
       "town_hall_level": 8,
       "war_position": 3
     },
@@ -44,7 +44,7 @@
       "new_stars_contributed": 0,
       "nickname": "kent",
       "stars_earned": 0,
-      "town_hall_level": 7,
+      "town_hall_level": 8,
       "war_position": 4
     },
     {
@@ -59,21 +59,21 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 1,
+      "average_stars": 3.0,
+      "new_stars_contributed": 3,
       "nickname": "odlid",
-      "stars_earned": 0,
+      "stars_earned": 3,
       "town_hall_level": 7,
       "war_position": 6
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 1,
+      "average_stars": 3.0,
+      "new_stars_contributed": 3,
       "nickname": "SvisBee",
-      "stars_earned": 0,
+      "stars_earned": 3,
       "town_hall_level": 7,
       "war_position": 7
     },
@@ -114,7 +114,7 @@
       "new_stars_contributed": 0,
       "nickname": "BoRziY",
       "stars_earned": 0,
-      "town_hall_level": 6,
+      "town_hall_level": 7,
       "war_position": 11
     },
     {
@@ -129,11 +129,11 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 1,
+      "average_stars": 1.0,
+      "new_stars_contributed": 1,
       "nickname": "PANDA",
-      "stars_earned": 0,
+      "stars_earned": 1,
       "town_hall_level": 5,
       "war_position": 13
     },
@@ -144,7 +144,7 @@
       "new_stars_contributed": 0,
       "nickname": "Artoym_Arty",
       "stars_earned": 0,
-      "town_hall_level": 5,
+      "town_hall_level": 6,
       "war_position": 14
     },
     {
@@ -160,8 +160,8 @@
   ],
   "new_stars_contribution_status": "available",
   "participants": 15,
-  "reconstructed_clan_stars": null,
-  "stars_consistency_status": "unavailable",
-  "stars_earned": 0,
-  "state": "preparation"
+  "reconstructed_clan_stars": 15,
+  "stars_consistency_status": "consistent",
+  "stars_earned": 15,
+  "state": "inWar"
 }

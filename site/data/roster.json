@@ -20,11 +20,11 @@
         "town_hall_level": 9
       },
       {
-        "members": 7,
+        "members": 8,
         "town_hall_level": 8
       },
       {
-        "members": 8,
+        "members": 7,
         "town_hall_level": 7
       },
       {
@@ -416,7 +416,7 @@
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "SvisBee",
       "stars_earned": 24,
-      "town_hall_level": 7,
+      "town_hall_level": 8,
       "war_participations": 5
     }
   ],

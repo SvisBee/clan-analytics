@@ -1,66 +1,72 @@
 # Codebase Memory
 
-**Implementation status: created and statically checked. `D-coc` successfully rebuilt with an explicit full index on 2026-07-19.**
+## Принятая архитектура
 
-## Конфигурация
+Локальные файлы — source of truth. Codebase Memory является дополнительным индексом и не заменяет проверку актуального содержимого файлов.
 
-- Project name: `D-coc`
-- Workspace root: `D:/coc`
-- Файл исключений: `D:\coc\.cbmignore`
-- Refresh-скрипт: `D:\coc\repo\scripts\workspace\refresh_codebase_memory.ps1`
+| Назначение | Project | Root | Script |
+| --- | --- | --- | --- |
+| Daily repo index | `D-coc-repo` | `D:/coc/repo` | `scripts/workspace/refresh_codebase_memory_repo.ps1` |
+| Broad workspace maintenance | `D-coc` | `D:/coc` | `scripts/workspace/refresh_codebase_memory.ps1` |
 
-Codebase Memory помогает находить код, техническую документацию, архитектурные и продуктовые решения и Obsidian-заметки в пределах общего workspace.
+Daily project охватывает `repo/docs`, `repo/src`, `repo/site`, `repo/tests`, `repo/scripts` и repo configuration. Broad `D-coc` сохраняется для workspace-wide discovery, Obsidian и материалов вне Git root; он не удаляется и не переименовывается.
 
-Индексируются содержательные файлы из `D:\coc\repo` и Markdown-заметки из `D:\coc\obsidian`, включая проектные правила, README, документацию, решения и статические исходники сайта. Пустые каталоги или `.gitkeep` могут не создавать отдельных узлов графа.
+`D:/coc` не является Git root. Поэтому `detect_changes` на broad project может вернуть пустой набор после Git status 128 и не является доказательством отсутствия изменений. Broad rebuild выполняется только как отдельная ручная maintenance-операция и не использует Git HEAD как no-change gate.
 
-Корневой `.cbmignore` исключает `data`, `runs`, `local`, все `.git`, служебные `.codebase-memory`, `repo/site/data`, секреты, локальные базы, логи, архивы, табличные импорты, кеши, окружения, зависимости и результаты сборки.
+## Safety contract
 
-Наблюдаемый baseline после пересоздания 2026-07-19: 317 nodes, 341 edges и 36 File nodes, включая 28 файлов из `repo/` и 8 файлов из `obsidian/`. Эти counters фиксируют состояние workspace на дату проверки и не являются постоянными жёсткими требованиями.
+Оба скрипта используют только canonical binary:
 
-## Безопасное обновление
+`C:\Users\nshhi\AppData\Local\Programs\codebase-memory-mcp\codebase-memory-mcp.exe`
 
-Скрипт работает только с уже существующим проектом `D-coc` с root `D:/coc`. Он не создаёт проект намеренно: перед единственным вызовом индексатора проверяет точное имя, root, отсутствие дубликатов и похожих проектов. Доступный CLI не предоставляет отдельную атомарную команду update-only, поэтому отсутствие проекта всегда блокирует запуск до индексации. Каждый refresh явно передаёт `mode="full"` вместе с `repo_path="D:/coc"` и `name="D-coc"`.
+Перед реальным rebuild пользователь закрывает Codex и передаёт `-ConfirmStopProcesses`. Скрипт останавливает только `codebase-memory-mcp.exe`, никогда не останавливает Codex и не использует wildcard для cache. Для каждого target разрешены только три точных файла: `<project>.db`, `<project>.db-wal`, `<project>.db-shm`.
 
-Явный full mode обязателен, потому что workspace root `D:/coc` не является Git root: Git repository находится в `D:/coc/repo`, а metadata проекта показывает `is_git=false`. Вызов `detect_changes` относительно `D:/coc` получает Git status 128 и формирует пустой incremental manifest. Поэтому `detect_changes` не используется как gate для refresh проекта `D-coc`.
+Перед удалением старого graph скрипт копирует существующие target DB/WAL/SHM в run-local `backup`, сохраняет metadata и SHA-256. При failure после удаления target graph восстанавливается только из этого backup. Backup не удаляется автоматически. Initial build без старого graph явно фиксируется как `backup_present=false` и `rollback=unavailable-initial-build`.
 
-До обновления скрипт проверяет обязательные правила `.cbmignore`, Git root, полностью чистое дерево, включая untracked-файлы, пустой staged-набор и существующий проект. Допускается ровно один Git remote с именем `origin`; его fetch и push URL должны точно совпадать с `https://github.com/SvisBee/clan-analytics.git`. Отсутствующий, дополнительный, иначе названный или указывающий на другой URL remote блокирует refresh до индексатора. Затем скрипт сохраняет HEAD, конфигурацию remote, контрольные хеши репозитория и Obsidian Markdown, хеш `.cbmignore` и инвентарь файлов workspace.
+PASS требует не только exit code: `status=indexed`, `skipped_count=0`, positive nodes/edges, exact `nodes=expected_nodes`, exact `edges=expected_edges`, clean stderr, и persisted `list_projects` validation с точными project/root/counts. Run artifacts сохраняются вне Git.
 
-Remote проверяется только как локальная Git-конфигурация. Refresh не выполняет `fetch`, `pull`, `push`, изменение remote или другие сетевые Git-операции. Изменение утверждённого remote требует отдельного разрешения и последующего явного обновления этой проверки.
+## Outputs and exit codes
 
-После единственной индексации повторно проверяются проект и root, дубликаты, HEAD, Git status, staged-набор, remote, хеши и инвентарь. Архитектурное дерево проверяется на запрещённые пути и расширения. Это дерево отражает graph-indexed пути и может не показывать неподдерживаемые или пустые файлы.
+Daily runs: `D:\coc\runs\codebase_memory_repo_refresh\<YYYY-MM-DD>\<timestamp>_clean_full`.
 
-CLI-ввод, stdout и stderr обрабатываются в памяти. Скрипт не создаёт временные payload- или log-файлы ни в workspace, ни в системном временном каталоге.
+Broad runs: `D:\coc\runs\codebase_memory_broad_rebuild\<YYYY-MM-DD>\<timestamp>_clean_full`.
 
-Автоматический retry и fallback запрещены. Одно явное разрешение означает ровно один вызов `index_repository` в режиме `full`. Повторный запуск ради увеличения nodes или edges запрещён. Backup не удаляется автоматически. Изменение project name или root, как и обновление Codebase Memory CLI, требует отдельного решения и явного разрешения.
+Каждый run содержит backup, index stdout/stderr, `projects_after.json`, `refresh.status.txt`, `refresh.manifest.json` и `postflight_controls.json`.
 
-Обновление уместно после крупного завершённого и закоммиченного этапа, когда Git-дерево снова чистое. Оно не требуется после мелких правок, при незавершённой работе или если актуализация индекса не нужна следующей задаче.
+| Code | Meaning |
+| --- | --- |
+| 0 | PASS |
+| 10 | NO_CHANGE (daily Git HEAD only) |
+| 20 | Invalid arguments or safety gate |
+| 21 | Process quiescence failure |
+| 22 | Backup failure |
+| 23 | Index process failure |
+| 24 | Actual/expected or worker validation failure |
+| 25 | Persisted-project validation failure |
+| 26 | Rollback failure |
 
-Запуск требует отдельного явного разрешения:
+If actual and expected counts differ, treat the run as failed, retain the logs and backup, and inspect the persisted project only after rollback status is known. Do not retry automatically.
 
-```powershell
-& 'D:\coc\repo\scripts\workspace\refresh_codebase_memory.ps1'
-```
+## Manual daily initial test
 
-## История runtime-проверок
+After closing Codex, run this command once with explicit authorization:
 
-- Старый основной project содержал 106 nodes, 104 edges и 17 File nodes.
-- Полный workspace успешно индексировался в чистом временном cache.
-- Старые project-owned cache files были сохранены в `D:\coc\data\backups\codebase_memory\D-coc-before-full-20260719-144305`.
-- Основной `D-coc` был создан заново одним явным full index и достиг baseline 317 nodes, 341 edges и 36 File nodes.
-- Новый graph прошёл SQLite integrity check; rollback не потребовался.
+    & 'D:\coc\repo\scripts\workspace\refresh_codebase_memory_repo.ps1' -ConfirmStopProcesses -ControlPath 'docs/tasks/clan_war_history_v1_closeout.md','src/clan_analytics/site_update.py','site/index.html' -ControlPhrase 'Definition of Done','build_site_update','current-war-v5-20260720'
 
-- Первый разрешённый запуск остановился на preflight: обязательный параметр `Warnings` не принимал корректную пустую коллекцию. Атрибут `AllowEmptyCollection()` добавлен и изолированно проверен без запуска refresh.
-- Второй разрешённый запуск прошёл preflight и достиг единственного вызова индексатора, но `index_repository` вернул exit code `1`. Nodes, edges, Git и файлы workspace не изменились.
-- Предыдущая версия сохраняла stdout и stderr в памяти, но при ненулевом exit code выводила только общий exit code, поэтому фактическое сообщение индексатора было потеряно.
-- Последний разрешённый запуск завершился до индексатора из-за устаревшего требования полного отсутствия Git remote: `Stage: preflight`, `Index runs: 0`. Наличие утверждённого `origin` теперь является ожидаемым состоянием проекта.
-- Full refresh 2026-07-19 завершился с exit code 0: граф обновился до 619 nodes и 1754 edges, SQLite integrity check вернул `ok`.
-- Authoritative File nodes после refresh: 52, включая 44 из `repo/` и 8 из `obsidian/`; отсутствовал только safe source-файл `repo/scripts/api/save_clash_api_token.ps1`.
-- Root cause for the omitted safe source file was confirmed at the repository ignore layer: the filename matched `**/*token*`. An exact negation was added for the tracked source script only. Runtime revalidation passed.
-- Authoritative runtime 2026-07-19 для project `D-coc` с root `D:/coc`: 626 nodes, 1804 edges и 53 File nodes, включая 45 из `repo/` и 8 из `obsidian/`; `local`, `data` и `runs` дали 0 File nodes. SQLite integrity check вернул `ok`.
-- Exact `.gitignore` negation позволил проиндексировать `repo/scripts/api/save_clash_api_token.ps1`. File node присутствовал ровно один раз, graph size совпал с filesystem size, runtime revalidation получила статус `passed`.
-- Итоговая реализация DPAPI ACL и explicit backup зафиксирована коммитами: `788504fd44f1a2c4037a1539519dbc6fb34c06c1`, `262282db089611afe3dc33d61555d2b211142d57`, `ec0791a50ccb32f53e7f2de0f71a3a5e8ae29cab`.
-- DPAPI save acceptance прошёл внешне с exit code 0. Настоящий secret и DPAPI ciphertext остаются вне workspace и не индексируются.
+The daily state file is `D:\coc\runs\codebase_memory_repo_refresh\state\D-coc-repo.last_success.json`. A matching daily Git HEAD returns exit code 10 unless `-Force` is supplied.
 
-Теперь ошибки процесса включают отдельные безопасные выдержки stdout и stderr: не более 12 исходных строк и 2000 символов на каждый поток. Bearer-токены, пароли, authorization/token/secret/API-key значения, credentials в URI, JWT и длинные потенциально секретные значения заменяются маркерами `[REDACTED...]`. Пустой поток отображается как `<empty>`. Полный payload и environment не выводятся.
+## Phase 2 after reopening Codex
 
-Подтверждённая причина прежнего сбоя refresh: incremental change detection пытался выполнить Git-сравнение от `D:/coc`, который не является Git repository. После сохранения старых project-owned cache files основной граф был успешно пересоздан явным full index. Будущий refresh сохраняет существующие preflight и postflight проверки, но всегда передаёт `mode="full"` и не зависит от incremental manifest.
+Perform Phase 2 against `D-coc-repo`, not broad `D-coc`:
+
+- `docs/tasks/clan_war_history_v1_closeout.md`: File node, Section nodes, and phrase `Definition of Done`.
+- `src/clan_analytics/site_update.py`: File/Module, symbol `build_site_update`, and its own content.
+- `site/index.html`: File/Module and asset contract `current-war-v5-20260720`.
+
+The script writes the same project, root, Git HEAD, control paths and phrases into `postflight_controls.json` with `postflight_required_after_codex_restart=true`.
+
+## Historical worker evidence
+
+Historical docs record worker/index failures and earlier successful broad refreshes. They are evidence about previous runs, not claims about the internal mechanism of the closed CBM binary. Current rebuild diagnostics are the run-local stdout, stderr, manifest and rollback record.
+
+Never run an external rebuild while Codex is open. Indexing, stopping CBM processes and graph-file deletion each require explicit authorization.

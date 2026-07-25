@@ -67,11 +67,13 @@
 
 ## Codebase Memory
 
-- Project: `D-coc`; workspace root: `D:/coc`.
+- Локальные файлы являются source of truth. Codebase Memory — дополнительный read-only индекс, который может отставать.
+- Daily project: `D-coc-repo`; root: `D:/coc/repo`; script: `D:\coc\repo\scripts\workspace\refresh_codebase_memory_repo.ps1`.
+- Broad project: `D-coc`; root: `D:/coc`; script: `D:\coc\repo\scripts\workspace\refresh_codebase_memory.ps1`.
 - Ignore file: `D:\coc\.cbmignore`.
-- Refresh script: `D:\coc\repo\scripts\workspace\refresh_codebase_memory.ps1`.
-- Запуск требует отдельного явного разрешения; одно разрешение означает один запуск, автоматические повторы запрещены.
-- Скрипт работает только с существующим проектом. Создавать новый проект через refresh-скрипт запрещено.
-- Перед запуском обязательны точная проверка имени и root, наличие полного `.cbmignore` и полностью чистый Git status, включая отсутствие untracked и staged-файлов.
+- Daily refresh пользователь запускает вручную только после закрытия Codex. Codex может подготовить control paths и phrases, но не запускает rebuild из активной MCP-сессии.
+- После ежедневного или broad rebuild пользователь открывает Codex и выполняет обязательный Phase 2 content postflight в соответствующем project.
+- Broad rebuild является отдельной manual maintenance-операцией; старый `D-coc` не удаляется и не переименовывается.
+- Index, остановка Codebase Memory processes и удаление graph files требуют отдельного явного разрешения; автоматические повторы запрещены.
 - Codebase Memory не должна изменять файлы workspace, Git index или HEAD.
 - `data`, `runs`, `local`, `.git`, `.codebase-memory` и `repo/site/data` индексировать запрещено.

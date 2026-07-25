@@ -1,8 +1,8 @@
 {
-  "attack_stars_total": 50,
+  "attack_stars_total": 54,
   "attacks_available": 30,
   "attacks_per_member": 2,
-  "attacks_used": 19,
+  "attacks_used": 22,
   "clan_stars": 45,
   "data_status": "available",
   "end_time": "2026-07-25",
@@ -119,21 +119,21 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
+      "attacks_used": 2,
+      "average_stars": 0.5,
       "new_stars_contributed": 0,
       "nickname": "Ronnurik",
-      "stars_earned": 0,
+      "stars_earned": 1,
       "town_hall_level": 6,
       "war_position": 12
     },
     {
       "attacks_available": 2,
-      "attacks_used": 1,
-      "average_stars": 1.0,
+      "attacks_used": 2,
+      "average_stars": 2.0,
       "new_stars_contributed": 1,
       "nickname": "PANDA",
-      "stars_earned": 1,
+      "stars_earned": 4,
       "town_hall_level": 5,
       "war_position": 13
     },

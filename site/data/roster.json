@@ -20,19 +20,19 @@
         "town_hall_level": 9
       },
       {
-        "members": 4,
+        "members": 6,
         "town_hall_level": 8
       },
       {
-        "members": 10,
+        "members": 8,
         "town_hall_level": 7
       },
       {
-        "members": 5,
+        "members": 6,
         "town_hall_level": 6
       },
       {
-        "members": 4,
+        "members": 3,
         "town_hall_level": 5
       },
       {
@@ -111,18 +111,18 @@
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "odlid",
       "stars_earned": 11,
-      "town_hall_level": 7,
+      "town_hall_level": 8,
       "war_participations": 4
     },
     {
       "attacks_available": 6,
-      "attacks_used": 4,
-      "average_stars": 1.75,
+      "attacks_used": 6,
+      "average_stars": 1.33,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-07-25",
       "nickname": "Ronnurik",
-      "stars_earned": 7,
+      "stars_earned": 8,
       "town_hall_level": 6,
       "war_participations": 3
     },
@@ -183,7 +183,7 @@
       "last_war_date": "2026-07-25",
       "nickname": "BoRziY",
       "stars_earned": 6,
-      "town_hall_level": 7,
+      "town_hall_level": 8,
       "war_participations": 1
     },
     {
@@ -307,13 +307,13 @@
     },
     {
       "attacks_available": 6,
-      "attacks_used": 5,
-      "average_stars": 2.0,
+      "attacks_used": 6,
+      "average_stars": 2.17,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-07-25",
       "nickname": "PANDA",
-      "stars_earned": 10,
+      "stars_earned": 13,
       "town_hall_level": 5,
       "war_participations": 3
     },
@@ -344,7 +344,7 @@
       "last_war_date": null,
       "nickname": "Fyst",
       "stars_earned": null,
-      "town_hall_level": 5,
+      "town_hall_level": 6,
       "war_participations": 0
     },
     {

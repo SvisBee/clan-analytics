@@ -10,8 +10,9 @@ Repository-scoped skills находятся в `.agents/skills`, поэтому 
 | `coc-review-and-qa` | Проверка diff, acceptance criteria, regression risk, public export и завершённости | Автоматическое исправление findings и неразрешённые исполняемые проверки |
 | `coc-debugging` | Воспроизводимая диагностика, локализация и root cause | Guess-and-check, автоматические retries, production и массовый refactoring |
 | `coc-code-simplification` | Удаление понятой лишней сложности с сохранением поведения | Feature changes, public contracts, data model и business logic |
+| `coc-harness-review` | Выборочный review repository или одного наблюдаемого workflow: context, authority, proof, tool legibility и feedback | Автоматический review каждой задачи, UI/design, QA, debugging, запуск или исправление findings |
 
-Явный вызов выполняется именем `$coc-design-engineering`, `$coc-review-and-qa`, `$coc-debugging` или `$coc-code-simplification`. Codex также может выбрать skill неявно, когда запрос соответствует его `description`; это не расширяет разрешения задачи.
+Явный вызов выполняется именем `$coc-design-engineering`, `$coc-review-and-qa`, `$coc-debugging`, `$coc-code-simplification` или `$coc-harness-review`. Codex также может выбрать skill неявно, когда запрос соответствует его `description`; это не расширяет разрешения задачи.
 
 ## Порядок применения
 

@@ -2,6 +2,16 @@
 
 Access date for all sources: 2026-07-19. These project-local materials are adaptations of selected guidance, not official upstream skills. The upstream authors and owners are not affiliated with Clash Clan Analytics and do not endorse it.
 
+## lopopolo/harness-engineering
+
+- Project and owner: [Ryan Lopopolo, `lopopolo/harness-engineering`](https://github.com/lopopolo/harness-engineering).
+- Source revision: commit `226c8d35fb6ea3ed55467753dba6dea2b5fd5778` on `trunk`, reviewed 2026-07-26.
+- License: CC BY 4.0; source rights and attribution details are in the upstream `COPYING.md`.
+- Shared read-only checkout: `D:\tools\harness-engineering`.
+- Adapted ideas: just-in-time context, explicit authority, claim-matched proof, tool legibility, bounded whole-job review, and retention of confirmed feedback at a local owner.
+- Not copied: upstream directory structure, policies, version pins, fixtures, commands, permission templates, scripts, or full playbooks.
+- Manual reference update only: `git -C D:\tools\harness-engineering pull --ff-only`. After updating, review the source diff and repeat this local adaptation review before relying on any new guidance.
+
 ## emilkowalski/skills
 
 - Project and owner: [`emilkowalski/skills`](https://github.com/emilkowalski/skills), Emil Kowalski.

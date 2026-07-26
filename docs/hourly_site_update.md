@@ -1,6 +1,6 @@
 # Hourly clan site updater
 
-Status: history schema v2 migration completed; controlled PreviewOnly API/proposal stages passed; mutex isolation fix validated offline; normal updater/publication after migration not run; Scheduled Task Disabled.
+Status: collection reliability v1 implemented, awaiting natural scheduled-run validation. History schema v2 migration completed; normal updater and publication have subsequently run; Scheduled Task is enabled outside explicitly approved maintenance windows.
 
 ## Purpose
 
@@ -53,6 +53,23 @@ The reviewed live migration completed successfully. One controlled PreviewOnly r
 Updater mutual exclusion is scoped to a canonical WorkspaceRoot. The mutex name uses a stable SHA-256 path prefix, so manual and Scheduled Task runs for `D:\coc` exclude each other while an isolated test workspace does not conflict with production. The previous PreviewOnly probes and proposal passed; its final failure was only this test-isolation defect. History is now schema v2, the Scheduled Task remains Disabled, and no normal publication ran after migration.
 
 The updater reports separate persistence, public replacement, commit and push stages. A commit failure leaves the run backup and a dirty working tree for manual recovery; a push failure leaves one local data commit ahead of `origin/main` for manual inspection and push. It never silently creates a second replacement commit.
+
+## Local collection health
+
+Every attempt now creates a local run directory before mutex, history and Git
+preflight exits. The run contains `bootstrap.log` and `health.json`; the latest
+operator state is stored below `D:\coc\local\health\site_update`. These files
+are not public and are not committed. See [collection_health.md](collection_health.md).
+
+The API key uses an IP allowlist. In this installation the approved VPN usually
+provides the permitted stable IP. A failed request with HTTP 403 is recorded as
+`api_http_403` with an `enable_approved_vpn` hint. The updater does not enable
+VPN, inspect external IP, read token material, or alter API key/allowlist. The
+same status can have another cause, so it is not diagnosed as token failure.
+
+Dirty Git remains an intentional fail-closed gate. The updater records only
+safe counts and repository-relative blocking paths; it never stashes, resets,
+cleans or creates a recovery commit automatically.
 
 During maintenance, the updater does not auto-push any ahead commit. `check_update_git_state.py` fails closed, prints the pending HEAD and changed paths, and requires manual inspection and push before a new collection. This prevents Scheduled Task from publishing unrelated code or documentation.
 

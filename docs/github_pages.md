@@ -14,7 +14,7 @@
 - Локальные изменения не публикуются до commit и разрешённого push.
 - После разрешённого push изменений сайта новая версия разворачивается автоматически.
 
-Каталоги `docs`, `scripts`, `tests`, локальные `data`, `runs`, `local` и Obsidian не входят в Pages artifact. В repository и artifact нет внутренних данных руководства. Clash of Clans API, backend и реальные игровые данные не подключены.
+Каталоги `docs`, `scripts`, `tests`, локальные `data`, `runs`, `local` и Obsidian не входят в Pages artifact. В repository и artifact нет внутренних данных руководства. API probes выполняются только локально; GitHub Pages не имеет backend или доступа к token. Подготовленные allowlist-only реальные игровые данные публикуются как статические JSON.
 
 ## Проверка и управление
 

@@ -13,7 +13,7 @@
 5. **Состав и базовые карточки игроков – завершено для текущего public scope.**
 6. **Current war и hourly updater – завершено для базового live scope.**
 7. **Clan War History v1 – завершено: schema v2, lifecycle, reconciliation, manual evidence, public metrics, Pages и hourly updater.**
-8. **collection_reliability_v1** – повысить наблюдаемость и устойчивость регулярного сбора.
+8. **collection_reliability_v1** – implemented, awaiting natural scheduled-run validation: повысить наблюдаемость и устойчивость регулярного сбора.
 9. **clan_snapshot_history_v1** – накопить сопоставимые снимки состава во времени.
 10. **clan_games_v1** – определить безопасный источник и публичные агрегаты Игр кланов.
 11. **donations_weekly_v1** – добавить недельные нейтральные агрегаты пожертвований.

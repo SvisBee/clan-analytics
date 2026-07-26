@@ -2,7 +2,7 @@
 
 Проект аналитики клана Clash of Clans с публикацией только подготовленной публичной части как статического сайта.
 
-**Текущий статус:** `Clan War History v1 completed; live collection and publication operational`.
+**Текущий статус:** `Clan War History v1 completed; collection reliability v1 implemented, awaiting natural scheduled-run validation`.
 
 Официальный Clash of Clans API подключён локально через три fail-closed probe: текущий состав, current war и war log. Подготовленные публичные данные публикуются на GitHub Pages, а отключаемый Windows Scheduled Task выполняет unified updater каждый час и при входе пользователя. Raw responses, стабильные игровые tags, token и подробная внутренняя history остаются вне Git.
 
@@ -50,7 +50,7 @@ Strix исследован только на уровне readiness-докуме
 
 Контракт внутренней модели и публичного allowlist описан в [docs/roster_data_contract.md](docs/roster_data_contract.md). `site/data/roster.json` генерируется из live snapshot и не содержит `player_tag`.
 
-Перед следующим исполняемым этапом необходимо собрать обратную связь клана, согласовать интерфейс и публичные поля, а затем отдельно выбрать технический источник состава. API не считается автоматически выбранным следующим этапом.
+Источник состава уже выбран: локальные fail-closed probes официального API. Следующий приоритет не меняет публичные поля, а повышает наблюдаемость и устойчивость регулярного сбора.
 
 План первого раунда, вопросы и реестр предложений: [docs/clan_feedback_round_1.md](docs/clan_feedback_round_1.md).
 

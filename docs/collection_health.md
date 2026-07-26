@@ -2,7 +2,7 @@
 
 ## Status
 
-implemented with corrected lifecycle accounting, awaiting natural scheduled-run validation
+completed; natural scheduled-run and legacy reader compatibility validated
 
 ## Scope and privacy
 
@@ -69,3 +69,16 @@ The reader is backward-compatible with preserved health records that predate
 optional fields such as `process_exit_code`, `publication` or `freshness`.
 Such a record is marked `legacy_record=true`; unavailable values remain null
 and never prevent valid newer summaries from being displayed.
+
+## Completed validation
+
+Natural normal run `20260726-210001-439c3f15` completed successfully with
+`process_exit_code=0` and duration `38.195` seconds. Its probes, builder,
+validation, tests, apply, commit and push stages completed; a non-fatal Python
+warning on native stderr did not change the successful result. The Task
+Scheduler recorded result `0`.
+
+The operator reader was then validated against that successful summary and a
+preserved legacy failure. Human and JSON modes return success, retain the
+legacy record as `legacy_record=true`, leave its unknown process exit as null,
+and expose only a logical run path. No health state is published.

@@ -1,6 +1,6 @@
 # Hourly clan site updater
 
-Status: collection reliability v1 lifecycle corrections are implemented offline and await a natural scheduled-run validation. History schema v2 migration completed; normal updater and publication have subsequently run; Scheduled Task is enabled outside explicitly approved maintenance windows.
+Status: collection reliability v1 is completed. The natural normal run `20260726-210001-439c3f15` validated lifecycle accounting, local health summaries and publication with `process_exit_code=0`; legacy health-reader compatibility was subsequently validated. History schema v2 migration completed; Scheduled Task is enabled outside explicitly approved maintenance windows.
 
 ## Purpose
 

@@ -10,7 +10,7 @@ The updater keeps both the clan roster and war data current. One normal run perf
 2. current clan war;
 3. clan war log.
 
-It then updates local detailed-war history, builds public-only JSON, validates the site, and publishes through Git only when public data changed.
+It then updates local detailed-war history, builds public-only JSON, validates the site, records one local confirmed roster observation, and publishes through Git only when public data changed.
 
 ## Roster coverage
 
@@ -66,6 +66,17 @@ stderr does not fail a process with exit code `0`; a nonzero process exit code
 remains fail-closed and receives a sanitized diagnostic. Health durations use
 UTC timestamps plus a monotonic Stopwatch. Each begun stage is finalized and
 each run records a final `complete` stage with the actual process exit code.
+
+After successful tests, normal mode records the confirmed roster snapshot in
+`data/clan_snapshot_history/clan_snapshot_history.v1.sqlite3` before backup or
+atomic public apply. This consumes the already collected roster probe and does
+not add an API request. The result is a local safe
+`snapshot-history-result.json` run artifact plus a `snapshot_history` health
+stage. PreviewOnly performs no SQLite initialization, validation or write.
+Failure at this boundary stops before public files, history, commit and push;
+a later publication failure does not undo the confirmed local observation.
+The relevant normal-mode order is `tests → snapshot_history → atomic apply →
+commit/push`.
 
 The API key uses an IP allowlist. In this installation the approved VPN usually
 provides the permitted stable IP. A failed request with HTTP 403 is recorded as

@@ -21,6 +21,7 @@ $RepoRoot = Join-Path $WorkspaceRoot 'repo'
 $RunRoot = Join-Path $WorkspaceRoot 'runs\site_update'
 $ApiProbeRoot = Join-Path $WorkspaceRoot 'runs\api_probe'
 $HistoryPath = Join-Path $WorkspaceRoot 'data\war_history\history.json'
+$SnapshotDatabasePath = Join-Path $WorkspaceRoot 'data\clan_snapshot_history\clan_snapshot_history.v1.sqlite3'
 $LocalConfigPath = Join-Path $WorkspaceRoot 'data\config\clan_site_update.json'
 $SiteDataDir = Join-Path $RepoRoot 'site\data'
 $LogRoot = Join-Path $WorkspaceRoot 'local\logs\site_update'
@@ -176,6 +177,7 @@ try {
         (Join-Path $RepoRoot 'scripts\api\run_clan_current_war_probe.ps1'),
         (Join-Path $RepoRoot 'scripts\api\run_clan_war_log_probe.ps1'),
         (Join-Path $RepoRoot 'scripts\update\build_site_update.py'),
+        (Join-Path $RepoRoot 'scripts\update\record_clan_snapshot_history.py'),
         (Join-Path $RepoRoot 'site\assets\js\app.js'),
         (Join-Path $RepoRoot 'site\assets\js\current-war-contract.js'),
         (Join-Path $RepoRoot 'scripts\update\validate_war_history.py'),
@@ -290,6 +292,30 @@ try {
         exit 0
     }
 
+    # This normal-only local persistence boundary consumes the already verified
+    # roster probe. It performs no additional API request and precedes every
+    # public file/history/Git mutation.
+    $currentStage = 'snapshot_history'; $currentHealthStage = Start-HealthStage -Health $health -Stage $currentStage
+    $snapshotResultPath = Join-Path $runDir 'snapshot-history-result.json'
+    $snapshotProcess = Invoke-NativeProcess -FilePath $python -Arguments @(
+        (Join-Path $RepoRoot 'scripts\update\record_clan_snapshot_history.py'),
+        '--roster-json', (Join-Path $rosterDir 'raw_clan_response.json'),
+        '--roster-metadata', (Join-Path $rosterDir 'probe_metadata.json'),
+        '--database', $SnapshotDatabasePath,
+        '--workspace-root', $WorkspaceRoot,
+        '--source-run-id', $runId,
+        '--result-json', $snapshotResultPath
+    )
+    $script:LastCheckedOutput = @($snapshotProcess.stderr_safe)
+    if (-not $snapshotProcess.succeeded) { throw "Snapshot history recording failed: $($snapshotProcess.stderr_safe)" }
+    if (-not (Test-Path -LiteralPath $snapshotResultPath -PathType Leaf)) { throw 'snapshot_history_result_write_failure' }
+    try { $snapshotResult = Get-Content -LiteralPath $snapshotResultPath -Raw | ConvertFrom-Json -ErrorAction Stop }
+    catch { throw 'snapshot_history_result_write_failure' }
+    if ($snapshotResult.status -ne 'success' -or $snapshotResult.result_code -notin @('snapshot_history_success', 'snapshot_history_idempotent')) { throw [string]$snapshotResult.result_code }
+    Complete-HealthStage -Health $health -StageRecord $currentHealthStage -Status success -ResultCode $snapshotResult.result_code
+    $currentHealthStage | Add-Member -NotePropertyName process_exit_code -NotePropertyValue 0 -Force
+    $health.snapshot_history = [ordered]@{ status='success'; result_code=$snapshotResult.result_code; logical_database_path='data/clan_snapshot_history/clan_snapshot_history.v1.sqlite3'; initialized_store=[bool]$snapshotResult.initialized_store; inserted_payload=[bool]$snapshotResult.inserted_payload; inserted_observation=[bool]$snapshotResult.inserted_observation; observation_id=[string]$snapshotResult.observation_id; observed_at_utc=[string]$snapshotResult.observed_at_utc; recorded_at_utc=[string]$snapshotResult.recorded_at_utc; process_exit_code=0; safe_message=[string]$snapshotResult.safe_message }
+
     $backupRoot = Join-Path $runDir 'backup'
     New-Item -ItemType Directory -Path $backupRoot -Force | Out-Null
     foreach ($relative in $AllowedSiteFiles) {
@@ -385,6 +411,7 @@ catch {
     try {
         if ($null -ne $currentHealthStage -and $currentHealthStage.status -eq 'running') { Fail-HealthStage -Health $health -StageRecord $currentHealthStage -ResultCode $failure.result_code }
         if ($currentStage -in @('roster_probe', 'current_war_probe', 'war_log_probe')) { $health.probes[$currentStage] = [ordered]@{ status='failed'; result_code=$failure.result_code } }
+        if ($currentStage -eq 'snapshot_history') { $currentHealthStage | Add-Member -NotePropertyName process_exit_code -NotePropertyValue 1 -Force; $health.snapshot_history = [ordered]@{ status='failed'; result_code=$failure.result_code; logical_database_path='data/clan_snapshot_history/clan_snapshot_history.v1.sqlite3'; process_exit_code=1; safe_message=$failure.safe_message } }
         Finalize-HealthRun -Health $health -Status failed -ResultCode $failure.result_code -SafeMessage $failure.safe_message -OperatorHintCode $failure.operator_hint_code -ProcessExitCode 1
     }
     catch { [Console]::Error.WriteLine('Collection health write failed: health_write_failure.') }

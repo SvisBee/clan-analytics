@@ -2,7 +2,7 @@
 
 ## Status
 
-Storage core is implemented. Updater integration, public projection, backfill and retention compaction are pending separate approval.
+Storage core and normal-updater integration are implemented. Natural scheduled-run validation, public projection, backfill and retention compaction remain pending separate approval.
 
 ## Authority and boundary
 
@@ -24,4 +24,8 @@ Donations and donations received are raw counters only. A pure delta helper repo
 
 SQLite uses foreign keys, WAL journal mode, FULL synchronous mode and explicit single-writer transactions. Validation fail-closes on unexpected schema objects, incorrect schema shape, metadata, indexes, constraints, foreign keys, canonical timestamps, fingerprints and payload/member consistency. An observation cannot exist without its complete member state. No automatic vacuum, deletion, retention or migration is performed. A validated SQLite backup helper creates a standalone rollback-journal file without dependent WAL/SHM sidecars; it does not run before normal observations and never restores automatically.
 
-The existing updater does not use this store yet. A future integration must record only after its roster probe, normalization and validation boundary succeeds, without another API request or public-contract change.
+The normal updater records exactly one confirmed roster observation after all probes, builder, public validation and tests have succeeded, and before backup, atomic apply or Git operations. It consumes the existing roster-probe files and makes no additional API request. `PreviewOnly` returns before this stage and neither creates nor opens the snapshot database.
+
+The updater source-run ID is the actual updater run ID. The observation timestamp comes from the confirmed roster probe metadata, then is canonicalized to fixed-width UTC. The local adapter writes the safe run artifact `snapshot-history-result.json`; it excludes roster payloads, member names, game tags and absolute paths. A storage failure is fail-closed and prevents public apply, commit and push. A successful observation remains authoritative if a later public apply, commit or push fails.
+
+The operator-visible `snapshot_history` health object contains only status, result code, logical database path, initialization/insert facts, opaque observation ID and canonical timestamps. Supported normal outcomes are `snapshot_history_success` and `snapshot_history_idempotent`; failures distinguish initialization, validation, unsupported schema, conflict, out-of-order, lock, write, result-write and unexpected errors. `snapshot_history_skipped_preview` is reserved taxonomy; PreviewOnly omits the stage entirely for backward-compatible history.

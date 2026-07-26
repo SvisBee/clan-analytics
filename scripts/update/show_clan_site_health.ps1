@@ -49,6 +49,7 @@ function ConvertTo-OperatorHealth($Health, [string] $SourceName) {
             probes = Get-OptionalHealthProperty $Health 'probes'
             builder = Get-OptionalHealthProperty $Health 'builder'
             validation = Get-OptionalHealthProperty $Health 'validation'
+            snapshot_history = Get-OptionalHealthProperty $Health 'snapshot_history'
             publication = Get-OptionalHealthProperty $Health 'publication'
             freshness = Get-OptionalHealthProperty $Health 'freshness'
         }
@@ -73,6 +74,12 @@ if ($latest) {
     Write-Output "Latest stage: $($latest.current_stage)"
     Write-Output "Probes: $($latest.probes | ConvertTo-Json -Compress)"
     Write-Output "Builder/tests/apply: $($latest.builder) / $($latest.validation) / $($latest.publication)"
+    if ($null -eq $latest.snapshot_history) {
+        Write-Output 'Snapshot history: not recorded (legacy run or PreviewOnly).'
+    }
+    else {
+        Write-Output "Snapshot history: $($latest.snapshot_history.status) / $($latest.snapshot_history.result_code); database $($latest.snapshot_history.logical_database_path); observation recorded $($latest.snapshot_history.inserted_observation); store initialized $($latest.snapshot_history.initialized_store)"
+    }
     Write-Output "Commit and push: $($latest.publication | ConvertTo-Json -Compress)"
     Write-Output "Run: $($latest.logical_run_path)/$($latest.health_file)"
 }

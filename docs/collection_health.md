@@ -21,7 +21,7 @@ after a failed normal run; a later normal success retains it and adds
 Each run has a versioned `health.json` and a JSON-lines `bootstrap.log` before
 mutex, history and Git preflight exits. The health contract records the run,
 stage timings, safe result code and `process_exit_code`, Git counts, probe
-outcomes, builder, validation, publication and freshness facts. Timestamps use
+outcomes, builder, validation, local snapshot-history status, publication and freshness facts. Timestamps use
 UTC `DateTimeOffset`; run and stage durations use a monotonic Stopwatch and
 are never negative.
 
@@ -69,6 +69,13 @@ The reader is backward-compatible with preserved health records that predate
 optional fields such as `process_exit_code`, `publication` or `freshness`.
 Such a record is marked `legacy_record=true`; unavailable values remain null
 and never prevent valid newer summaries from being displayed.
+
+For normal runs that pass tests, `snapshot_history` is appended before
+`atomic_apply`. Its safe result distinguishes successful/idempotent recording
+from initialization, validation, schema, conflict, ordering, lock and write
+failures. The health reader projects this optional object when present and
+returns null for preserved records that predate it. PreviewOnly does not append
+the stage and does not touch the SQLite store.
 
 ## Completed validation
 

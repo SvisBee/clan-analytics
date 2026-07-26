@@ -14,7 +14,7 @@
 6. **Current war и hourly updater – завершено для базового live scope.**
 7. **Clan War History v1 – завершено: schema v2, lifecycle, reconciliation, manual evidence, public metrics, Pages и hourly updater.**
 8. **collection_reliability_v1** – завершён: наблюдаемость, lifecycle и безопасная диагностика регулярного сбора подтверждены естественным scheduled run.
-9. **clan_snapshot_history_v1** – storage core implemented; updater integration pending.
+9. **clan_snapshot_history_v1** – updater integration implemented, awaiting natural baseline validation. The hardened storage core records normal collections only; public projection, backfill and retention remain separate future work.
 10. **donations_weekly_v1** – добавить недельные нейтральные агрегаты пожертвований.
 11. **clan_games_v1 source research** – определить безопасный источник и публичные агрегаты Игр кланов.
 12. **cwl_history_v1** – отделить историю ЛВК от обычных КВ.

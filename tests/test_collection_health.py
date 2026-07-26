@@ -108,6 +108,7 @@ class CollectionHealthTests(unittest.TestCase):
             "builder": "builder_failure",
             "public_validation": "public_validation_failure",
             "tests": "tests_failure",
+            "snapshot_history": "snapshot_history_unexpected_failure",
             "atomic_apply": "atomic_apply_failure",
             "git_commit": "git_commit_failure",
             "git_push": "git_push_failure",
@@ -197,8 +198,22 @@ class CollectionHealthTests(unittest.TestCase):
         text = HEALTH_SCRIPT.read_text(encoding="utf-8")
         for value in ("mutex_held", "git_dirty", "git_branch_ahead", "api_http_403", "builder_failure", "git_push_failure", "health_write_failure", "unexpected_failure"):
             self.assertIn(value, text)
-        for stage in ("bootstrap", "mutex", "git_preflight", "roster_probe", "current_war_probe", "war_log_probe", "builder", "public_validation", "tests", "atomic_apply", "git_commit", "git_push", "complete"):
+        for stage in ("bootstrap", "mutex", "git_preflight", "roster_probe", "current_war_probe", "war_log_probe", "builder", "public_validation", "tests", "snapshot_history", "atomic_apply", "git_commit", "git_push", "complete"):
             self.assertIn(f"'{stage}'", text)
+
+    def test_snapshot_history_failure_codes_are_safe_and_distinct(self) -> None:
+        for code in (
+            "snapshot_history_initialization_failure", "snapshot_history_validation_failure",
+            "snapshot_history_schema_unsupported", "snapshot_history_conflict",
+            "snapshot_history_out_of_order", "snapshot_history_locked",
+            "snapshot_history_write_failure", "snapshot_history_result_write_failure",
+            "snapshot_history_unexpected_failure",
+        ):
+            with self.subTest(code=code):
+                result = powershell(f". '{HEALTH_SCRIPT}'; Get-CollectionHealthFailure -Stage snapshot_history -Text '{code}' | ConvertTo-Json -Compress")
+                value = json.loads(result.stdout)
+                self.assertEqual(value["result_code"], code)
+                self.assertNotIn("D:\\", value["safe_message"])
 
     def test_native_stderr_warning_with_zero_exit_is_success_under_stop(self) -> None:
         command = (

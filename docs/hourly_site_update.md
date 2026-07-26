@@ -1,6 +1,6 @@
 # Hourly clan site updater
 
-Status: collection reliability v1 implemented, awaiting natural scheduled-run validation. History schema v2 migration completed; normal updater and publication have subsequently run; Scheduled Task is enabled outside explicitly approved maintenance windows.
+Status: collection reliability v1 lifecycle corrections are implemented offline and await a natural scheduled-run validation. History schema v2 migration completed; normal updater and publication have subsequently run; Scheduled Task is enabled outside explicitly approved maintenance windows.
 
 ## Purpose
 
@@ -60,6 +60,12 @@ Every attempt now creates a local run directory before mutex, history and Git
 preflight exits. The run contains `bootstrap.log` and `health.json`; the latest
 operator state is stored below `D:\coc\local\health\site_update`. These files
 are not public and are not committed. See [collection_health.md](collection_health.md).
+
+Native subprocess stderr is captured separately from stdout. A warning on
+stderr does not fail a process with exit code `0`; a nonzero process exit code
+remains fail-closed and receives a sanitized diagnostic. Health durations use
+UTC timestamps plus a monotonic Stopwatch. Each begun stage is finalized and
+each run records a final `complete` stage with the actual process exit code.
 
 The API key uses an IP allowlist. In this installation the approved VPN usually
 provides the permitted stable IP. A failed request with HTTP 403 is recorded as

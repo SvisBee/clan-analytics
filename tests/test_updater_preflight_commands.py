@@ -14,6 +14,7 @@ VALIDATE = REPO_ROOT / "scripts" / "update" / "validate_war_history.py"
 GIT_CHECK = REPO_ROOT / "scripts" / "update" / "check_update_git_state.py"
 MUTEX_HELPER = REPO_ROOT / "scripts" / "update" / "workspace_mutex.ps1"
 HEALTH_HELPER = REPO_ROOT / "scripts" / "update" / "collection_health.ps1"
+NATIVE_HELPER = REPO_ROOT / "scripts" / "update" / "native_process.ps1"
 
 
 def run(*args: str, cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
@@ -30,6 +31,7 @@ class HistoryPreflightCommandTests(unittest.TestCase):
         shutil.copy2(REPO_ROOT / "scripts" / "update" / "update_clan_site.ps1", update / "update_clan_site.ps1")
         shutil.copy2(MUTEX_HELPER, update / MUTEX_HELPER.name)
         shutil.copy2(HEALTH_HELPER, update / HEALTH_HELPER.name)
+        shutil.copy2(NATIVE_HELPER, update / NATIVE_HELPER.name)
         shutil.copy2(VALIDATE, update / VALIDATE.name)
         shutil.copytree(REPO_ROOT / "src" / "clan_analytics", repo / "src" / "clan_analytics")
         return workspace, repo, update / "update_clan_site.ps1"
@@ -111,6 +113,7 @@ class HistoryPreflightCommandTests(unittest.TestCase):
             shutil.copy2(updater, isolated_repo / "scripts" / "update" / updater.name)
             shutil.copy2(MUTEX_HELPER, isolated_repo / "scripts" / "update" / MUTEX_HELPER.name)
             shutil.copy2(HEALTH_HELPER, isolated_repo / "scripts" / "update" / HEALTH_HELPER.name)
+            shutil.copy2(NATIVE_HELPER, isolated_repo / "scripts" / "update" / NATIVE_HELPER.name)
             shutil.copy2(VALIDATE, isolated_repo / "scripts" / "update" / VALIDATE.name)
             shutil.copytree(REPO_ROOT / "src" / "clan_analytics", isolated_repo / "src" / "clan_analytics")
             marker = workspace / "probe-called"

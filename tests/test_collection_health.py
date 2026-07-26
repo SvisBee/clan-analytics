@@ -10,6 +10,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 HEALTH_SCRIPT = REPO_ROOT / "scripts" / "update" / "collection_health.ps1"
 SHOW_SCRIPT = REPO_ROOT / "scripts" / "update" / "show_clan_site_health.ps1"
+NATIVE_SCRIPT = REPO_ROOT / "scripts" / "update" / "native_process.ps1"
 
 
 def powershell(script: str) -> subprocess.CompletedProcess[str]:
@@ -162,6 +163,105 @@ class CollectionHealthTests(unittest.TestCase):
             self.assertIn(value, text)
         for stage in ("bootstrap", "mutex", "git_preflight", "roster_probe", "current_war_probe", "war_log_probe", "builder", "public_validation", "tests", "atomic_apply", "git_commit", "git_push", "complete"):
             self.assertIn(f"'{stage}'", text)
+
+    def test_native_stderr_warning_with_zero_exit_is_success_under_stop(self) -> None:
+        command = (
+            f". '{NATIVE_SCRIPT}'; $ErrorActionPreference='Stop'; "
+            "$r=Invoke-NativeProcess -FilePath 'python' -Arguments @('-c', 'import sys; print(\"ok\"); print(\"warning from fictional helper\", file=sys.stderr)'); "
+            "$r | ConvertTo-Json -Compress"
+        )
+        result = powershell(command)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertTrue(payload["succeeded"])
+        self.assertEqual(payload["process_exit_code"], 0)
+        self.assertIn("ok", payload["stdout"])
+        self.assertIn("warning", payload["stderr_safe"])
+
+    def test_native_nonzero_stderr_is_failure_and_is_sanitized(self) -> None:
+        command = (
+            f". '{NATIVE_SCRIPT}'; $ErrorActionPreference='Stop'; "
+            "$r=Invoke-NativeProcess -FilePath 'python' -Arguments @('-c', 'import sys; print(\"token=fictional-secret D:\\\\private\", file=sys.stderr); raise SystemExit(7)'); "
+            "$r | ConvertTo-Json -Compress"
+        )
+        result = powershell(command)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertFalse(payload["succeeded"])
+        self.assertEqual(payload["process_exit_code"], 7)
+        self.assertNotIn("fictional-secret", payload["stderr_safe"])
+        self.assertNotIn("D:\\", payload["stderr_safe"])
+
+    def test_synthetic_success_finalizes_all_stages_with_nonnegative_durations(self) -> None:
+        health, workspace = self.run_health(
+            "$h=New-CollectionHealthRun -WorkspaceRoot '$WORKSPACE' -RunDirectory '$RUN' -RunId 'run-1' -Mode normal; "
+            "foreach($name in @('bootstrap','mutex','git_preflight','roster_probe','current_war_probe','war_log_probe','builder','public_validation','tests')) { $s=Start-HealthStage -Health $h -Stage $name; Complete-HealthStage -Health $h -StageRecord $s -Status success -ResultCode success }; "
+            "Add-CollectionHealthDiagnostic -Health $h -Stage builder -Code native_stderr -SafeMessage 'fictional warning' -ProcessExitCode 0; "
+            "Finalize-HealthRun -Health $h -Status success -ResultCode success -SafeMessage 'safe' -ProcessExitCode 0"
+        )
+        self.assertEqual(health["status"], "success")
+        self.assertEqual(health["process_exit_code"], 0)
+        self.assertGreaterEqual(health["duration_seconds"], 0)
+        self.assertEqual(health["stages"][-1]["stage"], "complete")
+        self.assertTrue(all(stage["status"] != "running" for stage in health["stages"]))
+        self.assertTrue(all(stage["duration_seconds"] >= 0 for stage in health["stages"]))
+        self.assertTrue((workspace / "local" / "health" / "site_update" / "last-success.json").is_file())
+
+    def test_synthetic_builder_failure_finalizes_and_preserves_last_success(self) -> None:
+        health, workspace = self.run_health(
+            "$h=New-CollectionHealthRun -WorkspaceRoot '$WORKSPACE' -RunDirectory '$RUN' -RunId 'run-1' -Mode normal; "
+            "$s=Start-HealthStage -Health $h -Stage bootstrap; Complete-HealthStage -Health $h -StageRecord $s -Status success -ResultCode success; "
+            "$s=Start-HealthStage -Health $h -Stage builder; Fail-HealthStage -Health $h -StageRecord $s -ResultCode builder_failure; "
+            "Finalize-HealthRun -Health $h -Status failed -ResultCode builder_failure -SafeMessage 'safe' -ProcessExitCode 1"
+        )
+        self.assertEqual(health["status"], "failed")
+        self.assertEqual(health["process_exit_code"], 1)
+        self.assertEqual(health["stages"][-2]["status"], "failed")
+        self.assertEqual(health["stages"][-1]["stage"], "complete")
+        self.assertEqual(health["stages"][-1]["status"], "failed")
+        self.assertTrue(all(stage["status"] != "running" for stage in health["stages"]))
+        self.assertFalse((workspace / "local" / "health" / "site_update" / "last-success.json").exists())
+        self.assertTrue((workspace / "local" / "health" / "site_update" / "latest-failure.json").is_file())
+
+    def test_operator_projection_redacts_all_windows_absolute_paths(self) -> None:
+        health, workspace = self.run_health(
+            "$h=New-CollectionHealthRun -WorkspaceRoot '$WORKSPACE' -RunDirectory '$RUN' -RunId 'run-1' -Mode normal; "
+            "Finalize-HealthRun -Health $h -Status failed -ResultCode builder_failure -SafeMessage 'safe' -ProcessExitCode 1"
+        )
+        root = workspace / "local" / "health" / "site_update"
+        for name in ("latest-run.json", "latest-failure.json"):
+            path = root / name
+            record = json.loads(path.read_text(encoding="utf-8-sig"))
+            record["workspace_root"] = r"D:\\coc"
+            record["run_directory"] = r"D:\\coc\\runs\\site_update\\run-1"
+            path.write_text(json.dumps(record), encoding="utf-8")
+        for suffix in ([], ["-Json"]):
+            result = subprocess.run(
+                ["powershell.exe", "-NoLogo", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", str(SHOW_SCRIPT), "-WorkspaceRoot", str(workspace), *suffix],
+                capture_output=True, text=True, check=False,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertNotRegex(result.stdout, r"(?i)[a-z]:\\")
+            self.assertNotIn(str(workspace), result.stdout)
+            self.assertIn("runs/site_update/run-1", result.stdout)
+
+    def test_operator_error_output_has_no_absolute_path(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / "local" / "health" / "site_update"
+            root.mkdir(parents=True)
+            (root / "latest-run.json").write_text("{", encoding="utf-8")
+            result = subprocess.run(
+                ["powershell.exe", "-NoLogo", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", str(SHOW_SCRIPT), "-WorkspaceRoot", temporary, "-Json"],
+                capture_output=True, text=True, check=False,
+            )
+        self.assertEqual(result.returncode, 1)
+        self.assertNotRegex(result.stdout + result.stderr, r"(?i)[a-z]:\\")
+        self.assertIn("unavailable", result.stdout)
+
+    def test_updater_uses_scoped_native_runner(self) -> None:
+        updater = (REPO_ROOT / "scripts" / "update" / "update_clan_site.ps1").read_text(encoding="utf-8")
+        self.assertIn("native_process.ps1", updater)
+        self.assertIn("Invoke-NativeProcess", updater)
 
 
 if __name__ == "__main__":

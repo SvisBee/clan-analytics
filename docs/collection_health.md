@@ -2,7 +2,7 @@
 
 ## Status
 
-implemented, awaiting natural scheduled-run validation
+implemented with corrected lifecycle accounting, awaiting natural scheduled-run validation
 
 ## Scope and privacy
 
@@ -20,8 +20,15 @@ after a failed normal run; a later normal success retains it and adds
 
 Each run has a versioned `health.json` and a JSON-lines `bootstrap.log` before
 mutex, history and Git preflight exits. The health contract records the run,
-stage timings, safe result code, Git counts, probe outcomes, builder,
-validation, publication and freshness facts.
+stage timings, safe result code and `process_exit_code`, Git counts, probe
+outcomes, builder, validation, publication and freshness facts. Timestamps use
+UTC `DateTimeOffset`; run and stage durations use a monotonic Stopwatch and
+are never negative.
+
+Stages are appended only when they begin. Every begun stage is finalized as
+`success`, `no_change`, `failed` or `skipped`; stages not reached are absent.
+Every final run has a `complete` stage. Controlled failures use process exit
+code `1`, while successful, no-change, preview and mutex-skipped runs use `0`.
 
 ## Result semantics
 
@@ -51,7 +58,9 @@ powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass `
   -File D:\coc\repo\scripts\update\show_clan_site_health.ps1
 ```
 
-Use `-Json` for a machine-readable read-only result. The command performs no
+Use `-Json` for a machine-readable read-only result. Both formats expose only
+the run ID and a logical `runs/site_update/<run-id>` location, never an
+absolute workspace, repository, health or transcript path. The command performs no
 network, GitHub, API, updater or secret operation. For `api_http_403` it tells
 the operator that the latest published data did not change and to verify the
 approved VPN before the next scheduled run.

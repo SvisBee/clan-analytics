@@ -15,6 +15,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'workspace_mutex.ps1')
 . (Join-Path $PSScriptRoot 'collection_health.ps1')
+. (Join-Path $PSScriptRoot 'native_process.ps1')
 
 $RepoRoot = Join-Path $WorkspaceRoot 'repo'
 $RunRoot = Join-Path $WorkspaceRoot 'runs\site_update'
@@ -46,12 +47,15 @@ function Invoke-Checked {
         [string] $Label
     )
 
-    $script:LastCheckedOutput = @(& $FilePath @Arguments 2>&1)
-    $script:LastCheckedOutput | ForEach-Object { Write-Output $_ }
-    $exitCode = $LASTEXITCODE
-    if ($exitCode -ne 0) {
-        throw "$Label failed with exit code $exitCode."
+    $result = Invoke-NativeProcess -FilePath $FilePath -Arguments $Arguments
+    $script:LastCheckedOutput = @($result.stderr_safe)
+    if (-not [string]::IsNullOrWhiteSpace($result.stdout)) { Write-Output $result.stdout }
+    if (-not [string]::IsNullOrWhiteSpace($result.stderr_safe)) {
+        Add-CollectionHealthDiagnostic -Health $health -Stage $currentStage -Code 'native_stderr' -SafeMessage "$Label reported stderr: $($result.stderr_safe)" -ProcessExitCode $result.process_exit_code
+        Write-Status "$Label diagnostic: $($result.stderr_safe)"
     }
+    if (-not $result.succeeded) { throw "$Label failed with exit code $($result.process_exit_code)." }
+    return $result
 }
 
 function Publish-FileAtomic {
@@ -103,8 +107,10 @@ function Restore-Backup {
 }
 
 function Test-HistorySchemaPreflight {
-    & $python (Join-Path $RepoRoot 'scripts\update\validate_war_history.py') '--source' $HistoryPath
-    if ($LASTEXITCODE -ne 0) {
+    $result = Invoke-NativeProcess -FilePath $python -Arguments @((Join-Path $RepoRoot 'scripts\update\validate_war_history.py'), '--source', $HistoryPath)
+    $script:LastCheckedOutput = @($result.stderr_safe)
+    if (-not [string]::IsNullOrWhiteSpace($result.stderr_safe)) { Add-CollectionHealthDiagnostic -Health $health -Stage 'bootstrap' -Code 'native_stderr' -SafeMessage "History validation reported stderr: $($result.stderr_safe)" -ProcessExitCode $result.process_exit_code }
+    if (-not $result.succeeded) {
         throw "History validation preflight failed before network: $HistoryPath"
     }
 }
@@ -116,20 +122,22 @@ $runId = "$(Get-Date -Format 'yyyyMMdd-HHmmss')-$([Guid]::NewGuid().ToString('N'
 $runDir = Join-Path $RunRoot $runId
 $health = New-CollectionHealthRun -WorkspaceRoot $WorkspaceRoot -RunDirectory $runDir -RunId $runId -Mode $mode
 $currentStage = 'bootstrap'
-$currentHealthStage = Add-CollectionHealthStage -Health $health -Stage 'bootstrap'
+$currentHealthStage = Start-HealthStage -Health $health -Stage 'bootstrap'
 
 $createdNew = $false
 $mutexName = Get-WorkspaceMutexName -WorkspaceRoot $WorkspaceRoot
 $mutex = [Threading.Mutex]::new($true, $mutexName, [ref] $createdNew)
 if (-not $createdNew) {
     Write-Status 'Another site update is already running. This run is skipped.'
-    $currentStage = 'mutex'
-    $currentHealthStage = Add-CollectionHealthStage -Health $health -Stage 'mutex'
-    Complete-CollectionHealthStage -Health $health -StageRecord $currentHealthStage -Status 'skipped' -ResultCode 'mutex_held'
-    Complete-CollectionHealth -Health $health -Status 'skipped' -ResultCode 'mutex_held' -SafeMessage 'Another updater run already holds the workspace mutex.' -ExitCode 0
+    Complete-HealthStage -Health $health -StageRecord $currentHealthStage -Status success -ResultCode success
+    $currentStage = 'mutex'; $currentHealthStage = Start-HealthStage -Health $health -Stage 'mutex'
+    Skip-HealthStage -Health $health -StageRecord $currentHealthStage -ResultCode 'mutex_held'
+    Finalize-HealthRun -Health $health -Status 'skipped' -ResultCode 'mutex_held' -SafeMessage 'Another updater run already holds the workspace mutex.' -ProcessExitCode 0
     $mutex.Dispose()
     exit 0
 }
+$mutexStage = Start-HealthStage -Health $health -Stage 'mutex'
+Complete-HealthStage -Health $health -StageRecord $mutexStage -Status success -ResultCode success
 
 $transcriptStarted = $false
 try {
@@ -144,7 +152,7 @@ try {
 
     # This must remain before local API configuration and all probe invocations.
     Test-HistorySchemaPreflight
-    Complete-CollectionHealthStage -Health $health -StageRecord $currentHealthStage -Status 'success' -ResultCode 'success'
+    Complete-HealthStage -Health $health -StageRecord $currentHealthStage -Status success -ResultCode success
 
     if ([string]::IsNullOrWhiteSpace($ClanTag)) {
         if (-not (Test-Path -LiteralPath $LocalConfigPath -PathType Leaf)) {
@@ -171,7 +179,8 @@ try {
         (Join-Path $RepoRoot 'site\assets\js\app.js'),
         (Join-Path $RepoRoot 'site\assets\js\current-war-contract.js'),
         (Join-Path $RepoRoot 'scripts\update\validate_war_history.py'),
-        (Join-Path $RepoRoot 'scripts\update\check_update_git_state.py')
+        (Join-Path $RepoRoot 'scripts\update\check_update_git_state.py'),
+        (Join-Path $RepoRoot 'scripts\update\native_process.ps1')
     )) {
         if (-not (Test-Path -LiteralPath $required -PathType Leaf)) {
             throw "Required file is missing: $required"
@@ -179,16 +188,16 @@ try {
     }
 
     $currentStage = 'git_preflight'
-    $currentHealthStage = Add-CollectionHealthStage -Health $health -Stage 'git_preflight'
-    $gitPreflightOutput = @(& $python (Join-Path $RepoRoot 'scripts\update\check_update_git_state.py') '--repo' $RepoRoot '--json' 2>&1)
-    $gitPreflightExit = $LASTEXITCODE
-    $gitPreflightText = ($gitPreflightOutput | ForEach-Object { $_.ToString() }) -join "`n"
+    $currentHealthStage = Start-HealthStage -Health $health -Stage 'git_preflight'
+    $gitPreflightResult = Invoke-NativeProcess -FilePath $python -Arguments @((Join-Path $RepoRoot 'scripts\update\check_update_git_state.py'), '--repo', $RepoRoot, '--json')
+    $script:LastCheckedOutput = @($gitPreflightResult.stderr_safe)
+    $gitPreflightText = $gitPreflightResult.stdout
     $health.git_preflight = $gitPreflightText | ConvertFrom-Json
-    if ($gitPreflightExit -ne 0) {
-        Complete-CollectionHealthStage -Health $health -StageRecord $currentHealthStage -Status 'failed' -ResultCode $health.git_preflight.result_code
+    if (-not $gitPreflightResult.succeeded) {
+        Fail-HealthStage -Health $health -StageRecord $currentHealthStage -ResultCode $health.git_preflight.result_code
         throw 'Git preflight failed before API probes.'
     }
-    Complete-CollectionHealthStage -Health $health -StageRecord $currentHealthStage -Status 'success' -ResultCode 'success'
+    Complete-HealthStage -Health $health -StageRecord $currentHealthStage -Status success -ResultCode success
 
     # Existing API probe wrappers require their outputs to stay under
     # D:\coc\runs\api_probe. Orchestration/build artifacts remain under
@@ -199,7 +208,7 @@ try {
     $buildDir = Join-Path $runDir 'build'
 
     Write-Status 'Collecting current clan roster (request 1 of 3).'
-    $currentStage = 'roster_probe'; $currentHealthStage = Add-CollectionHealthStage -Health $health -Stage $currentStage
+    $currentStage = 'roster_probe'; $currentHealthStage = Start-HealthStage -Health $health -Stage $currentStage
     Invoke-Checked -FilePath $powershell -Arguments @(
         '-NoLogo', '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
         '-File', (Join-Path $RepoRoot 'scripts\api\run_clan_roster_probe.ps1'),
@@ -207,11 +216,11 @@ try {
         '-OutputDir', $rosterDir,
         '-TimeoutSeconds', $TimeoutSeconds.ToString()
     ) -Label 'Roster probe'
-    Complete-CollectionHealthStage -Health $health -StageRecord $currentHealthStage -Status 'success' -ResultCode 'success'
+    Complete-HealthStage -Health $health -StageRecord $currentHealthStage -Status success -ResultCode success
     $health.probes.roster = [ordered]@{ status='success'; result_code='success' }
 
     Write-Status 'Collecting current war (request 2 of 3).'
-    $currentStage = 'current_war_probe'; $currentHealthStage = Add-CollectionHealthStage -Health $health -Stage $currentStage
+    $currentStage = 'current_war_probe'; $currentHealthStage = Start-HealthStage -Health $health -Stage $currentStage
     Invoke-Checked -FilePath $powershell -Arguments @(
         '-NoLogo', '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
         '-File', (Join-Path $RepoRoot 'scripts\api\run_clan_current_war_probe.ps1'),
@@ -219,11 +228,11 @@ try {
         '-OutputDir', $currentWarDir,
         '-TimeoutSeconds', $TimeoutSeconds.ToString()
     ) -Label 'Current-war probe'
-    Complete-CollectionHealthStage -Health $health -StageRecord $currentHealthStage -Status 'success' -ResultCode 'success'
+    Complete-HealthStage -Health $health -StageRecord $currentHealthStage -Status success -ResultCode success
     $health.probes.current_war = [ordered]@{ status='success'; result_code='success' }
 
     Write-Status 'Collecting clan war log (request 3 of 3).'
-    $currentStage = 'war_log_probe'; $currentHealthStage = Add-CollectionHealthStage -Health $health -Stage $currentStage
+    $currentStage = 'war_log_probe'; $currentHealthStage = Start-HealthStage -Health $health -Stage $currentStage
     Invoke-Checked -FilePath $powershell -Arguments @(
         '-NoLogo', '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
         '-File', (Join-Path $RepoRoot 'scripts\api\run_clan_war_log_probe.ps1'),
@@ -231,11 +240,11 @@ try {
         '-OutputDir', $warLogDir,
         '-TimeoutSeconds', $TimeoutSeconds.ToString()
     ) -Label 'War-log probe'
-    Complete-CollectionHealthStage -Health $health -StageRecord $currentHealthStage -Status 'success' -ResultCode 'success'
+    Complete-HealthStage -Health $health -StageRecord $currentHealthStage -Status success -ResultCode success
     $health.probes.war_log = [ordered]@{ status='success'; result_code='success' }
 
     Write-Status 'Building proposed history and public site JSON.'
-    $currentStage = 'builder'; $currentHealthStage = Add-CollectionHealthStage -Health $health -Stage $currentStage
+    $currentStage = 'builder'; $currentHealthStage = Start-HealthStage -Health $health -Stage $currentStage
     Invoke-Checked -FilePath $python -Arguments @(
         (Join-Path $RepoRoot 'scripts\update\build_site_update.py'),
         '--roster-run', $rosterDir,
@@ -245,10 +254,10 @@ try {
         '--site-data-dir', $SiteDataDir,
         '--output-dir', $buildDir
     ) -Label 'Site update builder'
-    Complete-CollectionHealthStage -Health $health -StageRecord $currentHealthStage -Status 'success' -ResultCode 'success'
+    Complete-HealthStage -Health $health -StageRecord $currentHealthStage -Status success -ResultCode success
     $health.builder = [ordered]@{ status='success'; result_code='success' }
 
-    $currentStage = 'public_validation'; $currentHealthStage = Add-CollectionHealthStage -Health $health -Stage $currentStage
+    $currentStage = 'public_validation'; $currentHealthStage = Start-HealthStage -Health $health -Stage $currentStage
     if ($null -ne $node) {
         Invoke-Checked -FilePath $node -Arguments @(
             '--check', (Join-Path $RepoRoot 'site\assets\js\app.js')
@@ -260,15 +269,15 @@ try {
     else {
         Write-Status 'JavaScript syntax check skipped: Node.js is not installed and app.js is not modified by the hourly data update.'
     }
-    Complete-CollectionHealthStage -Health $health -StageRecord $currentHealthStage -Status 'success' -ResultCode 'success'
+    Complete-HealthStage -Health $health -StageRecord $currentHealthStage -Status success -ResultCode success
 
-    $currentStage = 'tests'; $currentHealthStage = Add-CollectionHealthStage -Health $health -Stage $currentStage
+    $currentStage = 'tests'; $currentHealthStage = Start-HealthStage -Health $health -Stage $currentStage
     Invoke-Checked -FilePath $python -Arguments @(
         '-m', 'unittest', 'discover',
         '-s', (Join-Path $RepoRoot 'tests'),
         '-p', 'test_*.py'
     ) -Label 'Python tests'
-    Complete-CollectionHealthStage -Health $health -StageRecord $currentHealthStage -Status 'success' -ResultCode 'success'
+    Complete-HealthStage -Health $health -StageRecord $currentHealthStage -Status success -ResultCode success
     $health.validation = [ordered]@{ status='success'; result_code='success'; tests='success' }
 
     $summary = Get-Content -LiteralPath (Join-Path $buildDir 'summary.json') -Raw | ConvertFrom-Json
@@ -277,9 +286,7 @@ try {
     if ($PreviewOnly) {
         Write-Status "Preview-only update: PASS. Proposed files: $buildDir"
         Write-Status 'Git, persistent history and published site were not changed.'
-        $completeStage = Add-CollectionHealthStage -Health $health -Stage 'complete'
-        Complete-CollectionHealthStage -Health $health -StageRecord $completeStage -Status 'success' -ResultCode 'preview_success'
-        Complete-CollectionHealth -Health $health -Status 'success' -ResultCode 'preview_success' -SafeMessage 'Preview-only collection completed; no persistent or public data was changed.' -ExitCode 0
+        Finalize-HealthRun -Health $health -Status success -ResultCode 'preview_success' -SafeMessage 'Preview-only collection completed; no persistent or public data was changed.' -ProcessExitCode 0
         exit 0
     }
 
@@ -304,7 +311,7 @@ try {
     }
 
     try {
-        $currentStage = 'atomic_apply'; $currentHealthStage = Add-CollectionHealthStage -Health $health -Stage $currentStage
+        $currentStage = 'atomic_apply'; $currentHealthStage = Start-HealthStage -Health $health -Stage $currentStage
         foreach ($name in @('roster.json', 'current-war.json', 'war-log.json', 'war-history.json', 'site-config.json')) {
             Publish-FileAtomic `
                 -Source (Join-Path $buildDir "site-data\$name") `
@@ -331,7 +338,7 @@ try {
         if ($unexpected.Count -gt 0) {
             throw "Unexpected changed files: $($unexpected -join ', ')"
         }
-        Complete-CollectionHealthStage -Health $health -StageRecord $currentHealthStage -Status 'success' -ResultCode 'success'
+        Complete-HealthStage -Health $health -StageRecord $currentHealthStage -Status success -ResultCode success
         $health.publication = [ordered]@{ apply='success'; commit='not_required'; push='not_required' }
     }
     catch {
@@ -343,25 +350,23 @@ try {
     if ($siteChanges.Count -eq 0) {
         Write-Status 'Update: PASS. New API snapshots were stored locally; public site data did not change.'
         Write-Status 'Commit and push were not required.'
-        $completeStage = Add-CollectionHealthStage -Health $health -Stage 'complete'
-        Complete-CollectionHealthStage -Health $health -StageRecord $completeStage -Status 'no_change' -ResultCode 'no_public_change'
-        Complete-CollectionHealth -Health $health -Status 'no_change' -ResultCode 'no_public_change' -SafeMessage 'Collection succeeded; public data did not change.' -ExitCode 0
+        Finalize-HealthRun -Health $health -Status no_change -ResultCode 'no_public_change' -SafeMessage 'Collection succeeded; public data did not change.' -ProcessExitCode 0
         exit 0
     }
 
-    $currentStage = 'git_commit'; $currentHealthStage = Add-CollectionHealthStage -Health $health -Stage $currentStage
+    $currentStage = 'git_commit'; $currentHealthStage = Start-HealthStage -Health $health -Stage $currentStage
     Invoke-Checked -FilePath $git -Arguments (@('-C', $RepoRoot, 'add', '--') + $AllowedSiteFiles) -Label 'Git staging'
     Invoke-Checked -FilePath $git -Arguments @('-C', $RepoRoot, 'diff', '--cached', '--check') -Label 'Staged diff check'
 
     $commitMessage = "data: update clan site $(Get-Date -Format 'yyyy-MM-dd HH:mm')"
     Invoke-Checked -FilePath $git -Arguments @('-C', $RepoRoot, 'commit', '-m', $commitMessage) -Label 'Git commit'
-    Complete-CollectionHealthStage -Health $health -StageRecord $currentHealthStage -Status 'success' -ResultCode 'success'
+    Complete-HealthStage -Health $health -StageRecord $currentHealthStage -Status success -ResultCode success
     $health.publication.commit = 'success'
 
     if (-not $NoPush) {
-        $currentStage = 'git_push'; $currentHealthStage = Add-CollectionHealthStage -Health $health -Stage $currentStage
+        $currentStage = 'git_push'; $currentHealthStage = Start-HealthStage -Health $health -Stage $currentStage
         Invoke-Checked -FilePath $git -Arguments @('-C', $RepoRoot, 'push', 'origin', 'main') -Label 'Git push'
-        Complete-CollectionHealthStage -Health $health -StageRecord $currentHealthStage -Status 'success' -ResultCode 'success'
+        Complete-HealthStage -Health $health -StageRecord $currentHealthStage -Status success -ResultCode success
         $health.publication.push = 'success'
         Write-Status 'Update: PASS. Public site data committed and pushed.'
     }
@@ -370,9 +375,7 @@ try {
     }
     Write-Status "Run directory: $runDir"
     $health.freshness = [ordered]@{ last_successful_normal_collection_utc = Get-HealthUtcNow; last_public_apply_utc = Get-HealthUtcNow; last_push_utc = if ($NoPush) { $null } else { Get-HealthUtcNow } }
-    $completeStage = Add-CollectionHealthStage -Health $health -Stage 'complete'
-    Complete-CollectionHealthStage -Health $health -StageRecord $completeStage -Status 'success' -ResultCode 'success'
-    Complete-CollectionHealth -Health $health -Status 'success' -ResultCode 'success' -SafeMessage 'Collection, validation and publication completed.' -ExitCode 0
+    Finalize-HealthRun -Health $health -Status success -ResultCode success -SafeMessage 'Collection, validation and publication completed.' -ProcessExitCode 0
 }
 catch {
     $failureText = ((@($script:LastCheckedOutput) + @($_.ToString())) | ForEach-Object { $_.ToString() }) -join "`n"
@@ -380,13 +383,13 @@ catch {
         [ordered]@{ result_code = $health.git_preflight.result_code; operator_hint_code = $null; safe_message = $health.git_preflight.safe_message }
     } else { Get-CollectionHealthFailure -Stage $currentStage -Text $failureText }
     try {
-        if ($null -ne $currentHealthStage -and $currentHealthStage.status -eq 'running') { Complete-CollectionHealthStage -Health $health -StageRecord $currentHealthStage -Status 'failed' -ResultCode $failure.result_code }
+        if ($null -ne $currentHealthStage -and $currentHealthStage.status -eq 'running') { Fail-HealthStage -Health $health -StageRecord $currentHealthStage -ResultCode $failure.result_code }
         if ($currentStage -in @('roster_probe', 'current_war_probe', 'war_log_probe')) { $health.probes[$currentStage] = [ordered]@{ status='failed'; result_code=$failure.result_code } }
-        Complete-CollectionHealth -Health $health -Status 'failed' -ResultCode $failure.result_code -SafeMessage $failure.safe_message -OperatorHintCode $failure.operator_hint_code -ExitCode 2
+        Finalize-HealthRun -Health $health -Status failed -ResultCode $failure.result_code -SafeMessage $failure.safe_message -OperatorHintCode $failure.operator_hint_code -ProcessExitCode 1
     }
-    catch { Write-Error 'Collection health write failed: health_write_failure.' }
-    Write-Error $_
-    exit 2
+    catch { [Console]::Error.WriteLine('Collection health write failed: health_write_failure.') }
+    [Console]::Error.WriteLine($_.ToString())
+    exit 1
 }
 finally {
     if ($transcriptStarted) {

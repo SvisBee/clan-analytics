@@ -157,6 +157,42 @@ class CollectionHealthTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(json.loads(result.stdout)["latest_run"]["result_code"], "api_http_403")
 
+    def test_operator_displays_valid_summaries_with_legacy_failure(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / "local" / "health" / "site_update"
+            root.mkdir(parents=True)
+            current = {
+                "schema_version": 1, "run_id": "new-run", "mode": "normal", "status": "success",
+                "result_code": "success", "process_exit_code": 0, "started_at_utc": "2026-01-01T00:00:00+00:00",
+                "finished_at_utc": "2026-01-01T00:00:01+00:00", "duration_seconds": 1,
+                "current_stage": "complete", "probes": {}, "builder": {"status": "success"},
+                "validation": {"status": "success"}, "publication": {"apply": "success"}, "freshness": {},
+            }
+            legacy = {
+                "schema_version": 1, "run_id": "legacy-run", "mode": "normal", "status": "failed",
+                "result_code": "builder_failure", "started_at_utc": "2025-01-01T00:00:00+00:00",
+                "finished_at_utc": "2025-01-01T00:00:01+00:00", "duration_seconds": 1,
+                "current_stage": "complete", "safe_message": "safe",
+            }
+            (root / "latest-run.json").write_text(json.dumps(current), encoding="utf-8")
+            (root / "last-success.json").write_text(json.dumps(current), encoding="utf-8")
+            (root / "latest-failure.json").write_text(json.dumps(legacy), encoding="utf-8")
+            arguments = ["powershell.exe", "-NoLogo", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", str(SHOW_SCRIPT), "-WorkspaceRoot", temporary]
+            human = subprocess.run(arguments, capture_output=True, text=True, check=False)
+            payload = subprocess.run([*arguments, "-Json"], capture_output=True, text=True, check=False)
+        self.assertEqual(human.returncode, 0, human.stderr)
+        self.assertIn("Latest run: new-run", human.stdout)
+        self.assertIn("Latest failure: legacy-run", human.stdout)
+        self.assertNotRegex(human.stdout, r"(?i)[a-z]:\\|\\\\")
+        self.assertEqual(payload.returncode, 0, payload.stderr)
+        result = json.loads(payload.stdout)
+        self.assertEqual(result["status"], "available")
+        self.assertEqual(result["latest_run"]["run_id"], "new-run")
+        self.assertEqual(result["last_success"]["run_id"], "new-run")
+        self.assertTrue(result["latest_failure"]["legacy_record"])
+        self.assertIsNone(result["latest_failure"]["process_exit_code"])
+        self.assertIn("latest-failure uses legacy health schema.", result["warnings"])
+
     def test_taxonomy_and_stage_contract_are_present(self) -> None:
         text = HEALTH_SCRIPT.read_text(encoding="utf-8")
         for value in ("mutex_held", "git_dirty", "git_branch_ahead", "api_http_403", "builder_failure", "git_push_failure", "health_write_failure", "unexpected_failure"):

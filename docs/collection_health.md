@@ -64,3 +64,8 @@ absolute workspace, repository, health or transcript path. The command performs 
 network, GitHub, API, updater or secret operation. For `api_http_403` it tells
 the operator that the latest published data did not change and to verify the
 approved VPN before the next scheduled run.
+
+The reader is backward-compatible with preserved health records that predate
+optional fields such as `process_exit_code`, `publication` or `freshness`.
+Such a record is marked `legacy_record=true`; unavailable values remain null
+and never prevent valid newer summaries from being displayed.

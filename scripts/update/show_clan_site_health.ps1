@@ -2,60 +2,83 @@ param([string] $WorkspaceRoot = 'D:\coc', [switch] $Json)
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $root = Join-Path $WorkspaceRoot 'local\health\site_update'
+$warnings = [System.Collections.Generic.List[string]]::new()
+$summaryNames = @('latest-run.json', 'last-success.json', 'latest-failure.json')
+$anySummaryFile = @($summaryNames | Where-Object { Test-Path -LiteralPath (Join-Path $root $_) }).Count -gt 0
 
-function Read-Health([string] $Name) {
+function Get-OptionalHealthProperty($Record, [string] $Name, $Default = $null) {
+    if ($null -eq $Record) { return $Default }
+    $property = $Record.PSObject.Properties[$Name]
+    if ($null -eq $property) { return $Default }
+    return $property.Value
+}
+
+function Read-HealthRecord([string] $Name) {
     $path = Join-Path $root $Name
-    if (Test-Path -LiteralPath $path) { return Get-Content -LiteralPath $path -Raw -ErrorAction Stop | ConvertFrom-Json }
-    return $null
+    if (-not (Test-Path -LiteralPath $path)) { return $null }
+    try { return Get-Content -LiteralPath $path -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop }
+    catch { $script:warnings.Add("$Name is unavailable."); return $null }
 }
 
-function ConvertTo-OperatorHealth($Health) {
+function ConvertTo-OperatorHealth($Health, [string] $SourceName) {
     if ($null -eq $Health) { return $null }
-    return [ordered]@{
-        schema_version = $Health.schema_version
-        run_id = $Health.run_id
-        mode = $Health.mode
-        started_at_utc = $Health.started_at_utc
-        finished_at_utc = $Health.finished_at_utc
-        duration_seconds = $Health.duration_seconds
-        status = $Health.status
-        current_stage = $Health.current_stage
-        result_code = $Health.result_code
-        process_exit_code = $Health.process_exit_code
-        safe_message = $Health.safe_message
-        operator_hint_code = $Health.operator_hint_code
-        logical_run_path = "runs/site_update/$($Health.run_id)"
-        health_file = 'health.json'
-        stages = $Health.stages
-        git_preflight = $Health.git_preflight
-        probes = $Health.probes
-        builder = $Health.builder
-        validation = $Health.validation
-        publication = $Health.publication
-        freshness = $Health.freshness
+    try {
+        $runId = Get-OptionalHealthProperty $Health 'run_id'
+        if ([string]::IsNullOrWhiteSpace([string]$runId)) { throw 'missing run ID' }
+        $hasExitCode = $null -ne $Health.PSObject.Properties['process_exit_code']
+        $legacy = -not $hasExitCode
+        if ($legacy) { $script:warnings.Add("$SourceName uses legacy health schema.") }
+        return [ordered]@{
+            schema_version = Get-OptionalHealthProperty $Health 'schema_version'
+            legacy_record = $legacy
+            run_id = $runId
+            mode = Get-OptionalHealthProperty $Health 'mode'
+            started_at_utc = Get-OptionalHealthProperty $Health 'started_at_utc'
+            finished_at_utc = Get-OptionalHealthProperty $Health 'finished_at_utc'
+            duration_seconds = Get-OptionalHealthProperty $Health 'duration_seconds'
+            status = Get-OptionalHealthProperty $Health 'status'
+            current_stage = Get-OptionalHealthProperty $Health 'current_stage'
+            result_code = Get-OptionalHealthProperty $Health 'result_code'
+            process_exit_code = Get-OptionalHealthProperty $Health 'process_exit_code'
+            safe_message = Get-OptionalHealthProperty $Health 'safe_message'
+            operator_hint_code = Get-OptionalHealthProperty $Health 'operator_hint_code'
+            logical_run_path = "runs/site_update/$runId"
+            health_file = 'health.json'
+            stages = Get-OptionalHealthProperty $Health 'stages' @()
+            git_preflight = Get-OptionalHealthProperty $Health 'git_preflight'
+            probes = Get-OptionalHealthProperty $Health 'probes'
+            builder = Get-OptionalHealthProperty $Health 'builder'
+            validation = Get-OptionalHealthProperty $Health 'validation'
+            publication = Get-OptionalHealthProperty $Health 'publication'
+            freshness = Get-OptionalHealthProperty $Health 'freshness'
+        }
     }
+    catch { $script:warnings.Add("$SourceName could not be projected."); return $null }
 }
 
-try {
-    $latest = ConvertTo-OperatorHealth (Read-Health 'latest-run.json')
-    $success = ConvertTo-OperatorHealth (Read-Health 'last-success.json')
-    $failure = ConvertTo-OperatorHealth (Read-Health 'latest-failure.json')
-    $result = [ordered]@{ latest_run=$latest; last_success=$success; latest_failure=$failure }
-    if ($Json) { $result | ConvertTo-Json -Depth 12; exit 0 }
-    if ($null -eq $latest) { Write-Output 'Collection health has not been recorded yet.'; exit 0 }
+$latest = ConvertTo-OperatorHealth (Read-HealthRecord 'latest-run.json') 'latest-run'
+$success = ConvertTo-OperatorHealth (Read-HealthRecord 'last-success.json') 'last-success'
+$failure = ConvertTo-OperatorHealth (Read-HealthRecord 'latest-failure.json') 'latest-failure'
+$available = ($null -ne $latest -or $null -ne $success -or $null -ne $failure)
+$result = [ordered]@{ status = if($available){'available'}else{'unavailable'}; latest_run=$latest; last_success=$success; latest_failure=$failure; warnings=@($warnings) }
+if ($Json) { $result | ConvertTo-Json -Depth 12; if($available -or -not $anySummaryFile){exit 0}else{exit 1} }
+if (-not $available) {
+    if (-not $anySummaryFile) { Write-Output 'Collection health has not been recorded yet.'; exit 0 }
+    Write-Output 'Collection health is unavailable.'; $warnings | ForEach-Object { Write-Output "Warning: $_" }; exit 1
+}
+if ($latest) {
     Write-Output "Latest run: $($latest.run_id)"
     Write-Output "Latest status: $($latest.status) / $($latest.result_code)"
+    Write-Output "Latest process exit: $(if($null -eq $latest.process_exit_code){'unavailable (legacy record)'}else{$latest.process_exit_code})"
     Write-Output "Latest stage: $($latest.current_stage)"
-    Write-Output "Last successful normal collection: $(if($success){$success.finished_at_utc}else{'not recorded'})"
-    if ($success) { Write-Output "Age of last success: $([math]::Round(([DateTimeOffset]::UtcNow-[DateTimeOffset]$success.finished_at_utc).TotalMinutes,1)) minutes" }
     Write-Output "Probes: $($latest.probes | ConvertTo-Json -Compress)"
     Write-Output "Builder/tests/apply: $($latest.builder) / $($latest.validation) / $($latest.publication)"
     Write-Output "Commit and push: $($latest.publication | ConvertTo-Json -Compress)"
-    if ($latest.result_code -eq 'api_http_403') { Write-Output 'Сбор не выполнен: Clash API вернул 403. Проверьте, включён ли настроенный разрешённый VPN. Последние опубликованные данные не изменялись.' }
-    elseif ($latest.operator_hint_code) { Write-Output "Operator hint: $($latest.operator_hint_code)" }
     Write-Output "Run: $($latest.logical_run_path)/$($latest.health_file)"
 }
-catch {
-    if ($Json) { [ordered]@{ error='Collection health is unavailable.' } | ConvertTo-Json -Compress } else { Write-Output 'Collection health is unavailable.' }
-    exit 1
-}
+Write-Output "Last successful normal collection: $(if($success){$success.finished_at_utc}else{'not recorded'})"
+if ($success -and $success.finished_at_utc) { Write-Output "Age of last success: $([math]::Round(([DateTimeOffset]::UtcNow-[DateTimeOffset]$success.finished_at_utc).TotalMinutes,1)) minutes" }
+if ($failure) { Write-Output "Latest failure: $($failure.run_id) / $($failure.result_code) / exit $(if($null -eq $failure.process_exit_code){'unavailable (legacy record)'}else{$failure.process_exit_code})" }
+if ($latest -and $latest.result_code -eq 'api_http_403') { Write-Output 'Сбор не выполнен: Clash API вернул 403. Проверьте, включён ли настроенный разрешённый VPN. Последние опубликованные данные не изменялись.' }
+elseif ($latest -and $latest.operator_hint_code) { Write-Output "Operator hint: $($latest.operator_hint_code)" }
+$warnings | ForEach-Object { Write-Output "Warning: $_" }

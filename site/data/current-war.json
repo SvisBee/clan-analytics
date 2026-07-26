@@ -1,9 +1,9 @@
 {
-  "attack_stars_total": 0,
+  "attack_stars_total": 6,
   "attacks_available": 30,
   "attacks_per_member": 2,
-  "attacks_used": 0,
-  "clan_stars": 0,
+  "attacks_used": 2,
+  "clan_stars": 6,
   "data_status": "available",
   "end_time": "2026-07-27",
   "members": [
@@ -19,11 +19,11 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 1,
+      "average_stars": 3.0,
+      "new_stars_contributed": 3,
       "nickname": "SvisBuha",
-      "stars_earned": 0,
+      "stars_earned": 3,
       "town_hall_level": 8,
       "war_position": 2
     },
@@ -79,12 +79,12 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 1,
+      "average_stars": 3.0,
+      "new_stars_contributed": 3,
       "nickname": "SvisBee",
-      "stars_earned": 0,
-      "town_hall_level": 7,
+      "stars_earned": 3,
+      "town_hall_level": 8,
       "war_position": 8
     },
     {
@@ -134,7 +134,7 @@
       "new_stars_contributed": 0,
       "nickname": "MiKiRi",
       "stars_earned": 0,
-      "town_hall_level": 6,
+      "town_hall_level": 7,
       "war_position": 13
     },
     {
@@ -154,14 +154,14 @@
       "new_stars_contributed": 0,
       "nickname": "frogi2",
       "stars_earned": 0,
-      "town_hall_level": 5,
+      "town_hall_level": 6,
       "war_position": 15
     }
   ],
   "new_stars_contribution_status": "available",
   "participants": 15,
-  "reconstructed_clan_stars": null,
-  "stars_consistency_status": "unavailable",
-  "stars_earned": 0,
-  "state": "preparation"
+  "reconstructed_clan_stars": 6,
+  "stars_consistency_status": "consistent",
+  "stars_earned": 6,
+  "state": "inWar"
 }

@@ -173,6 +173,14 @@ function Get-CbmStructuredResult {
     return $parsed
 }
 
+function Get-CbmFileNodeCount {
+    param([Parameter(Mandatory)][string] $SchemaJson)
+    $schema = Get-CbmStructuredResult $SchemaJson
+    $fileLabel = @($schema.node_labels | Where-Object { $_.label -ceq 'File' })
+    if ($fileLabel.Count -ne 1 -or [long]$fileLabel[0].count -le 0) { New-CbmFailure 25 'Persisted graph does not report a positive File node count.' }
+    return [long]$fileLabel[0].count
+}
+
 function Find-ExactCbmProject {
     param([object[]] $Projects, [string] $TargetProject, [string] $ExpectedRoot, [int] $FailureCode)
     $matches = @($Projects | Where-Object { $_.name -ceq $TargetProject })
@@ -249,11 +257,15 @@ function Invoke-CbmCleanFullRebuild {
         $persisted = Find-ExactCbmProject (ConvertFrom-CbmProjectsFile -Path $projectsAfterPath -Manifest $manifest) $TargetProject $root 25
         if ($RequireGit -and -not [bool]$persisted.git.is_git) { New-CbmFailure 25 'Persisted project is not Git-backed.' }
         if ([long]$persisted.nodes -ne [long]$index.expected_nodes -or [long]$persisted.edges -ne [long]$index.expected_edges) { New-CbmFailure 25 'Persisted project counts do not equal expected counts.' }
+        $schemaPath = Join-Path $runDirectory 'graph_schema_after.json'
+        $schemaPayload = @{ project_name = $TargetProject } | ConvertTo-Json -Compress
+        $schemaJson = Invoke-CbmNative -Arguments 'cli get_graph_schema' -StandardInput $schemaPayload -StdoutPath $schemaPath -StderrPath (Join-Path $runDirectory 'graph_schema_after.stderr.log') -Timeout 60 -Label 'postflight get_graph_schema'
+        $fileNodes = Get-CbmFileNodeCount $schemaJson
         $postflight = [ordered]@{ project=$TargetProject; repo_path=$root; git_head=$gitHead; control_paths=$controls; control_phrases=$Phrases; postflight_required_after_codex_restart=$true }
         $postflight | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $runDirectory 'postflight_controls.json') -Encoding utf8
         if ($StatePath) { New-Item -ItemType Directory -Path (Split-Path -Parent $StatePath) -Force | Out-Null; ([ordered]@{ project=$TargetProject; repo_path=$root; git_head=$gitHead; finished_at=(Get-Date).ToString('o'); nodes=[long]$persisted.nodes; edges=[long]$persisted.edges; run_dir=$runDirectory; control_paths=$controls } | ConvertTo-Json -Depth 5) | Set-Content -LiteralPath $StatePath -Encoding utf8 }
-        $manifest.result = 'PASS'; $manifest.nodes = [long]$persisted.nodes; $manifest.edges = [long]$persisted.edges
-        Write-Host "PASS: $TargetProject"; Write-Host "Root: $root"; Write-Host "Nodes: $($persisted.nodes)"; Write-Host "Edges: $($persisted.edges)"; Write-Host "Run directory: $runDirectory"; Write-Host $(if($backup.Present){"Backup retained: $($backup.Path)"}else{'Backup retained: none (initial build).' }); Write-Host 'Open Codex and perform Phase 2 content postflight.'
+        $manifest.result = 'PASS'; $manifest.nodes = [long]$persisted.nodes; $manifest.edges = [long]$persisted.edges; $manifest.file_nodes = $fileNodes
+        Write-Host "PASS: $TargetProject"; Write-Host "Root: $root"; Write-Host "Nodes: $($persisted.nodes)"; Write-Host "Edges: $($persisted.edges)"; Write-Host "File nodes: $fileNodes"; Write-Host "Run directory: $runDirectory"; Write-Host $(if($backup.Present){"Backup retained: $($backup.Path)"}else{'Backup retained: none (initial build).' }); Write-Host 'Open Codex and perform Phase 2 content postflight.'
     } catch {
         $exitCode = Get-CbmExitCode $_.Exception; $manifest.result = 'FAIL'; $manifest.error = $_.Exception.Message
         if ($removed) { try { if (Restore-CbmGraph $TargetProject $backup.Path $backup.Files) { $manifest.rollback = 'restored' } else { $manifest.rollback = 'unavailable-initial-build' } } catch { $manifest.rollback = 'failed'; $manifest.rollback_error = $_.Exception.Message; $exitCode = 26 } }

@@ -56,6 +56,17 @@ Task Scheduler recorded result `0`.
 - gaps before health existed are not reconstructed automatically;
 - Codebase Memory excludes local health, runs, data and secrets.
 
+## Broad memory remediation
+
+The production stage remains completed. A read-only broad-memory validation found
+an exclusion-boundary violation in the private leadership-notes area without
+reading private content. `obsidian/` is now excluded in the workspace
+`.cbmignore`. The existing target remains `D-coc` with root `D:/coc`; the
+repository-scoped `D-coc-repo` is not a substitute. Removing the stale broad
+node requires one external clean rebuild after Codex is fully closed and a
+post-rebuild validation. The broad refresh checkbox stays unchecked until that
+validation succeeds.
+
 ## Definition of Done
 
 - [x] implementation committed;

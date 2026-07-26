@@ -9,7 +9,7 @@
 | Daily repo index | `D-coc-repo` | `D:/coc/repo` | `scripts/workspace/refresh_codebase_memory_repo.ps1` |
 | Broad workspace maintenance | `D-coc` | `D:/coc` | `scripts/workspace/refresh_codebase_memory.ps1` |
 
-Daily project охватывает `repo/docs`, `repo/src`, `repo/site`, `repo/tests`, `repo/scripts` и repo configuration. Broad `D-coc` сохраняется для workspace-wide discovery, Obsidian и материалов вне Git root; он не удаляется и не переименовывается.
+Daily project охватывает `repo/docs`, `repo/src`, `repo/site`, `repo/tests`, `repo/scripts` и repo configuration. Broad `D-coc` сохраняется для workspace-wide discovery материалов вне Git root; он не удаляется и не переименовывается. Private `obsidian/` leadership notes исключены из broad index вместе с `data/`, `runs/`, `local/` и `repo/site/data/`.
 
 `D:/coc` не является Git root. Поэтому `detect_changes` на broad project может вернуть пустой набор после Git status 128 и не является доказательством отсутствия изменений. Broad rebuild выполняется только как отдельная ручная maintenance-операция и не использует Git HEAD как no-change gate.
 
@@ -19,11 +19,11 @@ Daily project охватывает `repo/docs`, `repo/src`, `repo/site`, `repo/t
 
 `C:\Users\nshhi\AppData\Local\Programs\codebase-memory-mcp\codebase-memory-mcp.exe`
 
-Перед реальным rebuild пользователь закрывает Codex и передаёт `-ConfirmStopProcesses`. Скрипт останавливает только `codebase-memory-mcp.exe`, никогда не останавливает Codex и не использует wildcard для cache. Для каждого target разрешены только три точных файла: `<project>.db`, `<project>.db-wal`, `<project>.db-shm`.
+Перед реальным broad rebuild пользователь полностью закрывает Codex и передаёт `-ConfirmCodexClosed -ConfirmStopProcesses`. Script fail-closed проверяет известные Codex process names; он никогда не останавливает Codex. Скрипт останавливает только `codebase-memory-mcp.exe` и не использует wildcard для cache. Для каждого target разрешены только три точных файла: `<project>.db`, `<project>.db-wal`, `<project>.db-shm`.
 
 Перед удалением старого graph скрипт копирует существующие target DB/WAL/SHM в run-local `backup`, сохраняет metadata и SHA-256. При failure после удаления target graph восстанавливается только из этого backup. Backup не удаляется автоматически. Initial build без старого graph явно фиксируется как `backup_present=false` и `rollback=unavailable-initial-build`.
 
-PASS требует не только exit code: `status=indexed`, `skipped_count=0`, positive nodes/edges, exact `nodes=expected_nodes`, exact `edges=expected_edges`, clean stderr, и persisted `list_projects` validation с точными project/root/counts. Run artifacts сохраняются вне Git.
+PASS требует не только exit code: `status=indexed`, `skipped_count=0`, positive nodes/edges/File nodes, exact `nodes=expected_nodes`, exact `edges=expected_edges`, clean stderr, и persisted `list_projects` validation с точными project/root/counts. Run artifacts сохраняются вне Git.
 
 ## Outputs and exit codes
 
@@ -46,6 +46,14 @@ Broad runs: `D:\coc\runs\codebase_memory_broad_rebuild\<YYYY-MM-DD>\<timestamp>_
 | 26 | Rollback failure |
 
 If actual and expected counts differ, treat the run as failed, retain the logs and backup, and inspect the persisted project only after rollback status is known. Do not retry automatically.
+
+## Broad exclusion remediation and external rebuild
+
+`collection_reliability_v1` remains completed for production functionality. Its broad-memory checkbox remains unchecked: a read-only validation found an exclusion-boundary violation without reading private content. The active `D-coc` graph must be rebuilt externally after `obsidian/` was added to the workspace `.cbmignore`; an incremental update cannot be used to prove stale nodes were removed.
+
+`refresh_codebase_memory.ps1` is the supported clean full rebuild for the existing `D-coc` project only. It validates the exact project and root, backs up and removes only that project's graph files, uses `mode=full`, validates the persisted project, and reports nodes, edges and File nodes. It neither creates nor substitutes `D-coc-repo`.
+
+Do not run it from an active Codex session. Fully close Codex, run the external command once with both confirmations, inspect the run report, then open a new Codex session for post-rebuild validation. Do not repeat the rebuild without inspecting that result.
 
 ## Manual daily initial test
 

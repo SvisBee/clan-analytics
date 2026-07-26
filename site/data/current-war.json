@@ -1,8 +1,8 @@
 {
-  "attack_stars_total": 53,
+  "attack_stars_total": 55,
   "attacks_available": 30,
   "attacks_per_member": 2,
-  "attacks_used": 21,
+  "attacks_used": 22,
   "clan_stars": 45,
   "data_status": "available",
   "end_time": "2026-07-27",
@@ -99,11 +99,11 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 1,
-      "average_stars": 3.0,
+      "attacks_used": 2,
+      "average_stars": 2.5,
       "new_stars_contributed": 3,
       "nickname": "Kedr",
-      "stars_earned": 3,
+      "stars_earned": 5,
       "town_hall_level": 7,
       "war_position": 10
     },

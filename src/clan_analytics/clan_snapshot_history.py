@@ -19,6 +19,7 @@ from .api.models import ClanSnapshot
 
 SCHEMA_VERSION = 1
 NORMALIZATION_VERSION = "clan_snapshot_v1"
+CANONICAL_TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
 
 
 class SnapshotStoreError(RuntimeError):
@@ -82,7 +83,7 @@ CREATE TABLE schema_metadata (
   migration_state TEXT NOT NULL
 );
 CREATE TABLE snapshot_payload (
-  payload_id TEXT PRIMARY KEY,
+  payload_id TEXT NOT NULL PRIMARY KEY,
   payload_fingerprint TEXT NOT NULL UNIQUE,
   clan_tag TEXT NOT NULL,
   clan_name TEXT NOT NULL,
@@ -107,7 +108,7 @@ CREATE TABLE member_state (
   PRIMARY KEY (payload_id, player_tag)
 );
 CREATE TABLE snapshot_observation (
-  observation_id TEXT PRIMARY KEY,
+  observation_id TEXT NOT NULL PRIMARY KEY,
   source_run_id TEXT NOT NULL UNIQUE,
   payload_id TEXT NOT NULL REFERENCES snapshot_payload(payload_id) ON DELETE RESTRICT,
   observed_at_utc TEXT NOT NULL,
@@ -121,7 +122,7 @@ CREATE INDEX snapshot_observation_observed_at ON snapshot_observation(observed_a
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    return datetime.now(timezone.utc).strftime(CANONICAL_TIMESTAMP_FORMAT)
 
 
 def _parse_utc(value: str) -> str:
@@ -133,7 +134,17 @@ def _parse_utc(value: str) -> str:
         raise SnapshotValidationError("observed_at is invalid") from error
     if parsed.tzinfo is None or parsed.utcoffset() is None:
         raise SnapshotValidationError("observed_at must be timezone-aware")
-    return parsed.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+    return parsed.astimezone(timezone.utc).strftime(CANONICAL_TIMESTAMP_FORMAT)
+
+
+def _is_canonical_utc(value: object) -> bool:
+    if not isinstance(value, str) or len(value) != 27:
+        return False
+    try:
+        datetime.strptime(value, CANONICAL_TIMESTAMP_FORMAT)
+    except ValueError:
+        return False
+    return True
 
 
 def _safe_path(path: Path) -> Path:
@@ -160,6 +171,79 @@ def _readonly_connect(path: Path) -> sqlite3.Connection:
     return connection
 
 
+def _checkpoint_and_remove_sidecars(path: Path) -> None:
+    connection = _connect(path)
+    try:
+        connection.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+    finally:
+        connection.close()
+    for candidate in (Path(str(path) + "-wal"), Path(str(path) + "-shm")):
+        candidate.unlink(missing_ok=True)
+
+
+def _backup_destination(path: Path) -> sqlite3.Connection:
+    connection = sqlite3.connect(path)
+    connection.row_factory = sqlite3.Row
+    connection.execute("PRAGMA journal_mode = DELETE")
+    connection.execute("PRAGMA synchronous = FULL")
+    return connection
+
+
+def _make_standalone(path: Path) -> None:
+    connection = sqlite3.connect(path)
+    try:
+        connection.execute("PRAGMA journal_mode = DELETE")
+        connection.execute("PRAGMA synchronous = FULL")
+    finally:
+        connection.close()
+    for candidate in (Path(str(path) + "-wal"), Path(str(path) + "-shm")):
+        candidate.unlink(missing_ok=True)
+
+
+_EXPECTED_COLUMNS = {
+    "schema_metadata": (("schema_version", "INTEGER", 1, 0), ("created_at_utc", "TEXT", 1, 0), ("storage_kind", "TEXT", 1, 0), ("migration_state", "TEXT", 1, 0)),
+    "snapshot_payload": (("payload_id", "TEXT", 1, 1), ("payload_fingerprint", "TEXT", 1, 0), ("clan_tag", "TEXT", 1, 0), ("clan_name", "TEXT", 1, 0), ("clan_level", "INTEGER", 0, 0), ("member_count", "INTEGER", 1, 0), ("created_at_utc", "TEXT", 1, 0), ("normalization_version", "TEXT", 1, 0)),
+    "member_state": (("payload_id", "TEXT", 1, 1), ("player_tag", "TEXT", 1, 2), ("display_name", "TEXT", 1, 0), ("clan_role", "TEXT", 0, 0), ("town_hall_level", "INTEGER", 0, 0), ("exp_level", "INTEGER", 0, 0), ("trophies", "INTEGER", 0, 0), ("builder_base_trophies", "INTEGER", 0, 0), ("donations", "INTEGER", 0, 0), ("donations_received", "INTEGER", 0, 0), ("clan_rank", "INTEGER", 0, 0), ("previous_clan_rank", "INTEGER", 0, 0)),
+    "snapshot_observation": (("observation_id", "TEXT", 1, 1), ("source_run_id", "TEXT", 1, 0), ("payload_id", "TEXT", 1, 0), ("observed_at_utc", "TEXT", 1, 0), ("recorded_at_utc", "TEXT", 1, 0), ("validation_version", "TEXT", 1, 0), ("status", "TEXT", 1, 0)),
+}
+
+
+def _unique_columns(connection: sqlite3.Connection, table: str) -> set[tuple[str, ...]]:
+    result: set[tuple[str, ...]] = set()
+    for index in connection.execute(f"PRAGMA index_list({table})"):
+        if index[2]:
+            result.add(tuple(row[2] for row in connection.execute(f"PRAGMA index_info({index[1]})")))
+    return result
+
+
+def _validate_schema_shape(connection: sqlite3.Connection) -> None:
+    objects = connection.execute("SELECT name, type, sql FROM sqlite_master WHERE type IN ('table', 'index') AND name NOT LIKE 'sqlite_%'").fetchall()
+    tables = {row["name"] for row in objects if row["type"] == "table"}
+    if tables != set(_EXPECTED_COLUMNS):
+        raise SnapshotValidationError("snapshot store schema tables are invalid")
+    for table, expected in _EXPECTED_COLUMNS.items():
+        actual = tuple((row["name"], row["type"].upper(), row["notnull"], row["pk"]) for row in connection.execute(f"PRAGMA table_info({table})"))
+        if actual != expected:
+            raise SnapshotValidationError("snapshot store schema columns are invalid")
+    if ("payload_fingerprint",) not in _unique_columns(connection, "snapshot_payload") or ("source_run_id",) not in _unique_columns(connection, "snapshot_observation") or ("observed_at_utc",) not in _unique_columns(connection, "snapshot_observation"):
+        raise SnapshotValidationError("snapshot store unique constraints are invalid")
+    foreign = {(row["from"], row["table"], row["to"]) for row in connection.execute("PRAGMA foreign_key_list(member_state)")}
+    observed_foreign = {(row["from"], row["table"], row["to"]) for row in connection.execute("PRAGMA foreign_key_list(snapshot_observation)")}
+    indexes = {row["name"] for row in objects if row["type"] == "index"}
+    observation_sql = next(row["sql"] or "" for row in objects if row["name"] == "snapshot_observation")
+    if ("payload_id", "snapshot_payload", "payload_id") not in foreign or ("payload_id", "snapshot_payload", "payload_id") not in observed_foreign or "snapshot_observation_observed_at" not in indexes or "CHECK(status = 'confirmed')" not in observation_sql:
+        raise SnapshotValidationError("snapshot store constraints are invalid")
+
+
+def _validate_logical_consistency(connection: sqlite3.Connection) -> None:
+    bad_payload = connection.execute("SELECT 1 FROM snapshot_payload p WHERE p.payload_id != p.payload_fingerprint OR p.member_count < 0 OR p.member_count != (SELECT COUNT(*) FROM member_state m WHERE m.payload_id = p.payload_id) OR p.normalization_version != ? OR NOT (length(p.clan_tag) > 0) LIMIT 1", (NORMALIZATION_VERSION,)).fetchone()
+    bad_observation = connection.execute("SELECT 1 FROM snapshot_observation WHERE status != 'confirmed' OR length(source_run_id) = 0 OR length(payload_id) = 0 LIMIT 1").fetchone()
+    timestamps = [row[0] for row in connection.execute("SELECT observed_at_utc FROM snapshot_observation ORDER BY observed_at_utc")]
+    metadata = _metadata(connection)
+    if not _is_canonical_utc(metadata["created_at_utc"]) or bad_payload or bad_observation or any(not _is_canonical_utc(value) for value in timestamps) or timestamps != sorted(timestamps) or len(timestamps) != len(set(timestamps)):
+        raise SnapshotValidationError("snapshot store logical consistency is invalid")
+
+
 def _metadata(connection: sqlite3.Connection) -> sqlite3.Row:
     try:
         rows = connection.execute("SELECT * FROM schema_metadata").fetchall()
@@ -184,7 +268,10 @@ def initialize_snapshot_store(path: str | Path) -> None:
         validate_snapshot_store(target)
         return
     target.parent.mkdir(parents=True, exist_ok=True)
-    connection = _connect(target)
+    temporary = target.with_name(target.stem + ".init.tmp" + target.suffix)
+    for candidate in (temporary, Path(str(temporary) + "-wal"), Path(str(temporary) + "-shm")):
+        candidate.unlink(missing_ok=True)
+    connection = _connect(temporary)
     try:
         with connection:
             connection.executescript(_SCHEMA)
@@ -192,10 +279,13 @@ def initialize_snapshot_store(path: str | Path) -> None:
                 "INSERT INTO schema_metadata VALUES (?, ?, ?, ?)",
                 (SCHEMA_VERSION, _utc_now(), "clan_snapshot_history", "stable"),
             )
-    except Exception:
         connection.close()
-        if not existed:
-            target.unlink(missing_ok=True)
+        _checkpoint_and_remove_sidecars(temporary)
+        validate_snapshot_store(temporary)
+        os.replace(temporary, target)
+    except Exception:
+        for candidate in (temporary, Path(str(temporary) + "-wal"), Path(str(temporary) + "-shm")):
+            candidate.unlink(missing_ok=True)
         raise
     finally:
         if connection:
@@ -208,12 +298,14 @@ def validate_snapshot_store(path: str | Path) -> None:
         raise SnapshotValidationError("snapshot store does not exist")
     connection = _readonly_connect(target)
     try:
+        _validate_schema_shape(connection)
         _metadata(connection)
         integrity = connection.execute("PRAGMA integrity_check").fetchone()[0]
         if integrity != "ok":
             raise SnapshotValidationError("snapshot store integrity check failed")
         if connection.execute("PRAGMA foreign_key_check").fetchone() is not None:
             raise SnapshotValidationError("snapshot store foreign keys are invalid")
+        _validate_logical_consistency(connection)
     finally:
         connection.close()
 
@@ -336,22 +428,28 @@ def create_validated_backup(path: str | Path, backup_path: str | Path, *, overwr
         raise BackupValidationError("backup destination already exists")
     destination.parent.mkdir(parents=True, exist_ok=True)
     temporary = destination.with_name(destination.stem + ".tmp" + destination.suffix)
-    temporary.unlink(missing_ok=True)
+    for candidate in (temporary, Path(str(temporary) + "-wal"), Path(str(temporary) + "-shm")):
+        candidate.unlink(missing_ok=True)
     try:
-        input_db = _connect(source)
-        output_db = _connect(temporary)
+        input_db = _readonly_connect(source)
+        output_db = _backup_destination(temporary)
         try:
             input_db.backup(output_db)
         finally:
             output_db.close()
             input_db.close()
+        for candidate in (Path(str(temporary) + "-wal"), Path(str(temporary) + "-shm")):
+            candidate.unlink(missing_ok=True)
         validate_snapshot_store(temporary)
         os.replace(temporary, destination)
+        _make_standalone(destination)
+        validate_snapshot_store(destination)
     except Exception as error:
-        try:
-            temporary.unlink(missing_ok=True)
-        except OSError:
-            pass
+        for candidate in (temporary, Path(str(temporary) + "-wal"), Path(str(temporary) + "-shm")):
+            try:
+                candidate.unlink(missing_ok=True)
+            except OSError:
+                pass
         if isinstance(error, SnapshotStoreError):
             raise
         raise BackupValidationError("snapshot backup failed validation") from error

@@ -79,7 +79,40 @@ class SnapshotStoreTests(unittest.TestCase):
         with self.assertRaises(SnapshotValidationError): self.record(self.first, "2026-07-27T00:00:00", "naive")
 
     def test_offset_timestamp_normalizes_to_utc(self) -> None:
-        self.record(self.first, "2026-07-27T03:00:00+03:00"); self.assertEqual("2026-07-27T00:00:00Z", list_observations(self.path)[0]["observed_at_utc"])
+        self.record(self.first, "2026-07-27T03:00:00+03:00"); self.assertEqual("2026-07-27T00:00:00.000000Z", list_observations(self.path)[0]["observed_at_utc"])
+
+    def test_fixed_width_timestamp_ordering_accepts_fractional_second(self) -> None:
+        self.record(self.first, "2026-07-27T00:00:00Z", "run-1")
+        self.record(self.first, "2026-07-27T00:00:00.500000Z", "run-2")
+        self.record(self.first, "2026-07-27T00:00:01Z", "run-3")
+        self.assertEqual(["2026-07-27T00:00:00.000000Z", "2026-07-27T00:00:00.500000Z", "2026-07-27T00:00:01.000000Z"], [item["observed_at_utc"] for item in list_observations(self.path)])
+
+    def test_equivalent_offset_retry_is_idempotent(self) -> None:
+        first = self.record(self.first, "2026-07-27T03:00:00+03:00")
+        retry = self.record(self.first, "2026-07-27T00:00:00.000000Z")
+        self.assertEqual(first.observation_id, retry.observation_id)
+
+    def test_schema_and_logical_corruption_fail_safely(self) -> None:
+        self.record(self.first)
+        db = sqlite3.connect(self.path)
+        try:
+            db.execute("UPDATE snapshot_payload SET member_count = 99"); db.commit()
+        finally:
+            db.close()
+        with self.assertRaises(SnapshotValidationError) as error: validate_snapshot_store(self.path)
+        self.assertNotIn("#AAA", str(error.exception))
+
+    def test_unexpected_application_table_is_rejected(self) -> None:
+        db = sqlite3.connect(self.path)
+        try:
+            db.execute("CREATE TABLE unexpected_table (value TEXT)"); db.commit()
+        finally:
+            db.close()
+        with self.assertRaises(SnapshotValidationError): validate_snapshot_store(self.path)
+
+    def test_backup_is_standalone_without_sidecars(self) -> None:
+        self.record(self.first); backup = Path(self.temp.name) / "standalone.sqlite3"; create_validated_backup(self.path, backup)
+        self.assertFalse(Path(str(backup) + "-wal").exists()); self.assertFalse(Path(str(backup) + "-shm").exists()); validate_snapshot_store(backup)
 
     def test_join_left_rejoin_and_field_events(self) -> None:
         self.record(self.first)

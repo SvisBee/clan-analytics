@@ -1,9 +1,9 @@
 {
-  "attack_stars_total": 12,
+  "attack_stars_total": 31,
   "attacks_available": 30,
   "attacks_per_member": 2,
-  "attacks_used": 4,
-  "clan_stars": 12,
+  "attacks_used": 13,
+  "clan_stars": 29,
   "data_status": "available",
   "end_time": "2026-07-27",
   "members": [
@@ -49,11 +49,11 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 2,
+      "average_stars": 2.0,
+      "new_stars_contributed": 4,
       "nickname": "BoRziY",
-      "stars_earned": 0,
+      "stars_earned": 4,
       "town_hall_level": 8,
       "war_position": 5
     },
@@ -69,11 +69,11 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 2,
+      "average_stars": 3.0,
+      "new_stars_contributed": 5,
       "nickname": "frogi",
-      "stars_earned": 0,
+      "stars_earned": 6,
       "town_hall_level": 8,
       "war_position": 7
     },
@@ -119,21 +119,21 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 1,
+      "average_stars": 1.0,
+      "new_stars_contributed": 1,
       "nickname": "Fyst",
-      "stars_earned": 0,
+      "stars_earned": 1,
       "town_hall_level": 6,
       "war_position": 12
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 2,
+      "average_stars": 1.0,
+      "new_stars_contributed": 1,
       "nickname": "MiKiRi",
-      "stars_earned": 0,
+      "stars_earned": 2,
       "town_hall_level": 7,
       "war_position": 13
     },
@@ -149,19 +149,19 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 2,
+      "average_stars": 3.0,
+      "new_stars_contributed": 6,
       "nickname": "frogi2",
-      "stars_earned": 0,
+      "stars_earned": 6,
       "town_hall_level": 6,
       "war_position": 15
     }
   ],
   "new_stars_contribution_status": "available",
   "participants": 15,
-  "reconstructed_clan_stars": 12,
+  "reconstructed_clan_stars": 29,
   "stars_consistency_status": "consistent",
-  "stars_earned": 12,
+  "stars_earned": 29,
   "state": "inWar"
 }

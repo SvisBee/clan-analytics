@@ -13,6 +13,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 VALIDATE = REPO_ROOT / "scripts" / "update" / "validate_war_history.py"
 GIT_CHECK = REPO_ROOT / "scripts" / "update" / "check_update_git_state.py"
 MUTEX_HELPER = REPO_ROOT / "scripts" / "update" / "workspace_mutex.ps1"
+HEALTH_HELPER = REPO_ROOT / "scripts" / "update" / "collection_health.ps1"
 
 
 def run(*args: str, cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
@@ -28,6 +29,7 @@ class HistoryPreflightCommandTests(unittest.TestCase):
         (repo / "src").mkdir()
         shutil.copy2(REPO_ROOT / "scripts" / "update" / "update_clan_site.ps1", update / "update_clan_site.ps1")
         shutil.copy2(MUTEX_HELPER, update / MUTEX_HELPER.name)
+        shutil.copy2(HEALTH_HELPER, update / HEALTH_HELPER.name)
         shutil.copy2(VALIDATE, update / VALIDATE.name)
         shutil.copytree(REPO_ROOT / "src" / "clan_analytics", repo / "src" / "clan_analytics")
         return workspace, repo, update / "update_clan_site.ps1"
@@ -108,6 +110,7 @@ class HistoryPreflightCommandTests(unittest.TestCase):
             (isolated_repo / "src").mkdir()
             shutil.copy2(updater, isolated_repo / "scripts" / "update" / updater.name)
             shutil.copy2(MUTEX_HELPER, isolated_repo / "scripts" / "update" / MUTEX_HELPER.name)
+            shutil.copy2(HEALTH_HELPER, isolated_repo / "scripts" / "update" / HEALTH_HELPER.name)
             shutil.copy2(VALIDATE, isolated_repo / "scripts" / "update" / VALIDATE.name)
             shutil.copytree(REPO_ROOT / "src" / "clan_analytics", isolated_repo / "src" / "clan_analytics")
             marker = workspace / "probe-called"
@@ -138,7 +141,7 @@ class HistoryPreflightCommandTests(unittest.TestCase):
                 self.assertRegex(combined, r"History val\s*idation\s*preflight failed before network")
                 self.assertNotIn("Local updater config is missing", combined)
                 self.assertFalse(marker.exists(), name)
-            self.assertFalse((workspace / "runs").exists(), name)
+            self.assertTrue((workspace / "runs" / "site_update").exists(), name)
 
     @unittest.skipUnless(shutil.which("powershell.exe"), "requires Windows PowerShell")
     def test_same_workspace_mutex_skips_actual_updater_before_preflight(self) -> None:
@@ -151,7 +154,7 @@ class HistoryPreflightCommandTests(unittest.TestCase):
                 result = run("powershell.exe", "-NoLogo", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", str(updater), "-WorkspaceRoot", str(workspace), "-PreviewOnly")
                 self.assertEqual(result.returncode, 0, result.stderr)
                 self.assertIn("Another site update is already running", result.stdout)
-                self.assertFalse((workspace / "runs").exists())
+                self.assertTrue((workspace / "runs" / "site_update").exists())
                 self.assertFalse((workspace / "data").exists())
             finally:
                 self.release_holder(holder, release)
@@ -173,7 +176,7 @@ class HistoryPreflightCommandTests(unittest.TestCase):
                 self.assertNotEqual(result.returncode, 0, combined)
                 self.assertNotIn("Another site update is already running", combined)
                 self.assertRegex(combined, r"History val\s*idation\s*preflight failed before network")
-                self.assertFalse((workspace_b / "runs").exists())
+                self.assertTrue((workspace_b / "runs" / "site_update").exists())
             finally:
                 self.release_holder(holder, release)
 
@@ -210,6 +213,19 @@ class GitPreflightCommandTests(unittest.TestCase):
             self.assertNotEqual(run(sys.executable, str(GIT_CHECK), "--repo", str(repo)).returncode, 0)
             run("git", "add", "dirty.txt", cwd=repo)
             self.assertNotEqual(run(sys.executable, str(GIT_CHECK), "--repo", str(repo)).returncode, 0)
+
+    def test_json_dirty_report_is_safe_and_repo_relative(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            repo = self.make_repo(Path(temporary))
+            (repo / "dirty.txt").write_text("dirty", encoding="utf-8")
+            result = run(sys.executable, str(GIT_CHECK), "--repo", str(repo), "--json")
+            self.assertEqual(result.returncode, 2)
+            report = json.loads(result.stdout)
+            self.assertFalse(report["ok"])
+            self.assertEqual(report["result_code"], "git_dirty")
+            self.assertEqual(report["details"]["untracked_count"], 1)
+            self.assertEqual(report["details"]["paths"], ["dirty.txt"])
+            self.assertNotIn(str(repo), json.dumps(report))
 
     def test_behind_and_diverged_repositories_are_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

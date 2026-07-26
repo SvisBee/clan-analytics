@@ -58,14 +58,20 @@ Task Scheduler recorded result `0`.
 
 ## Broad memory remediation
 
-The production stage remains completed. A read-only broad-memory validation found
-an exclusion-boundary violation in the private leadership-notes area without
-reading private content. `obsidian/` is now excluded in the workspace
-`.cbmignore`. The existing target remains `D-coc` with root `D:/coc`; the
-repository-scoped `D-coc-repo` is not a substitute. Removing the stale broad
-node requires one external clean rebuild after Codex is fully closed and a
-post-rebuild validation. The broad refresh checkbox stays unchecked until that
-validation succeeds.
+The production stage remains completed. The external clean rebuild of `D-coc`
+at `D:/coc` completed successfully, with 1320 nodes, 5791 edges and 96 File
+nodes. Official read-only graph queries found all 12 required File nodes exactly
+once; `obsidian` and every other excluded category had zero File nodes, while
+the allowed scripts, tests and docs areas remained indexed. `D-coc-repo`
+remains a separate, unchanged repository-scoped project. No private content was
+read during this validation.
+
+The previous raw Scheduled Task XML hash cannot be reproduced because its
+historical XML export was not retained. The current semantic Task definition
+matches the installer contract and has no detected semantic drift. Future checks
+use the semantic fields and canonical semantic hash
+`E44D8D73E6D0978EC34C6A3AA372F1545179F7C96FA524A2F145DCBC23E7D406`, not raw
+XML hash alone. The Task was not changed during finalization.
 
 ## Definition of Done
 
@@ -79,4 +85,4 @@ validation succeeds.
 - [x] commits pushed;
 - [x] Task restored;
 - [x] documentation synced;
-- [ ] broad Codebase Memory refreshed from this active Codex session.
+- [x] broad Codebase Memory externally rebuilt and read-only validated.

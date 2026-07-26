@@ -49,9 +49,15 @@ If actual and expected counts differ, treat the run as failed, retain the logs a
 
 ## Broad exclusion remediation and external rebuild
 
-`collection_reliability_v1` remains completed for production functionality. Its broad-memory checkbox remains unchecked: a read-only validation found an exclusion-boundary violation without reading private content. The active `D-coc` graph must be rebuilt externally after `obsidian/` was added to the workspace `.cbmignore`; an incremental update cannot be used to prove stale nodes were removed.
+`collection_reliability_v1` broad-memory remediation is complete. The external
+clean rebuild of the existing `D-coc` project at `D:/coc` passed with 1320 nodes,
+5791 edges and 96 File nodes. Official read-only graph queries verified all 12
+required File nodes, zero File nodes for `obsidian` and every other excluded
+category, and nonzero indexed files in `repo/scripts`, `repo/tests` and
+`repo/docs`. Private notes are not indexed or read. `D-coc-repo` remains the
+separate daily repository index, not a replacement for broad `D-coc`.
 
-`refresh_codebase_memory.ps1` is the supported clean full rebuild for the existing `D-coc` project only. It validates the exact project and root, backs up and removes only that project's graph files, uses `mode=full`, validates the persisted project, and reports nodes, edges and File nodes. It neither creates nor substitutes `D-coc-repo`.
+`refresh_codebase_memory.ps1` remains the supported clean full rebuild for the existing `D-coc` project only. It validates the exact project and root, backs up and removes only that project's graph files, uses `mode=full`, validates the persisted project, and reports nodes, edges and File nodes. It neither creates nor substitutes `D-coc-repo`. Any future refresh follows this documented external process and requires a new read-only validation.
 
 Do not run it from an active Codex session. Fully close Codex, run the external command once with both confirmations, inspect the run report, then open a new Codex session for post-rebuild validation. Do not repeat the rebuild without inspecting that result.
 

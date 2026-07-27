@@ -5,7 +5,7 @@
   },
   "composition": {
     "members_with_limited_composition_data": 0,
-    "total_members": 28,
+    "total_members": 27,
     "town_hall_distribution": [
       {
         "members": 1,
@@ -24,7 +24,7 @@
         "town_hall_level": 8
       },
       {
-        "members": 5,
+        "members": 4,
         "town_hall_level": 7
       },
       {
@@ -253,18 +253,6 @@
       "war_participations": 5
     },
     {
-      "attacks_available": 6,
-      "attacks_used": 4,
-      "average_stars": 3.0,
-      "clan_role": "member",
-      "data_status": "available",
-      "last_war_date": "2026-07-27",
-      "nickname": "ksanaks-",
-      "stars_earned": 12,
-      "town_hall_level": 7,
-      "war_participations": 3
-    },
-    {
       "attacks_available": 4,
       "attacks_used": 2,
       "average_stars": 3.0,
@@ -421,7 +409,7 @@
     }
   ],
   "war_data_coverage": {
-    "members_with_data": 23,
+    "members_with_data": 22,
     "members_without_data": 5
   }
 }

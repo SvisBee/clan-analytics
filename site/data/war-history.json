@@ -458,7 +458,7 @@
       "attacks_used": 22,
       "clan_stars": 45,
       "end_time": "2026-07-25",
-      "lifecycle_status": "active",
+      "lifecycle_status": "closed_without_final_detailed",
       "members": [
         {
           "attacks_available": 2,
@@ -613,7 +613,7 @@
       ],
       "new_stars_contribution_status": "available",
       "participants": 15,
-      "reconciliation_status": "not_reconciled",
+      "reconciliation_status": "awaiting_war_log",
       "stars_consistency_status": "consistent",
       "state": "inWar",
       "team_size": 15

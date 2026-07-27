@@ -16,11 +16,11 @@
         "town_hall_level": 11
       },
       {
-        "members": 1,
+        "members": 2,
         "town_hall_level": 9
       },
       {
-        "members": 10,
+        "members": 9,
         "town_hall_level": 8
       },
       {
@@ -51,7 +51,7 @@
       "last_war_date": "2026-07-27",
       "nickname": "SvisBuha",
       "stars_earned": 18,
-      "town_hall_level": 8,
+      "town_hall_level": 9,
       "war_participations": 3
     },
     {

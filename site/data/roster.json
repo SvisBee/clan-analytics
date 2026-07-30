@@ -5,7 +5,7 @@
   },
   "composition": {
     "members_with_limited_composition_data": 0,
-    "total_members": 23,
+    "total_members": 21,
     "town_hall_distribution": [
       {
         "members": 1,
@@ -30,10 +30,6 @@
       {
         "members": 4,
         "town_hall_level": 6
-      },
-      {
-        "members": 2,
-        "town_hall_level": 4
       }
     ]
   },
@@ -49,18 +45,6 @@
       "stars_earned": 24,
       "town_hall_level": 9,
       "war_participations": 4
-    },
-    {
-      "attacks_available": null,
-      "attacks_used": null,
-      "average_stars": null,
-      "clan_role": "member",
-      "data_status": "insufficient_data",
-      "last_war_date": null,
-      "nickname": "Юсуфа",
-      "stars_earned": null,
-      "town_hall_level": 4,
-      "war_participations": 0
     },
     {
       "attacks_available": 12,
@@ -254,18 +238,6 @@
       "war_participations": 4
     },
     {
-      "attacks_available": null,
-      "attacks_used": null,
-      "average_stars": null,
-      "clan_role": "member",
-      "data_status": "insufficient_data",
-      "last_war_date": null,
-      "nickname": "squeamish_eww",
-      "stars_earned": null,
-      "town_hall_level": 4,
-      "war_participations": 0
-    },
-    {
       "attacks_available": 4,
       "attacks_used": 3,
       "average_stars": 2.33,
@@ -358,6 +330,6 @@
   ],
   "war_data_coverage": {
     "members_with_data": 19,
-    "members_without_data": 4
+    "members_without_data": 2
   }
 }

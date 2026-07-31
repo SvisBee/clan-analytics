@@ -1,9 +1,9 @@
 {
-  "attack_stars_total": 16,
+  "attack_stars_total": 19,
   "attacks_available": 20,
   "attacks_per_member": 2,
-  "attacks_used": 7,
-  "clan_stars": 15,
+  "attacks_used": 8,
+  "clan_stars": 18,
   "data_status": "available",
   "end_time": "2026-08-01",
   "members": [
@@ -19,11 +19,11 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 1,
+      "average_stars": 3.0,
+      "new_stars_contributed": 3,
       "nickname": "SvisBuha",
-      "stars_earned": 0,
+      "stars_earned": 3,
       "town_hall_level": 9,
       "war_position": 2
     },
@@ -110,8 +110,8 @@
   ],
   "new_stars_contribution_status": "available",
   "participants": 10,
-  "reconstructed_clan_stars": 15,
+  "reconstructed_clan_stars": 18,
   "stars_consistency_status": "consistent",
-  "stars_earned": 15,
+  "stars_earned": 18,
   "state": "inWar"
 }

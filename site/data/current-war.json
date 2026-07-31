@@ -1,9 +1,9 @@
 {
-  "attack_stars_total": 11,
+  "attack_stars_total": 16,
   "attacks_available": 20,
   "attacks_per_member": 2,
-  "attacks_used": 4,
-  "clan_stars": 11,
+  "attacks_used": 7,
+  "clan_stars": 15,
   "data_status": "available",
   "end_time": "2026-08-01",
   "members": [
@@ -29,11 +29,11 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 1,
+      "average_stars": 1.0,
+      "new_stars_contributed": 1,
       "nickname": "odlid",
-      "stars_earned": 0,
+      "stars_earned": 1,
       "town_hall_level": 8,
       "war_position": 3
     },
@@ -89,11 +89,11 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 2,
+      "average_stars": 2.0,
+      "new_stars_contributed": 3,
       "nickname": "VB(;",
-      "stars_earned": 0,
+      "stars_earned": 4,
       "town_hall_level": 8,
       "war_position": 9
     },
@@ -110,8 +110,8 @@
   ],
   "new_stars_contribution_status": "available",
   "participants": 10,
-  "reconstructed_clan_stars": 11,
+  "reconstructed_clan_stars": 15,
   "stars_consistency_status": "consistent",
-  "stars_earned": 11,
+  "stars_earned": 15,
   "state": "inWar"
 }

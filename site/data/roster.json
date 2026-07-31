@@ -48,8 +48,8 @@
     },
     {
       "attacks_available": 14,
-      "attacks_used": 11,
-      "average_stars": 2.64,
+      "attacks_used": 12,
+      "average_stars": 2.67,
       "clan_role": "admin",
       "data_status": "available",
       "last_war_date": "2026-08-01",
@@ -60,7 +60,7 @@
       "new_stars_contributed": null,
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "Kedr",
-      "stars_earned": 29,
+      "stars_earned": 32,
       "town_hall_level": 8,
       "war_participations": 7
     },
@@ -108,13 +108,13 @@
     },
     {
       "attacks_available": 10,
-      "attacks_used": 7,
-      "average_stars": 2.57,
+      "attacks_used": 8,
+      "average_stars": 2.5,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-08-01",
       "nickname": "077zvr",
-      "stars_earned": 18,
+      "stars_earned": 20,
       "town_hall_level": 8,
       "war_participations": 5
     },
@@ -180,13 +180,13 @@
     },
     {
       "attacks_available": 8,
-      "attacks_used": 6,
-      "average_stars": 1.67,
+      "attacks_used": 7,
+      "average_stars": 1.86,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-08-01",
       "nickname": "Али",
-      "stars_earned": 10,
+      "stars_earned": 13,
       "town_hall_level": 8,
       "war_participations": 4
     },
@@ -311,7 +311,7 @@
     },
     {
       "attacks_available": 14,
-      "attacks_used": 12,
+      "attacks_used": 13,
       "average_stars": 3.0,
       "clan_role": "coLeader",
       "data_status": "available",
@@ -323,7 +323,7 @@
       "new_stars_contributed": null,
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "SvisBee",
-      "stars_earned": 36,
+      "stars_earned": 39,
       "town_hall_level": 8,
       "war_participations": 7
     }

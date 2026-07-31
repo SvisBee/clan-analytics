@@ -2,12 +2,12 @@
   "player_metrics": [
     {
       "attacks_available": 10,
-      "attacks_used": 7,
-      "average_stars": 2.57,
+      "attacks_used": 8,
+      "average_stars": 2.5,
       "last_war_date": "2026-08-01",
-      "new_stars_contributed": 17,
+      "new_stars_contributed": 19,
       "nickname": "077zvr",
-      "stars_earned": 18,
+      "stars_earned": 20,
       "war_participations": 5
     },
     {
@@ -82,8 +82,8 @@
     },
     {
       "attacks_available": 14,
-      "attacks_used": 11,
-      "average_stars": 2.64,
+      "attacks_used": 12,
+      "average_stars": 2.67,
       "data_status": "available",
       "last_war_date": "2026-08-01",
       "manual_attacks_used": 3,
@@ -93,7 +93,7 @@
       "new_stars_contributed": null,
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "Kedr",
-      "stars_earned": 29,
+      "stars_earned": 32,
       "war_participations": 7
     },
     {
@@ -190,7 +190,7 @@
     },
     {
       "attacks_available": 14,
-      "attacks_used": 12,
+      "attacks_used": 13,
       "average_stars": 3.0,
       "data_status": "available",
       "last_war_date": "2026-08-01",
@@ -201,7 +201,7 @@
       "new_stars_contributed": null,
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "SvisBee",
-      "stars_earned": 36,
+      "stars_earned": 39,
       "war_participations": 7
     },
     {
@@ -257,12 +257,12 @@
     },
     {
       "attacks_available": 8,
-      "attacks_used": 6,
-      "average_stars": 1.67,
+      "attacks_used": 7,
+      "average_stars": 1.86,
       "last_war_date": "2026-08-01",
-      "new_stars_contributed": 10,
+      "new_stars_contributed": 13,
       "nickname": "Али",
-      "stars_earned": 10,
+      "stars_earned": 13,
       "war_participations": 4
     },
     {
@@ -295,11 +295,11 @@
   "schema_version": 2,
   "wars": [
     {
-      "attack_stars_total": 0,
+      "attack_stars_total": 11,
       "attacks_available": 20,
       "attacks_per_member": 2,
-      "attacks_used": 0,
-      "clan_stars": 0,
+      "attacks_used": 4,
+      "clan_stars": 11,
       "end_time": "2026-08-01",
       "lifecycle_status": "active",
       "members": [
@@ -335,21 +335,21 @@
         },
         {
           "attacks_available": 2,
-          "attacks_used": 0,
-          "average_stars": null,
-          "new_stars_contributed": 0,
+          "attacks_used": 1,
+          "average_stars": 2.0,
+          "new_stars_contributed": 2,
           "nickname": "077zvr",
-          "stars_earned": 0,
+          "stars_earned": 2,
           "town_hall_level": 8,
           "war_position": 4
         },
         {
           "attacks_available": 2,
-          "attacks_used": 0,
-          "average_stars": null,
-          "new_stars_contributed": 0,
+          "attacks_used": 1,
+          "average_stars": 3.0,
+          "new_stars_contributed": 3,
           "nickname": "Kedr",
-          "stars_earned": 0,
+          "stars_earned": 3,
           "town_hall_level": 8,
           "war_position": 5
         },
@@ -365,21 +365,21 @@
         },
         {
           "attacks_available": 2,
-          "attacks_used": 0,
-          "average_stars": null,
-          "new_stars_contributed": 0,
+          "attacks_used": 1,
+          "average_stars": 3.0,
+          "new_stars_contributed": 3,
           "nickname": "Али",
-          "stars_earned": 0,
+          "stars_earned": 3,
           "town_hall_level": 8,
           "war_position": 7
         },
         {
           "attacks_available": 2,
-          "attacks_used": 0,
-          "average_stars": null,
-          "new_stars_contributed": 0,
+          "attacks_used": 1,
+          "average_stars": 3.0,
+          "new_stars_contributed": 3,
           "nickname": "SvisBee",
-          "stars_earned": 0,
+          "stars_earned": 3,
           "town_hall_level": 8,
           "war_position": 8
         },
@@ -407,8 +407,8 @@
       "new_stars_contribution_status": "available",
       "participants": 10,
       "reconciliation_status": "not_reconciled",
-      "stars_consistency_status": "unavailable",
-      "state": "preparation",
+      "stars_consistency_status": "consistent",
+      "state": "inWar",
       "team_size": 10
     },
     {

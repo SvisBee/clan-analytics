@@ -1,19 +1,19 @@
 {
-  "attack_stars_total": 19,
+  "attack_stars_total": 31,
   "attacks_available": 20,
   "attacks_per_member": 2,
-  "attacks_used": 8,
-  "clan_stars": 18,
+  "attacks_used": 12,
+  "clan_stars": 27,
   "data_status": "available",
   "end_time": "2026-08-01",
   "members": [
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 2,
+      "average_stars": 3.0,
+      "new_stars_contributed": 4,
       "nickname": "кума88",
-      "stars_earned": 0,
+      "stars_earned": 6,
       "town_hall_level": 9,
       "war_position": 1
     },
@@ -59,21 +59,21 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 1,
+      "average_stars": 3.0,
+      "new_stars_contributed": 3,
       "nickname": "kent",
-      "stars_earned": 0,
+      "stars_earned": 3,
       "town_hall_level": 8,
       "war_position": 6
     },
     {
       "attacks_available": 2,
-      "attacks_used": 1,
+      "attacks_used": 2,
       "average_stars": 3.0,
-      "new_stars_contributed": 3,
+      "new_stars_contributed": 5,
       "nickname": "Али",
-      "stars_earned": 3,
+      "stars_earned": 6,
       "town_hall_level": 8,
       "war_position": 7
     },
@@ -110,8 +110,8 @@
   ],
   "new_stars_contribution_status": "available",
   "participants": 10,
-  "reconstructed_clan_stars": 18,
+  "reconstructed_clan_stars": 27,
   "stars_consistency_status": "consistent",
-  "stars_earned": 18,
+  "stars_earned": 27,
   "state": "inWar"
 }

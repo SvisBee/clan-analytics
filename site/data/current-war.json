@@ -1,9 +1,9 @@
 {
-  "attack_stars_total": 31,
+  "attack_stars_total": 34,
   "attacks_available": 20,
   "attacks_per_member": 2,
-  "attacks_used": 12,
-  "clan_stars": 27,
+  "attacks_used": 13,
+  "clan_stars": 30,
   "data_status": "available",
   "end_time": "2026-08-01",
   "members": [
@@ -99,19 +99,19 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 1,
+      "average_stars": 3.0,
+      "new_stars_contributed": 3,
       "nickname": "Fyst",
-      "stars_earned": 0,
+      "stars_earned": 3,
       "town_hall_level": 7,
       "war_position": 10
     }
   ],
   "new_stars_contribution_status": "available",
   "participants": 10,
-  "reconstructed_clan_stars": 27,
+  "reconstructed_clan_stars": 30,
   "stars_consistency_status": "consistent",
-  "stars_earned": 27,
+  "stars_earned": 30,
   "state": "inWar"
 }

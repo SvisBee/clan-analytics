@@ -24,11 +24,11 @@
         "town_hall_level": 8
       },
       {
-        "members": 5,
+        "members": 6,
         "town_hall_level": 7
       },
       {
-        "members": 2,
+        "members": 1,
         "town_hall_level": 6
       }
     ]
@@ -252,7 +252,7 @@
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "шкура",
       "stars_earned": 7,
-      "town_hall_level": 6,
+      "town_hall_level": 7,
       "war_participations": 2
     },
     {

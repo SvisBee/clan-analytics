@@ -177,6 +177,7 @@ try {
         (Join-Path $RepoRoot 'scripts\api\run_clan_current_war_probe.ps1'),
         (Join-Path $RepoRoot 'scripts\api\run_clan_war_log_probe.ps1'),
         (Join-Path $RepoRoot 'scripts\update\build_site_update.py'),
+        (Join-Path $RepoRoot 'scripts\update\builder_failure_bundle.py'),
         (Join-Path $RepoRoot 'scripts\update\record_clan_snapshot_history.py'),
         (Join-Path $RepoRoot 'site\assets\js\app.js'),
         (Join-Path $RepoRoot 'site\assets\js\current-war-contract.js'),
@@ -247,7 +248,16 @@ try {
 
     Write-Status 'Building proposed history and public site JSON.'
     $currentStage = 'builder'; $currentHealthStage = Start-HealthStage -Health $health -Stage $currentStage
-    Invoke-Checked -FilePath $python -Arguments @(
+    $bundleHelper = Join-Path $RepoRoot 'scripts\update\builder_failure_bundle.py'
+    $repositoryHead = (& $git -C $RepoRoot rev-parse HEAD).Trim()
+    $bundlePrepare = Invoke-NativeProcess -FilePath $python -Arguments @(
+        $bundleHelper, 'prepare', '--workspace-root', $WorkspaceRoot, '--run-id', $runId,
+        '--repository-head', $repositoryHead, '--roster-run', $rosterDir,
+        '--current-war-run', $currentWarDir, '--war-log-run', $warLogDir,
+        '--history-path', $HistoryPath, '--site-data-dir', $SiteDataDir
+    )
+    if (-not $bundlePrepare.succeeded) { throw 'Builder input capture preparation failed safely.' }
+    $builderProcess = Invoke-NativeProcess -FilePath $python -Arguments @(
         (Join-Path $RepoRoot 'scripts\update\build_site_update.py'),
         '--roster-run', $rosterDir,
         '--current-war-run', $currentWarDir,
@@ -255,7 +265,37 @@ try {
         '--history-path', $HistoryPath,
         '--site-data-dir', $SiteDataDir,
         '--output-dir', $buildDir
-    ) -Label 'Site update builder'
+    )
+    $script:LastCheckedOutput = @($builderProcess.stderr_safe)
+    if (-not [string]::IsNullOrWhiteSpace($builderProcess.stdout)) { Write-Output $builderProcess.stdout }
+    if (-not [string]::IsNullOrWhiteSpace($builderProcess.stderr_safe)) {
+        Add-CollectionHealthDiagnostic -Health $health -Stage $currentStage -Code 'native_stderr' -SafeMessage "Site update builder reported stderr: $($builderProcess.stderr_safe)" -ProcessExitCode $builderProcess.process_exit_code
+        Write-Status "Site update builder diagnostic: $($builderProcess.stderr_safe)"
+    }
+    if ($builderProcess.succeeded) {
+        $bundleCleanup = Invoke-NativeProcess -FilePath $python -Arguments @($bundleHelper, 'finalize', '--workspace-root', $WorkspaceRoot, '--run-id', $runId, '--success')
+        if (-not $bundleCleanup.succeeded) { throw 'Successful builder input capture cleanup failed safely.' }
+    }
+    else {
+        $bundleFinalize = Invoke-NativeProcess -FilePath $python -Arguments @(
+            $bundleHelper, 'finalize', '--workspace-root', $WorkspaceRoot, '--run-id', $runId,
+            '--process-exit-code', $builderProcess.process_exit_code.ToString(), '--safe-error-text', [string]$builderProcess.stderr_safe
+        )
+        if ($bundleFinalize.succeeded) {
+            $bundleManifest = Get-Content -LiteralPath (Join-Path $WorkspaceRoot "local\diagnostics\builder_failure\$runId\reproduction-manifest.json") -Raw | ConvertFrom-Json
+            $health.failure_bundle_created = $true
+            $health.failure_bundle_capture_status = 'captured'
+            $health.failure_bundle_artifact_count = [int]$bundleManifest.artifact_count
+            $health.failure_bundle_logical_reference = "local/diagnostics/builder_failure/$runId"
+        }
+        else {
+            $health.failure_bundle_created = $false
+            $health.failure_bundle_capture_status = 'diagnostic_capture_failed'
+            $health.failure_bundle_artifact_count = 0
+            $health.failure_bundle_logical_reference = $null
+        }
+        throw "Site update builder failed with exit code $($builderProcess.process_exit_code)."
+    }
     Complete-HealthStage -Health $health -StageRecord $currentHealthStage -Status success -ResultCode success
     $health.builder = [ordered]@{ status='success'; result_code='success' }
 

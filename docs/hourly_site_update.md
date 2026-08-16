@@ -195,6 +195,17 @@ D:\coc\local\logs\site_update
 
 These locations remain outside Git and Codebase Memory.
 
+## Builder failure reproduction
+
+Immediately before the site builder starts, the updater makes a bounded,
+binary-exact copy of its actual file inputs below
+`local/diagnostics/builder_failure/.pending/<run-id>`. A successful builder
+removes that temporary copy. A failed builder preserves it under
+`local/diagnostics/builder_failure/<run-id>` with SHA-256 metadata for offline
+replay. The bundle can contain private API data and therefore never enters
+Git, Pages, `runs` or Codebase Memory. History migration, validation and CWL
+support are unchanged.
+
 ## Important limitations
 
 Hourly collection greatly reduces the risk of missing attacks. It cannot reconstruct detailed player attacks for a war if the laptop was unavailable for the entire period in which the detailed current-war endpoint exposed that war. The war log may still retain the aggregate result, but not historical per-player attacks.

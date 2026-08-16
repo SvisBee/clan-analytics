@@ -70,6 +70,12 @@ optional fields such as `process_exit_code`, `publication` or `freshness`.
 Such a record is marked `legacy_record=true`; unavailable values remain null
 and never prevent valid newer summaries from being displayed.
 
+On builder failure, health may record only whether an exact local input bundle
+was captured, its artifact count, capture status and a logical
+`local/diagnostics/builder_failure/<run-id>` reference. It never contains the
+bundle contents or an absolute path. Older health records without these fields
+remain valid.
+
 For normal runs that pass tests, `snapshot_history` is appended before
 `atomic_apply`. Its safe result distinguishes successful/idempotent recording
 from initialization, validation, schema, conflict, ordering, lock and write

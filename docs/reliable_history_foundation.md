@@ -106,6 +106,12 @@ Chronology alone is insufficient for timestamp-free progressive matching. The th
 
 ## Recovery
 
+Builder input preservation is an operational diagnostic boundary, not a
+history repair. A failed builder can retain its exact file inputs locally for
+offline replay; successful runs leave no persistent bundle. Raw/private inputs
+remain outside Git, Pages, `runs` and Codebase Memory. Migration semantics and
+validation rules are not changed, and CWL history support is not added.
+
 History parsing and validation fail closed. Invalid JSON, unsupported schema and malformed records are never interpreted as empty history.
 
 The Python recovery boundary writes a same-directory temporary file, flushes and calls `fsync`, creates and flushes a backup before replacement, and uses `os.replace`. Backup, write and replace failures identify their stage and path. A validated backup can be restored through a separate atomic replacement. Tests use only temporary directories.

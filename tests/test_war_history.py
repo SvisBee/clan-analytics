@@ -23,6 +23,9 @@ from clan_analytics.api.normalization import (  # noqa: E402
 from clan_analytics.history import (  # noqa: E402
     HISTORY_SCHEMA_VERSION,
     HistoryError,
+    _validate_history_v2,
+    _war_log_id,
+    _war_log_payload,
     build_public_war_history,
     detailed_wars,
     empty_history,
@@ -71,6 +74,53 @@ def v1_history():
                 "latest": asdict(war),
             }
         ],
+    }
+
+
+def multi_war_summary_log(*, destruction=390.0, stars=207):
+    payload = load("war_log.json")
+    entry = payload["items"][0]
+    payload["items"] = [entry]
+    entry.update({
+        "result": None,
+        "endTime": "20260810T232828.000Z",
+        "teamSize": 15,
+        "attacksPerMember": 1,
+    })
+    entry["clan"].update(
+        {"stars": stars, "destructionPercentage": destruction, "attacks": 83}
+    )
+    entry["opponent"].update(
+        {"stars": 116, "destructionPercentage": 0.0}
+    )
+    return normalize_war_log(
+        payload,
+        collected_at="2026-08-17T01:05:05Z",
+        raw_source_reference="fictional-multi-war-summary",
+    )
+
+
+def aggregate_record(entry):
+    log_id = _war_log_id(entry)
+    return {
+        "record_kind": "aggregate_only",
+        "war_id": log_id,
+        "war_log_id": log_id,
+        "identity": {
+            "seed": {"kind": "war_log_aggregate", "id": log_id},
+            "strong_identifiers": {"end_time": entry.end_time},
+            "evidence_status": "aggregate_only",
+        },
+        "first_collected_at": entry.source.collected_at,
+        "last_collected_at": entry.source.collected_at,
+        "lifecycle_status": "closed_war_log_only",
+        "reconciliation_status": "unmatched_aggregate_only",
+        "states_seen": [],
+        "observations": [],
+        "canonical": None,
+        "war_log": _war_log_payload(entry),
+        "diagnostics": ["no_detailed_snapshot"],
+        "migration": None,
     }
 
 
@@ -285,6 +335,97 @@ class WarHistoryObservationTests(unittest.TestCase):
 
 
 class WarLifecycleAndReconciliationTests(unittest.TestCase):
+    def test_multi_war_summary_reproducer_fails_single_war_validation(self) -> None:
+        entry = multi_war_summary_log().entries[0]
+        candidate = empty_history()
+        candidate["wars"].append(aggregate_record(entry))
+        with self.assertRaisesRegex(
+            HistoryError, r"history\.wars\[0\]\.war_log\.clan\.stars is invalid"
+        ):
+            _validate_history_v2(candidate)
+
+    def test_multi_war_summary_is_not_added_to_ordinary_war_history(self) -> None:
+        history, changed = reconcile_war_log(empty_history(), multi_war_summary_log())
+        self.assertTrue(changed)
+        self.assertEqual(history["wars"], [])
+        self.assertEqual(
+            history["diagnostics"], [{"status": "ignored_multi_war_summary"}]
+        )
+        _validate_history_v2(history)
+
+        repeated, repeated_changed = reconcile_war_log(
+            history, multi_war_summary_log()
+        )
+        self.assertFalse(repeated_changed)
+        self.assertEqual(repeated, history)
+
+    def test_multi_war_summary_skip_preserves_ids_order_and_public_projection(self) -> None:
+        original, _ = merge_war_history(empty_history(), normalized())
+        before_ids = [record["war_id"] for record in original["wars"]]
+        before_public = build_public_war_history(original)
+        result, changed = reconcile_war_log(original, multi_war_summary_log())
+        self.assertTrue(changed)
+        self.assertEqual(
+            [record["war_id"] for record in result["wars"]], before_ids
+        )
+        self.assertEqual(build_public_war_history(result), before_public)
+
+    def test_other_malformed_aggregate_is_not_silently_skipped(self) -> None:
+        log = multi_war_summary_log(destruction=90.0, stars=151)
+        history, changed = reconcile_war_log(empty_history(), log)
+        self.assertTrue(changed)
+        self.assertEqual(len(history["wars"]), 1)
+        with self.assertRaisesRegex(
+            HistoryError, r"war_log\.clan\.stars is invalid"
+        ):
+            _validate_history_v2(history)
+
+    def test_valid_aggregate_only_record_still_passes(self) -> None:
+        log = normalize_war_log(
+            load("war_log.json"),
+            collected_at="2026-07-20T19:00:00Z",
+            raw_source_reference="fixture",
+        )
+        history, _ = reconcile_war_log(empty_history(), log)
+        _validate_history_v2(history)
+        self.assertTrue(
+            all(record["record_kind"] == "aggregate_only" for record in history["wars"])
+        )
+
+    def test_finalized_war_requires_canonical_clan_stars(self) -> None:
+        payload = war_payload(state="warEnded")
+        payload["clan"]["stars"] = None
+        history, _ = merge_war_history(empty_history(), normalized(payload))
+        with self.assertRaisesRegex(
+            HistoryError, r"canonical\.clan_stars is missing"
+        ):
+            _validate_history_v2(history)
+
+    def test_finalized_reconciled_war_requires_both_official_star_totals(self) -> None:
+        history, _ = merge_war_history(
+            empty_history(), normalized(war_payload(state="warEnded"))
+        )
+        log_payload = load("war_log.json")
+        log_payload["items"] = [log_payload["items"][0]]
+        log_payload["items"][0].update(
+            {"endTime": "20260720T180000.000Z", "teamSize": 2}
+        )
+        log_payload["items"][0]["opponent"]["tag"] = "#TARGETCLAN"
+        log = normalize_war_log(
+            log_payload,
+            collected_at="2026-07-20T19:00:00Z",
+            raw_source_reference="fixture",
+        )
+        reconciled, _ = reconcile_war_log(history, log)
+        for side in ("clan", "opponent"):
+            with self.subTest(side=side):
+                candidate = json.loads(json.dumps(reconciled))
+                candidate["wars"][0]["war_log"][side]["stars"] = None
+                with self.assertRaisesRegex(
+                    HistoryError, rf"war_log\.{side}\.stars is missing"
+                ):
+                    _validate_history_v2(candidate)
+
     def test_preparation_to_in_war_to_war_ended(self) -> None:
         preparation = war_payload(state="preparation")
         history, _ = merge_war_history(empty_history(), normalized(preparation))

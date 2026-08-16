@@ -48,6 +48,7 @@ _RECORD_DIAGNOSTICS = {
 _TOP_DIAGNOSTIC_STATUSES = {
     "ignored_incomplete_detailed_snapshot", "identity_ambiguous",
     "aggregate_detail_match_ambiguous", "war_log_match_ambiguous",
+    "ignored_multi_war_summary",
 }
 _TIME_FIELDS = ("preparation_start_time", "start_time", "end_time")
 # Project heuristic, not an API rule: one ordinary-war lifecycle should not
@@ -686,6 +687,8 @@ def _validate_history_v2(history: Mapping[str, Any]) -> None:
             _validate_snapshot(canonical, f"history.wars[{index}].canonical")
             if record.get("lifecycle_status") == "finalized_detailed" and canonical.get("state") != "warEnded":
                 raise HistoryError(f"history.wars[{index}] finalized detailed state is inconsistent")
+            if record.get("lifecycle_status") == "finalized_detailed" and canonical.get("clan_stars") is None:
+                raise HistoryError(f"history.wars[{index}].canonical.clan_stars is missing for finalized war")
             if record.get("lifecycle_status") == "active" and canonical.get("state") == "warEnded":
                 raise HistoryError(f"history.wars[{index}] active state is inconsistent")
             if record.get("lifecycle_status") == "closed_without_final_detailed" and canonical.get("state") == "warEnded":
@@ -703,6 +706,11 @@ def _validate_history_v2(history: Mapping[str, Any]) -> None:
                 raise HistoryError(f"history.wars[{index}] aggregate-only reconciliation is inconsistent")
         if war_log is not None:
             _validate_war_log(war_log, f"history.wars[{index}].war_log")
+            if record.get("lifecycle_status") == "finalized_detailed":
+                if war_log["clan"]["stars"] is None:
+                    raise HistoryError(f"history.wars[{index}].war_log.clan.stars is missing for finalized war")
+                if war_log["opponent"]["stars"] is None:
+                    raise HistoryError(f"history.wars[{index}].war_log.opponent.stars is missing for finalized war")
             war_log_id = record.get("war_log_id")
             if not isinstance(war_log_id, str) or not _SHA256_PATTERN.fullmatch(war_log_id):
                 raise HistoryError(f"history.wars[{index}].war_log_id is invalid")
@@ -933,6 +941,31 @@ def _war_log_id(entry: WarLogEntrySnapshot) -> str:
     ).hexdigest()
 
 
+def _is_multi_war_summary(entry: WarLogEntrySnapshot) -> bool:
+    """Identify an aggregate that cannot represent one ordinary clan war.
+
+    The official war-log response can contain a result-less multi-war summary.
+    It must remain available to the separate war-log projection, but it cannot
+    be represented as one ordinary-war history record. Require two independent
+    impossible single-war aggregates so malformed partial records still fail
+    closed instead of being silently skipped.
+    """
+
+    if entry.result is not None or not _is_int(entry.team_size, minimum=1, maximum=50):
+        return False
+    maximum_single_war_stars = entry.team_size * 3
+    stars_exceed_single_war = any(
+        _is_int(side.stars, minimum=0) and side.stars > maximum_single_war_stars
+        for side in (entry.clan, entry.opponent)
+    )
+    destruction_exceeds_single_war = any(
+        type(side.destruction_percentage) in {int, float}
+        and side.destruction_percentage > 100
+        for side in (entry.clan, entry.opponent)
+    )
+    return stars_exceed_single_war and destruction_exceeds_single_war
+
+
 def _war_log_match_score(snapshot: Mapping[str, Any], entry: WarLogEntrySnapshot) -> tuple[int, list[str]]:
     """Return a fail-closed reconciliation score and its explicit evidence."""
 
@@ -1003,6 +1036,12 @@ def reconcile_war_log(
     changed = False
     records: list[dict[str, Any]] = current["wars"]
     for entry in war_log.entries:
+        if _is_multi_war_summary(entry):
+            diagnostic = {"status": "ignored_multi_war_summary"}
+            if diagnostic not in current["diagnostics"]:
+                current["diagnostics"].append(diagnostic)
+                changed = True
+            continue
         payload = _war_log_payload(entry)
         log_id = _war_log_id(entry)
         already = next(

@@ -210,6 +210,12 @@ support are unchanged.
 
 Hourly collection greatly reduces the risk of missing attacks. It cannot reconstruct detailed player attacks for a war if the laptop was unavailable for the entire period in which the detailed current-war endpoint exposed that war. The war log may still retain the aggregate result, but not historical per-player attacks.
 
+The war-log endpoint may also return a result-less summary whose aggregate
+stars and destruction cannot represent one ordinary war. The builder keeps
+that response in the separate public war-log projection but does not create an
+ordinary-war history record from it. No score is synthesized, and the strict
+validation of normal completed wars remains unchanged.
+
 Codebase Memory is not refreshed hourly. It indexes source structure, not fast-changing local or public data snapshots, and remains a separate explicit maintenance action.
 
 The official clan score comes from `current war -> clan.stars`. The sum of attack results is retained separately and is not used as the clan score. A new-stars contribution is emitted only when global attack order and defender links are complete and unique.

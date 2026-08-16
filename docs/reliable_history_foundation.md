@@ -66,6 +66,16 @@ The offline lifecycle regression uses `38 -> 41 -> 45`: 38/43/18 remains the fix
 
 War log supplies official result, clan/opponent aggregates, end time and team size when present. Automatic matching requires an exact end time plus at least one compatible supporting fact such as team size, attacks per member or an internal clan/opponent tag. Team size alone and absent timestamps never match. One match attaches the aggregate idempotently; a later detailed snapshot can promote an aggregate-only record without changing its stable war ID. No match creates an aggregate-only record. Multiple matches produce an ambiguity diagnostic.
 
+The ordinary-war history excludes result-less multi-war summaries whose star
+and destruction totals are both mathematically impossible for one war at the
+reported team size. The entry remains available to the separate current
+war-log projection, and history records the safe
+`ignored_multi_war_summary` diagnostic. This boundary does not replace unknown
+scores with zero, does not relax single-war validation, and does not implement
+CWL history. Finalized detailed wars still require an official clan star total;
+when a finalized war has a reconciled war-log aggregate, both sides must have
+official star totals.
+
 War log never creates player membership, attacks, defender links, individual stars, destruction or map positions.
 
 ## Star accounting v1

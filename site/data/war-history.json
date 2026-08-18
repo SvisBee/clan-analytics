@@ -72,12 +72,12 @@
     },
     {
       "attacks_available": 10,
-      "attacks_used": 6,
-      "average_stars": 2.67,
+      "attacks_used": 7,
+      "average_stars": 2.71,
       "last_war_date": "2026-08-18",
-      "new_stars_contributed": 16,
+      "new_stars_contributed": 17,
       "nickname": "Fyst",
-      "stars_earned": 16,
+      "stars_earned": 19,
       "war_participations": 5
     },
     {
@@ -216,12 +216,12 @@
     },
     {
       "attacks_available": 14,
-      "attacks_used": 11,
+      "attacks_used": 12,
       "average_stars": 3.0,
       "last_war_date": "2026-08-18",
-      "new_stars_contributed": 29,
+      "new_stars_contributed": 30,
       "nickname": "SvisBuha",
-      "stars_earned": 33,
+      "stars_earned": 36,
       "war_participations": 7
     },
     {
@@ -305,13 +305,13 @@
   "schema_version": 2,
   "wars": [
     {
-      "attack_stars_total": 41,
+      "attack_stars_total": 47,
       "attacks_available": 30,
       "attacks_per_member": 2,
-      "attacks_used": 15,
-      "clan_stars": 41,
+      "attacks_used": 17,
+      "clan_stars": 43,
       "end_time": "2026-08-18",
-      "lifecycle_status": "active",
+      "lifecycle_status": "finalized_detailed",
       "members": [
         {
           "attacks_available": 2,
@@ -325,11 +325,11 @@
         },
         {
           "attacks_available": 2,
-          "attacks_used": 1,
+          "attacks_used": 2,
           "average_stars": 3.0,
-          "new_stars_contributed": 3,
+          "new_stars_contributed": 4,
           "nickname": "SvisBuha",
-          "stars_earned": 3,
+          "stars_earned": 6,
           "town_hall_level": 9,
           "war_position": 2
         },
@@ -405,11 +405,11 @@
         },
         {
           "attacks_available": 2,
-          "attacks_used": 1,
+          "attacks_used": 2,
           "average_stars": 3.0,
-          "new_stars_contributed": 3,
+          "new_stars_contributed": 4,
           "nickname": "Fyst",
-          "stars_earned": 3,
+          "stars_earned": 6,
           "town_hall_level": 8,
           "war_position": 10
         },
@@ -466,9 +466,9 @@
       ],
       "new_stars_contribution_status": "available",
       "participants": 15,
-      "reconciliation_status": "not_reconciled",
+      "reconciliation_status": "matched",
       "stars_consistency_status": "consistent",
-      "state": "inWar",
+      "state": "warEnded",
       "team_size": 15
     },
     {

@@ -1,19 +1,19 @@
 {
-  "attack_stars_total": 27,
+  "attack_stars_total": 41,
   "attacks_available": 30,
   "attacks_per_member": 2,
-  "attacks_used": 10,
-  "clan_stars": 27,
+  "attacks_used": 15,
+  "clan_stars": 41,
   "data_status": "available",
   "end_time": "2026-08-18",
   "members": [
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 1,
+      "average_stars": 2.0,
+      "new_stars_contributed": 2,
       "nickname": "кума88",
-      "stars_earned": 0,
+      "stars_earned": 2,
       "town_hall_level": 10,
       "war_position": 1
     },
@@ -29,11 +29,11 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 1,
+      "attacks_used": 2,
       "average_stars": 3.0,
-      "new_stars_contributed": 3,
+      "new_stars_contributed": 6,
       "nickname": "Али",
-      "stars_earned": 3,
+      "stars_earned": 6,
       "town_hall_level": 9,
       "war_position": 3
     },
@@ -69,11 +69,11 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 1,
+      "average_stars": 3.0,
+      "new_stars_contributed": 3,
       "nickname": "kent",
-      "stars_earned": 0,
+      "stars_earned": 3,
       "town_hall_level": 9,
       "war_position": 7
     },
@@ -99,11 +99,11 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 1,
+      "average_stars": 3.0,
+      "new_stars_contributed": 3,
       "nickname": "Fyst",
-      "stars_earned": 0,
+      "stars_earned": 3,
       "town_hall_level": 8,
       "war_position": 10
     },
@@ -129,11 +129,11 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 1,
+      "average_stars": 3.0,
+      "new_stars_contributed": 3,
       "nickname": "шкура",
-      "stars_earned": 0,
+      "stars_earned": 3,
       "town_hall_level": 8,
       "war_position": 13
     },
@@ -160,8 +160,8 @@
   ],
   "new_stars_contribution_status": "available",
   "participants": 15,
-  "reconstructed_clan_stars": 27,
+  "reconstructed_clan_stars": 41,
   "stars_consistency_status": "consistent",
-  "stars_earned": 27,
+  "stars_earned": 41,
   "state": "inWar"
 }

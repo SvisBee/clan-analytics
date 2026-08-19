@@ -245,8 +245,8 @@
     },
     {
       "attacks_available": 8,
-      "attacks_used": 4,
-      "average_stars": 2.5,
+      "attacks_used": 5,
+      "average_stars": 2.6,
       "clan_role": "coLeader",
       "data_status": "available",
       "last_war_date": "2026-08-20",
@@ -257,7 +257,7 @@
       "new_stars_contributed": null,
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "шкура",
-      "stars_earned": 10,
+      "stars_earned": 13,
       "town_hall_level": 8,
       "war_participations": 4
     },

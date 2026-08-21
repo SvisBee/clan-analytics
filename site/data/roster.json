@@ -5,7 +5,7 @@
   },
   "composition": {
     "members_with_limited_composition_data": 0,
-    "total_members": 22,
+    "total_members": 21,
     "town_hall_distribution": [
       {
         "members": 1,
@@ -20,7 +20,7 @@
         "town_hall_level": 10
       },
       {
-        "members": 10,
+        "members": 9,
         "town_hall_level": 9
       },
       {
@@ -87,18 +87,6 @@
       "stars_earned": 0,
       "town_hall_level": 7,
       "war_participations": 1
-    },
-    {
-      "attacks_available": 14,
-      "attacks_used": 9,
-      "average_stars": 2.44,
-      "clan_role": "member",
-      "data_status": "available",
-      "last_war_date": "2026-08-18",
-      "nickname": "077zvr",
-      "stars_earned": 22,
-      "town_hall_level": 9,
-      "war_participations": 7
     },
     {
       "attacks_available": 2,
@@ -335,7 +323,7 @@
     }
   ],
   "war_data_coverage": {
-    "members_with_data": 20,
+    "members_with_data": 19,
     "members_without_data": 2
   }
 }

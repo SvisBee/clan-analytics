@@ -277,12 +277,12 @@
     },
     {
       "attacks_available": 16,
-      "attacks_used": 14,
-      "average_stars": 2.43,
+      "attacks_used": 15,
+      "average_stars": 2.47,
       "last_war_date": "2026-08-23",
-      "new_stars_contributed": 30,
+      "new_stars_contributed": 33,
       "nickname": "Али",
-      "stars_earned": 34,
+      "stars_earned": 37,
       "war_participations": 8
     },
     {
@@ -297,12 +297,12 @@
     },
     {
       "attacks_available": 4,
-      "attacks_used": 2,
+      "attacks_used": 4,
       "average_stars": 2.5,
       "last_war_date": "2026-08-23",
-      "new_stars_contributed": 5,
+      "new_stars_contributed": 10,
       "nickname": "сява",
-      "stars_earned": 5,
+      "stars_earned": 10,
       "war_participations": 2
     },
     {
@@ -325,11 +325,11 @@
   "schema_version": 2,
   "wars": [
     {
-      "attack_stars_total": 0,
+      "attack_stars_total": 8,
       "attacks_available": 30,
       "attacks_per_member": 2,
-      "attacks_used": 0,
-      "clan_stars": 0,
+      "attacks_used": 3,
+      "clan_stars": 8,
       "end_time": "2026-08-23",
       "lifecycle_status": "active",
       "members": [
@@ -355,11 +355,11 @@
         },
         {
           "attacks_available": 2,
-          "attacks_used": 0,
-          "average_stars": null,
-          "new_stars_contributed": 0,
+          "attacks_used": 1,
+          "average_stars": 3.0,
+          "new_stars_contributed": 3,
           "nickname": "Али",
-          "stars_earned": 0,
+          "stars_earned": 3,
           "town_hall_level": 9,
           "war_position": 3
         },
@@ -405,11 +405,11 @@
         },
         {
           "attacks_available": 2,
-          "attacks_used": 0,
-          "average_stars": null,
-          "new_stars_contributed": 0,
+          "attacks_used": 2,
+          "average_stars": 2.5,
+          "new_stars_contributed": 5,
           "nickname": "сява",
-          "stars_earned": 0,
+          "stars_earned": 5,
           "town_hall_level": 9,
           "war_position": 8
         },
@@ -480,15 +480,15 @@
           "new_stars_contributed": 0,
           "nickname": "Artoym_Arty",
           "stars_earned": 0,
-          "town_hall_level": 7,
+          "town_hall_level": 8,
           "war_position": 15
         }
       ],
       "new_stars_contribution_status": "available",
       "participants": 15,
       "reconciliation_status": "not_reconciled",
-      "stars_consistency_status": "unavailable",
-      "state": "preparation",
+      "stars_consistency_status": "consistent",
+      "state": "inWar",
       "team_size": 15
     },
     {

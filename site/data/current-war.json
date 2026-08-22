@@ -1,9 +1,9 @@
 {
-  "attack_stars_total": 11,
+  "attack_stars_total": 15,
   "attacks_available": 30,
   "attacks_per_member": 2,
-  "attacks_used": 4,
-  "clan_stars": 11,
+  "attacks_used": 6,
+  "clan_stars": 15,
   "data_status": "available",
   "end_time": "2026-08-23",
   "members": [
@@ -119,11 +119,11 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 2,
+      "average_stars": 2.0,
+      "new_stars_contributed": 4,
       "nickname": "MiKiRi",
-      "stars_earned": 0,
+      "stars_earned": 4,
       "town_hall_level": 9,
       "war_position": 12
     },
@@ -160,8 +160,8 @@
   ],
   "new_stars_contribution_status": "available",
   "participants": 15,
-  "reconstructed_clan_stars": 11,
+  "reconstructed_clan_stars": 15,
   "stars_consistency_status": "consistent",
-  "stars_earned": 11,
+  "stars_earned": 15,
   "state": "inWar"
 }

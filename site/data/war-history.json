@@ -277,12 +277,12 @@
     },
     {
       "attacks_available": 16,
-      "attacks_used": 15,
-      "average_stars": 2.47,
+      "attacks_used": 16,
+      "average_stars": 2.5,
       "last_war_date": "2026-08-23",
-      "new_stars_contributed": 33,
+      "new_stars_contributed": 36,
       "nickname": "Али",
-      "stars_earned": 37,
+      "stars_earned": 40,
       "war_participations": 8
     },
     {
@@ -325,11 +325,11 @@
   "schema_version": 2,
   "wars": [
     {
-      "attack_stars_total": 8,
+      "attack_stars_total": 11,
       "attacks_available": 30,
       "attacks_per_member": 2,
-      "attacks_used": 3,
-      "clan_stars": 8,
+      "attacks_used": 4,
+      "clan_stars": 11,
       "end_time": "2026-08-23",
       "lifecycle_status": "active",
       "members": [
@@ -355,11 +355,11 @@
         },
         {
           "attacks_available": 2,
-          "attacks_used": 1,
+          "attacks_used": 2,
           "average_stars": 3.0,
-          "new_stars_contributed": 3,
+          "new_stars_contributed": 6,
           "nickname": "Али",
-          "stars_earned": 3,
+          "stars_earned": 6,
           "town_hall_level": 9,
           "war_position": 3
         },

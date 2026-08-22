@@ -24,11 +24,11 @@
         "town_hall_level": 9
       },
       {
-        "members": 6,
+        "members": 7,
         "town_hall_level": 8
       },
       {
-        "members": 3,
+        "members": 2,
         "town_hall_level": 7
       }
     ]
@@ -109,7 +109,7 @@
       "last_war_date": "2026-08-23",
       "nickname": "Artoym_Arty",
       "stars_earned": 0,
-      "town_hall_level": 7,
+      "town_hall_level": 8,
       "war_participations": 4
     },
     {

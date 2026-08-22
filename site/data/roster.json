@@ -36,20 +36,20 @@
   "members": [
     {
       "attacks_available": 18,
-      "attacks_used": 14,
-      "average_stars": 2.93,
+      "attacks_used": 16,
+      "average_stars": 2.88,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-08-23",
       "nickname": "SvisBuha",
-      "stars_earned": 41,
+      "stars_earned": 46,
       "town_hall_level": 9,
       "war_participations": 9
     },
     {
       "attacks_available": 22,
-      "attacks_used": 17,
-      "average_stars": 2.76,
+      "attacks_used": 18,
+      "average_stars": 2.78,
       "clan_role": "admin",
       "data_status": "available",
       "last_war_date": "2026-08-23",
@@ -60,7 +60,7 @@
       "new_stars_contributed": null,
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "Kedr",
-      "stars_earned": 47,
+      "stars_earned": 50,
       "town_hall_level": 9,
       "war_participations": 11
     },
@@ -251,13 +251,13 @@
     },
     {
       "attacks_available": 14,
-      "attacks_used": 7,
-      "average_stars": 2.71,
+      "attacks_used": 8,
+      "average_stars": 2.5,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-08-23",
       "nickname": "Fyst",
-      "stars_earned": 19,
+      "stars_earned": 20,
       "town_hall_level": 8,
       "war_participations": 7
     },
@@ -305,7 +305,7 @@
     },
     {
       "attacks_available": 20,
-      "attacks_used": 16,
+      "attacks_used": 18,
       "average_stars": 2.94,
       "clan_role": "coLeader",
       "data_status": "available",
@@ -317,7 +317,7 @@
       "new_stars_contributed": null,
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "SvisBee",
-      "stars_earned": 47,
+      "stars_earned": 53,
       "town_hall_level": 9,
       "war_participations": 10
     }

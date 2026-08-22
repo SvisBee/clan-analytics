@@ -1,9 +1,9 @@
 {
-  "attack_stars_total": 36,
+  "attack_stars_total": 42,
   "attacks_available": 30,
   "attacks_per_member": 2,
-  "attacks_used": 14,
-  "clan_stars": 36,
+  "attacks_used": 16,
+  "clan_stars": 38,
   "data_status": "available",
   "end_time": "2026-08-23",
   "members": [
@@ -39,11 +39,11 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 2,
+      "average_stars": 3.0,
+      "new_stars_contributed": 2,
       "nickname": "ksanaks-",
-      "stars_earned": 0,
+      "stars_earned": 6,
       "town_hall_level": 9,
       "war_position": 4
     },
@@ -160,8 +160,8 @@
   ],
   "new_stars_contribution_status": "available",
   "participants": 15,
-  "reconstructed_clan_stars": 36,
+  "reconstructed_clan_stars": 38,
   "stars_consistency_status": "consistent",
-  "stars_earned": 36,
+  "stars_earned": 38,
   "state": "inWar"
 }

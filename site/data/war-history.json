@@ -124,12 +124,12 @@
     },
     {
       "attacks_available": 12,
-      "attacks_used": 8,
-      "average_stars": 2.88,
+      "attacks_used": 10,
+      "average_stars": 2.9,
       "last_war_date": "2026-08-23",
-      "new_stars_contributed": 23,
+      "new_stars_contributed": 25,
       "nickname": "ksanaks-",
-      "stars_earned": 23,
+      "stars_earned": 29,
       "war_participations": 6
     },
     {
@@ -325,11 +325,11 @@
   "schema_version": 2,
   "wars": [
     {
-      "attack_stars_total": 36,
+      "attack_stars_total": 42,
       "attacks_available": 30,
       "attacks_per_member": 2,
-      "attacks_used": 14,
-      "clan_stars": 36,
+      "attacks_used": 16,
+      "clan_stars": 38,
       "end_time": "2026-08-23",
       "lifecycle_status": "active",
       "members": [
@@ -365,11 +365,11 @@
         },
         {
           "attacks_available": 2,
-          "attacks_used": 0,
-          "average_stars": null,
-          "new_stars_contributed": 0,
+          "attacks_used": 2,
+          "average_stars": 3.0,
+          "new_stars_contributed": 2,
           "nickname": "ksanaks-",
-          "stars_earned": 0,
+          "stars_earned": 6,
           "town_hall_level": 9,
           "war_position": 4
         },

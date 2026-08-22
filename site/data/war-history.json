@@ -98,7 +98,7 @@
     },
     {
       "attacks_available": 22,
-      "attacks_used": 12,
+      "attacks_used": 13,
       "average_stars": 2.92,
       "data_status": "available",
       "last_war_date": "2026-08-23",
@@ -109,7 +109,7 @@
       "new_stars_contributed": null,
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "kent",
-      "stars_earned": 35,
+      "stars_earned": 38,
       "war_participations": 11
     },
     {
@@ -325,11 +325,11 @@
   "schema_version": 2,
   "wars": [
     {
-      "attack_stars_total": 18,
+      "attack_stars_total": 21,
       "attacks_available": 30,
       "attacks_per_member": 2,
-      "attacks_used": 7,
-      "clan_stars": 18,
+      "attacks_used": 8,
+      "clan_stars": 21,
       "end_time": "2026-08-23",
       "lifecycle_status": "active",
       "members": [
@@ -385,11 +385,11 @@
         },
         {
           "attacks_available": 2,
-          "attacks_used": 0,
-          "average_stars": null,
-          "new_stars_contributed": 0,
+          "attacks_used": 1,
+          "average_stars": 3.0,
+          "new_stars_contributed": 3,
           "nickname": "kent",
-          "stars_earned": 0,
+          "stars_earned": 3,
           "town_hall_level": 9,
           "war_position": 6
         },

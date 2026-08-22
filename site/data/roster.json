@@ -5,7 +5,7 @@
   },
   "composition": {
     "members_with_limited_composition_data": 0,
-    "total_members": 21,
+    "total_members": 22,
     "town_hall_distribution": [
       {
         "members": 1,
@@ -28,7 +28,7 @@
         "town_hall_level": 8
       },
       {
-        "members": 2,
+        "members": 3,
         "town_hall_level": 7
       }
     ]
@@ -87,6 +87,18 @@
       "stars_earned": 0,
       "town_hall_level": 7,
       "war_participations": 1
+    },
+    {
+      "attacks_available": null,
+      "attacks_used": null,
+      "average_stars": null,
+      "clan_role": "member",
+      "data_status": "insufficient_data",
+      "last_war_date": null,
+      "nickname": "sheriww",
+      "stars_earned": null,
+      "town_hall_level": 7,
+      "war_participations": 0
     },
     {
       "attacks_available": 2,
@@ -174,7 +186,7 @@
     },
     {
       "attacks_available": 22,
-      "attacks_used": 12,
+      "attacks_used": 13,
       "average_stars": 2.92,
       "clan_role": "coLeader",
       "data_status": "available",
@@ -186,7 +198,7 @@
       "new_stars_contributed": null,
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "kent",
-      "stars_earned": 35,
+      "stars_earned": 38,
       "town_hall_level": 9,
       "war_participations": 11
     },
@@ -324,6 +336,6 @@
   ],
   "war_data_coverage": {
     "members_with_data": 19,
-    "members_without_data": 2
+    "members_without_data": 3
   }
 }

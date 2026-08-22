@@ -287,12 +287,12 @@
     },
     {
       "attacks_available": 18,
-      "attacks_used": 13,
-      "average_stars": 2.92,
+      "attacks_used": 14,
+      "average_stars": 2.93,
       "last_war_date": "2026-08-23",
-      "new_stars_contributed": 30,
+      "new_stars_contributed": 33,
       "nickname": "кума88",
-      "stars_earned": 38,
+      "stars_earned": 41,
       "war_participations": 9
     },
     {
@@ -325,21 +325,21 @@
   "schema_version": 2,
   "wars": [
     {
-      "attack_stars_total": 15,
+      "attack_stars_total": 18,
       "attacks_available": 30,
       "attacks_per_member": 2,
-      "attacks_used": 6,
-      "clan_stars": 15,
+      "attacks_used": 7,
+      "clan_stars": 18,
       "end_time": "2026-08-23",
       "lifecycle_status": "active",
       "members": [
         {
           "attacks_available": 2,
-          "attacks_used": 0,
-          "average_stars": null,
-          "new_stars_contributed": 0,
+          "attacks_used": 1,
+          "average_stars": 3.0,
+          "new_stars_contributed": 3,
           "nickname": "кума88",
-          "stars_earned": 0,
+          "stars_earned": 3,
           "town_hall_level": 10,
           "war_position": 1
         },

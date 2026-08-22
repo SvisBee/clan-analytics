@@ -5,7 +5,7 @@
   },
   "composition": {
     "members_with_limited_composition_data": 0,
-    "total_members": 22,
+    "total_members": 21,
     "town_hall_distribution": [
       {
         "members": 1,
@@ -28,7 +28,7 @@
         "town_hall_level": 8
       },
       {
-        "members": 3,
+        "members": 2,
         "town_hall_level": 7
       }
     ]
@@ -87,18 +87,6 @@
       "stars_earned": 0,
       "town_hall_level": 7,
       "war_participations": 1
-    },
-    {
-      "attacks_available": null,
-      "attacks_used": null,
-      "average_stars": null,
-      "clan_role": "member",
-      "data_status": "insufficient_data",
-      "last_war_date": null,
-      "nickname": "sheriww",
-      "stars_earned": null,
-      "town_hall_level": 7,
-      "war_participations": 0
     },
     {
       "attacks_available": 2,
@@ -336,6 +324,6 @@
   ],
   "war_data_coverage": {
     "members_with_data": 19,
-    "members_without_data": 3
+    "members_without_data": 2
   }
 }

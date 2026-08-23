@@ -98,8 +98,8 @@
     },
     {
       "attacks_available": 22,
-      "attacks_used": 13,
-      "average_stars": 2.92,
+      "attacks_used": 14,
+      "average_stars": 2.93,
       "data_status": "available",
       "last_war_date": "2026-08-23",
       "manual_attacks_used": 2,
@@ -109,7 +109,7 @@
       "new_stars_contributed": null,
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "kent",
-      "stars_earned": 38,
+      "stars_earned": 41,
       "war_participations": 11
     },
     {
@@ -251,8 +251,8 @@
     },
     {
       "attacks_available": 22,
-      "attacks_used": 17,
-      "average_stars": 2.76,
+      "attacks_used": 19,
+      "average_stars": 2.79,
       "data_status": "available",
       "last_war_date": "2026-08-23",
       "manual_attacks_used": 2,
@@ -262,7 +262,7 @@
       "new_stars_contributed": null,
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "VB(;",
-      "stars_earned": 47,
+      "stars_earned": 53,
       "war_participations": 11
     },
     {
@@ -307,8 +307,8 @@
     },
     {
       "attacks_available": 10,
-      "attacks_used": 5,
-      "average_stars": 2.6,
+      "attacks_used": 6,
+      "average_stars": 2.67,
       "data_status": "available",
       "last_war_date": "2026-08-23",
       "manual_attacks_used": 1,
@@ -318,20 +318,20 @@
       "new_stars_contributed": null,
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "шкура",
-      "stars_earned": 13,
+      "stars_earned": 16,
       "war_participations": 5
     }
   ],
   "schema_version": 2,
   "wars": [
     {
-      "attack_stars_total": 42,
+      "attack_stars_total": 54,
       "attacks_available": 30,
       "attacks_per_member": 2,
-      "attacks_used": 16,
-      "clan_stars": 38,
+      "attacks_used": 20,
+      "clan_stars": 45,
       "end_time": "2026-08-23",
-      "lifecycle_status": "active",
+      "lifecycle_status": "finalized_detailed",
       "members": [
         {
           "attacks_available": 2,
@@ -385,11 +385,11 @@
         },
         {
           "attacks_available": 2,
-          "attacks_used": 1,
+          "attacks_used": 2,
           "average_stars": 3.0,
-          "new_stars_contributed": 3,
+          "new_stars_contributed": 4,
           "nickname": "kent",
-          "stars_earned": 3,
+          "stars_earned": 6,
           "town_hall_level": 9,
           "war_position": 6
         },
@@ -425,11 +425,11 @@
         },
         {
           "attacks_available": 2,
-          "attacks_used": 0,
-          "average_stars": null,
-          "new_stars_contributed": 0,
+          "attacks_used": 2,
+          "average_stars": 3.0,
+          "new_stars_contributed": 5,
           "nickname": "VB(;",
-          "stars_earned": 0,
+          "stars_earned": 6,
           "town_hall_level": 8,
           "war_position": 10
         },
@@ -455,11 +455,11 @@
         },
         {
           "attacks_available": 2,
-          "attacks_used": 0,
-          "average_stars": null,
-          "new_stars_contributed": 0,
+          "attacks_used": 1,
+          "average_stars": 3.0,
+          "new_stars_contributed": 1,
           "nickname": "шкура",
-          "stars_earned": 0,
+          "stars_earned": 3,
           "town_hall_level": 8,
           "war_position": 13
         },
@@ -488,7 +488,7 @@
       "participants": 15,
       "reconciliation_status": "not_reconciled",
       "stars_consistency_status": "consistent",
-      "state": "inWar",
+      "state": "warEnded",
       "team_size": 15
     },
     {

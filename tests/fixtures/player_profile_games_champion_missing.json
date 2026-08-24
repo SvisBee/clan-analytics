@@ -1,0 +1,14 @@
+{
+  "tag": "#DEMO123",
+  "name": "Secret Player Name",
+  "achievements": [
+    {
+      "name": "Fictional Other Achievement",
+      "stars": 1,
+      "value": 10,
+      "target": 100,
+      "info": "Fictional unrelated achievement.",
+      "completionInfo": "Fictional progress."
+    }
+  ]
+}

@@ -1,5 +1,12 @@
 """Pure data models and normalization helpers for API-shaped fixtures."""
 
+from .clan_games import (
+    GamesChampionSafeResult,
+    GamesChampionSnapshot,
+    GamesChampionSourceError,
+    fetch_games_champion,
+    normalize_games_champion_profile,
+)
 from .models import (
     ClanMemberSnapshot,
     ClanSnapshot,
@@ -29,6 +36,9 @@ from .normalization import (
 __all__ = [
     "ClanMemberSnapshot",
     "ClanSnapshot",
+    "GamesChampionSafeResult",
+    "GamesChampionSnapshot",
+    "GamesChampionSourceError",
     "NormalizationError",
     "PlayerProfileSnapshot",
     "SourceMetadata",
@@ -42,9 +52,11 @@ __all__ = [
     "build_public_roster",
     "build_public_war_log_summary",
     "build_public_war_summary",
+    "fetch_games_champion",
     "normalize_clan",
     "normalize_clan_members",
     "normalize_current_war",
+    "normalize_games_champion_profile",
     "normalize_player_profile",
     "normalize_war_attacks",
     "normalize_war_log",

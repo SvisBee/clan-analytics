@@ -1,0 +1,22 @@
+{
+  "tag": "#DEMO123",
+  "name": "Secret Player Name",
+  "achievements": [
+    {
+      "name": "Games Champion",
+      "stars": 2,
+      "value": 12500,
+      "target": 50000,
+      "info": "Fictional cumulative progress.",
+      "completionInfo": "Fictional completion text."
+    },
+    {
+      "name": "Games Champion",
+      "stars": 2,
+      "value": 12500,
+      "target": 50000,
+      "info": "Fictional duplicate.",
+      "completionInfo": "Fictional duplicate."
+    }
+  ]
+}

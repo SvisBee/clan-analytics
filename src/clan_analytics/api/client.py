@@ -6,6 +6,7 @@ import argparse
 import json
 import os
 import re
+import socket
 import shutil
 import sys
 import uuid
@@ -66,6 +67,26 @@ _PRIVATE_PUBLIC_KEYS = {
 
 class ProbeError(ValueError):
     """A safe operator-facing failure without credential material."""
+
+
+class ProbeHttpError(ProbeError):
+    """An HTTP status failure with a safe numeric status for classification."""
+
+    def __init__(self, status_code: int) -> None:
+        self.status_code = status_code
+        super().__init__(f"HTTP request failed with status {status_code}")
+
+
+class ProbeTimeoutError(ProbeError):
+    """A bounded request exceeded its configured timeout."""
+
+
+class ProbeTransportError(ProbeError):
+    """The request failed before a usable HTTP response was received."""
+
+
+class ProbeInvalidJsonError(ProbeError):
+    """The official response was not valid UTF-8 JSON."""
 
 
 class _ProbeArgumentParser(argparse.ArgumentParser):
@@ -175,9 +196,13 @@ class UrllibTransport:
         except HTTPError as error:
             if 300 <= error.code < 400:
                 raise ProbeError("redirect response rejected") from None
-            raise ProbeError(f"HTTP request failed with status {error.code}") from None
-        except URLError:
-            raise ProbeError("HTTP request failed") from None
+            raise ProbeHttpError(error.code) from None
+        except (TimeoutError, socket.timeout):
+            raise ProbeTimeoutError("HTTP request timed out") from None
+        except URLError as error:
+            if isinstance(error.reason, (TimeoutError, socket.timeout)):
+                raise ProbeTimeoutError("HTTP request timed out") from None
+            raise ProbeTransportError("HTTP request failed") from None
 
 
 def normalize_clan_tag(value: str) -> str:
@@ -297,11 +322,18 @@ def _content_type_is_json(value: str) -> bool:
     return media_type == "application/json" or media_type.endswith("+json")
 
 
-def _parse_response(response: HttpResponse, plan: ProbePlan, token: str) -> Mapping[str, Any]:
+def parse_official_json_response(
+    response: HttpResponse,
+    *,
+    base_url: str,
+    token: str,
+) -> Mapping[str, Any]:
+    """Validate and decode one response from the configured official origin."""
+
     if response.status != 200:
-        raise ProbeError(f"HTTP request failed with status {response.status}")
+        raise ProbeHttpError(response.status)
     final_url = urlsplit(response.final_url)
-    configured_url = urlsplit(plan.base_url)
+    configured_url = urlsplit(base_url)
     try:
         final_origin = (final_url.scheme, final_url.hostname, final_url.port)
         configured_origin = (
@@ -323,10 +355,18 @@ def _parse_response(response: HttpResponse, plan: ProbePlan, token: str) -> Mapp
         decoded = response.body.decode("utf-8")
         payload = json.loads(decoded)
     except (UnicodeDecodeError, json.JSONDecodeError):
-        raise ProbeError("response is not valid UTF-8 JSON") from None
+        raise ProbeInvalidJsonError("response is not valid UTF-8 JSON") from None
     if not isinstance(payload, Mapping):
         raise ProbeError("response JSON root must be an object")
     return payload
+
+
+def _parse_response(response: HttpResponse, plan: ProbePlan, token: str) -> Mapping[str, Any]:
+    return parse_official_json_response(
+        response,
+        base_url=plan.base_url,
+        token=token,
+    )
 
 
 def _assert_public_projection(value: Any) -> None:

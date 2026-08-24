@@ -1,6 +1,6 @@
 # Weekly donations v1
 
-Status: `frontend implemented and production Pages validation pending`
+Status: `frontend production validated; closeout pending`
 
 ## Scope
 
@@ -277,7 +277,6 @@ keyboard-focus patterns.
 ## Deferred work
 
 - Compact public JSON.
-- Production Pages and browser validation of the Phase 5 frontend.
 - Final natural validation and stage closeout.
 
 Phase 4 implementation obtains current private identities from the normalized
@@ -300,6 +299,20 @@ snapshot-history observation, atomic apply, commit and push. Data commit
 The published schema-v1 file selected current `2026-W35` and previous usable
 `2026-W34`, passed aggregate invariants and private-identity scans, and matched
 GitHub Pages byte-for-byte after workflow run `32721733331` completed
-successfully. The root page and weekly JSON both returned HTTP 200. The
-frontend still does not request or display weekly donations; that remains
-Phase 5.
+successfully. The root page and weekly JSON both returned HTTP 200. At that
+Phase 4 checkpoint, the frontend did not yet request or display weekly
+donations; Phase 5 adds that consumer.
+
+## Phase 5 production validation
+
+Commit `31417c0cb7a179863d0766cbb6d5b1b531401689` added the independent
+weekly loader, schema-v1 display contract, current/previous selector, summary,
+warnings and current-roster leaderboard. Pages workflow `32725053172`
+completed successfully. Deployed HTML, JavaScript, CSS and weekly JSON returned
+HTTP 200 and matched repository bytes.
+
+Production browser checks passed at desktop and 360 px mobile widths. Current
+was selected by default, previous switched without another request, published
+aggregates and row counts matched the JSON, existing roster/war/history
+sections remained visible, and the console contained no warnings or errors.
+The stage remains open for final natural validation and closeout.

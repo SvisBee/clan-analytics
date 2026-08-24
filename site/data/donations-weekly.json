@@ -1,6 +1,6 @@
 {
-  "generated_at_utc": "2026-08-24T11:23:36.328705Z",
-  "latest_observed_at_utc": "2026-08-24T09:00:06.025123Z",
+  "generated_at_utc": "2026-08-24T14:00:05.682059Z",
+  "latest_observed_at_utc": "2026-08-24T13:00:07.186063Z",
   "metric_semantics": "confirmed_lower_bound",
   "schema_version": 1,
   "scope": "current_roster",
@@ -9,15 +9,15 @@
     {
       "boundary_ambiguous": true,
       "contributing_player_count": 2,
-      "donations_confirmed": 30,
-      "donations_received_confirmed": 30,
+      "donations_confirmed": 60,
+      "donations_received_confirmed": 60,
       "gap_affected": true,
       "is_current": true,
       "participant_count": 18,
       "players": [
         {
           "boundary_ambiguous": true,
-          "donations_confirmed": 30,
+          "donations_confirmed": 60,
           "donations_received_confirmed": 0,
           "gap_affected": true,
           "nickname": "FRENI",
@@ -26,7 +26,7 @@
         {
           "boundary_ambiguous": true,
           "donations_confirmed": 0,
-          "donations_received_confirmed": 30,
+          "donations_received_confirmed": 60,
           "gap_affected": true,
           "nickname": "Али",
           "reset_affected": false

@@ -5,7 +5,7 @@
   },
   "composition": {
     "members_with_limited_composition_data": 0,
-    "total_members": 20,
+    "total_members": 22,
     "town_hall_distribution": [
       {
         "members": 1,
@@ -20,7 +20,7 @@
         "town_hall_level": 10
       },
       {
-        "members": 10,
+        "members": 12,
         "town_hall_level": 9
       },
       {
@@ -51,6 +51,18 @@
       "stars_earned": 50,
       "town_hall_level": 9,
       "war_participations": 12
+    },
+    {
+      "attacks_available": null,
+      "attacks_used": null,
+      "average_stars": null,
+      "clan_role": "member",
+      "data_status": "insufficient_data",
+      "last_war_date": null,
+      "nickname": "нурс",
+      "stars_earned": null,
+      "town_hall_level": 9,
+      "war_participations": 0
     },
     {
       "attacks_available": null,
@@ -250,6 +262,18 @@
       "war_participations": 6
     },
     {
+      "attacks_available": null,
+      "attacks_used": null,
+      "average_stars": null,
+      "clan_role": "member",
+      "data_status": "insufficient_data",
+      "last_war_date": null,
+      "nickname": "Alexvils",
+      "stars_earned": null,
+      "town_hall_level": 9,
+      "war_participations": 0
+    },
+    {
       "attacks_available": 16,
       "attacks_used": 8,
       "average_stars": 2.5,
@@ -312,6 +336,6 @@
   ],
   "war_data_coverage": {
     "members_with_data": 14,
-    "members_without_data": 6
+    "members_without_data": 8
   }
 }

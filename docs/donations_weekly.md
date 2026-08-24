@@ -1,6 +1,9 @@
 # Weekly donations v1
 
-Status: `frontend production validated; closeout pending`
+Status: `completed`
+
+Финальная natural validation и Definition of Done зафиксированы в
+[tasks/donations_weekly_v1_closeout.md](tasks/donations_weekly_v1_closeout.md).
 
 ## Scope
 
@@ -33,8 +36,9 @@ does not install an external dependency.
 Direct `ZoneInfo("Europe/Moscow")` lookup in the current Python executable is
 unavailable without that fallback, while the project loader succeeds in the
 same executable. The builder test forces the direct lookup to fail and proves
-that the Git for Windows fallback still loads the named IANA zone. Production
-validation in the Scheduled Task environment remains pending.
+that the Git for Windows fallback still loads the named IANA zone. The named
+timezone fallback and complete weekly pipeline were validated in the Scheduled
+Task environment by natural normal run `20260824-160003-5206424c`.
 
 ## Read-only snapshot adapter
 
@@ -277,12 +281,13 @@ keyboard-focus patterns.
 ## Deferred work
 
 - Compact public JSON.
-- Final natural validation and stage closeout.
+- Historical backfill and a departed-player public history.
+- Any objective future completeness rule, retention change or leadership rule.
 
 Phase 4 implementation obtains current private identities from the normalized
 roster and calls the Phase 3 projection before player tags are removed.
-Production publication and the Scheduled Task runtime validation remain pending
-until the controlled run succeeds.
+Production publication was first validated by the controlled Phase 4 run and
+then by the natural post-frontend run recorded below.
 
 No API request, public output, leadership rule, donation requirement, fuzzy
 identity, backfill, or new authoritative storage is part of Phase 1 through
@@ -315,4 +320,27 @@ Production browser checks passed at desktop and 360 px mobile widths. Current
 was selected by default, previous switched without another request, published
 aggregates and row counts matched the JSON, existing roster/war/history
 sections remained visible, and the console contained no warnings or errors.
-The stage remains open for final natural validation and closeout.
+The frontend evidence was retained as the Phase 5 checkpoint. The stage was
+then closed by the final natural validation below.
+
+## Final natural validation and closeout
+
+The first automatic normal Scheduled Task run after the Phase 5 frontend and
+documentation publication was `20260824-160003-5206424c`, correlated with the
+2026-08-24 16:00 Moscow scheduled slot. It completed in 69.478 seconds with
+`process_exit_code=0`, `LastTaskResult=0` and `no_public_change`.
+
+All required stages completed in order. The builder read the existing snapshot
+SQLite through the read-only adapter, produced a valid schema-v1 projection and
+reported zero public changes. `donations-weekly.json` remained byte-for-byte
+identical, so commit and push were correctly not required. The normal
+`snapshot_history` stage recorded exactly one confirmed observation for the run
+after tests and before atomic apply.
+
+The selected production buckets remained current `2026-W35` and previous usable
+`2026-W34`. Their public totals continued to equal the sums of the published
+current-roster rows. Pages served the repository HTML, JavaScript, CSS and
+weekly JSON byte-for-byte with HTTP 200. Browser validation passed on desktop,
+360 px and 320 px without console warnings or errors. The completed evidence,
+privacy boundary, deferred scope and Definition of Done are recorded in the
+closeout document linked at the top of this file.

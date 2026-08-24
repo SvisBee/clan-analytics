@@ -330,7 +330,7 @@ def derive_weekly_donations(
     coverage_start = (
         _aware_utc(coverage_start_utc, "coverage_start_utc")
         if coverage_start_utc is not None
-        else (normalized[0].observed_at_utc if normalized else None)
+        else (min(item.observed_at_utc for item in normalized) if normalized else None)
     )
     if coverage_start is None:
         return DonationsWeeklyResult(METRIC_VERSION, TIMEZONE_NAME, (), (), ())

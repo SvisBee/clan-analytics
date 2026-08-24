@@ -273,6 +273,14 @@ class AggregateAndDeterminismTests(unittest.TestCase):
         self.assertEqual(derive(items), derive(reversed(items)))
         self.assertEqual(["PLAYER_A", "PLAYER_B"], [item.player_id_internal for item in derive(items).player_weeks])
 
+    def test_default_coverage_starts_at_global_earliest_observation(self) -> None:
+        result = derive([
+            observation("PLAYER_A", utc(18, 6), 1, 1),
+            observation("PLAYER_B", utc(17, 6), 1, 1),
+        ])
+        self.assertEqual("2026-W34", result.weeks[0].week_id)
+        self.assertEqual(2, result.weeks[0].participant_count)
+
     def test_duplicate_player_timestamp_fails_closed(self) -> None:
         with self.assertRaises(DuplicateObservationTimeError) as caught:
             derive([

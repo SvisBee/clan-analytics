@@ -2,7 +2,9 @@
 
 ## Status
 
-Storage core and normal-updater integration are implemented. Natural scheduled-run validation, public projection, backfill and retention compaction remain pending separate approval.
+Completed. Production schema v1, natural hourly observations, payload deduplication, provenance and deterministic membership events were validated read-only through 2026-08-24. Public projection, backfill and retention compaction remain separate future work.
+
+The completed production evidence and Definition of Done are recorded in [tasks/clan_snapshot_history_v1_closeout.md](tasks/clan_snapshot_history_v1_closeout.md).
 
 ## Authority and boundary
 

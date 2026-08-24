@@ -2,7 +2,7 @@
 
 Проект аналитики клана Clash of Clans с публикацией только подготовленной публичной части как статического сайта.
 
-**Текущий статус:** `Clan War History v1 completed; collection reliability v1 completed`. Следующий технический этап: `clan_snapshot_history_v1`.
+**Текущий статус:** `Clan War History v1 completed; collection reliability v1 completed; clan snapshot history v1 completed`. Следующий технический этап: `donations_weekly_v1`.
 
 Официальный Clash of Clans API подключён локально через три fail-closed probe: текущий состав, current war и war log. Подготовленные публичные данные публикуются на GitHub Pages, а отключаемый Windows Scheduled Task выполняет unified updater каждый час и при входе пользователя. Raw responses, стабильные игровые tags, token и подробная внутренняя history остаются вне Git.
 

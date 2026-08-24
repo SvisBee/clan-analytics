@@ -1,6 +1,6 @@
 # Weekly donations v1
 
-Status: `builder integration implemented; production publication validation pending`
+Status: `builder/public JSON production validated; frontend pending`
 
 ## Scope
 
@@ -261,3 +261,18 @@ until the controlled run succeeds.
 No API request, public output, leadership rule, donation requirement, fuzzy
 identity, backfill, or new authoritative storage is part of Phase 1 through
 Phase 3.
+
+## Phase 4 production validation
+
+Controlled Scheduled Task run `20260824-142333-853dc0f2` completed with three
+successful existing probes, builder/public validation/tests, one normal
+snapshot-history observation, atomic apply, commit and push. Data commit
+`9df35c8c8bec1356724a3158f75e76b482c0737d` added only
+`site/data/donations-weekly.json`.
+
+The published schema-v1 file selected current `2026-W35` and previous usable
+`2026-W34`, passed aggregate invariants and private-identity scans, and matched
+GitHub Pages byte-for-byte after workflow run `32721733331` completed
+successfully. The root page and weekly JSON both returned HTTP 200. The
+frontend still does not request or display weekly donations; that remains
+Phase 5.

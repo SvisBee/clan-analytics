@@ -1,6 +1,6 @@
 # Weekly donations v1
 
-Status: `builder/public JSON production validated; frontend pending`
+Status: `frontend implemented and production Pages validation pending`
 
 ## Scope
 
@@ -9,8 +9,8 @@ donation counter evidence. Phase 2 adds a read-only production adapter that
 converts confirmed snapshot-history rows into that pure input model. Phase 3
 adds an in-memory, privacy-safe public projection core. Phase 4 connects those
 components to the production builder and proposes
-`site/data/donations-weekly.json`. No phase writes derived data to SQLite, and
-the frontend still does not request or display the weekly file.
+`site/data/donations-weekly.json`. Phase 5 adds the public frontend section.
+No phase writes derived data to SQLite.
 
 The authoritative future source remains confirmed raw snapshots in the local
 snapshot-history SQLite. Weekly values are deterministic derived projections,
@@ -243,15 +243,42 @@ an hourly commit only because another unchanged observation was collected. A
 changed value, selected week, status, evidence flag or current-roster scope
 produces a new payload.
 
-`site-config.json` currently contains only data used directly by the frontend;
-it is not a general downloadable-resource catalog. Because Phase 4 does not
-load weekly donations in the UI, no new site-config resource is added.
+`site-config.json` contains site-level timestamps and badge metadata; it is not
+a data-resource registry. The Phase 5 frontend therefore loads the existing
+relative resource `data/donations-weekly.json` directly, matching the other
+fixed public paths. Builder and site-config generation remain unchanged.
+
+## Phase 5 frontend contract
+
+The public page contains a separate `Недельные пожертвования` section after
+the current-war and roster analytics content. It defaults to the current week
+and offers a client-side switch to the previous usable week when the public
+projection contains one. The switch does not make another request.
+
+The UI labels both counters as a confirmed minimum, explains that current-week
+values can still grow, and shows completed partial weeks as incomplete data.
+Gap, reset and boundary evidence appears only when the corresponding public
+flag is true. Technical evidence names are not shown. A visible note states
+that the projection contains only current clan members.
+
+The summary displays the published donations, received donations, participant
+count and contributing-player count. The leaderboard preserves the published
+server order, keeps duplicate nicknames as separate rows and retains rows with
+zero confirmed contribution. It performs no identity join, delta calculation,
+week attribution, reset detection, gap detection or departed-member filtering.
+
+The browser contract validates the minimal schema-v1 shape and non-negative
+counters before rendering. Loading and error states are local to this section:
+a failed request, malformed payload or render error shows `Данные о
+пожертвованиях временно недоступны.` without blocking roster, current war or
+history. The table, selector and summary reuse the existing responsive and
+keyboard-focus patterns.
 
 ## Deferred work
 
 - Compact public JSON.
-- Frontend and public wording.
-- Controlled production run and Pages validation.
+- Production Pages and browser validation of the Phase 5 frontend.
+- Final natural validation and stage closeout.
 
 Phase 4 implementation obtains current private identities from the normalized
 roster and calls the Phase 3 projection before player tags are removed.

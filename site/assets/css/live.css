@@ -358,3 +358,226 @@
     border-left: 0;
   }
 }
+
+/* Weekly donations public projection. */
+.weekly-donations {
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(145deg, rgba(25, 39, 62, 0.9), rgba(14, 23, 39, 0.9));
+  box-shadow: var(--shadow);
+}
+
+.weekly-donations .preview-loading,
+.weekly-donations .preview-error {
+  margin: 0;
+}
+
+.weekly-donations__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.weekly-donations__title {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(1.25rem, 3vw, 1.65rem);
+  font-weight: 760;
+}
+
+.weekly-donations__range {
+  margin: 0.15rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.week-selector {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.week-selector button {
+  padding: 0.45rem 0.75rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.week-selector button.is-active {
+  background: var(--accent-soft);
+  color: var(--accent-bright);
+}
+
+.weekly-donations__status {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.weekly-donations__status p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.weekly-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.weekly-summary .metric-card {
+  min-height: 8.5rem;
+}
+
+.weekly-warnings {
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.weekly-warnings p {
+  margin: 0;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.weekly-warnings ul {
+  margin: 0.35rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.weekly-donations__notes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.35rem 1rem;
+  margin-top: 1rem;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+}
+
+.weekly-donations__notes p {
+  margin: 0;
+}
+
+.weekly-table-wrap {
+  margin-top: 1rem;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.weekly-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 0.85rem;
+}
+
+.weekly-table caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.weekly-table th,
+.weekly-table td {
+  padding: 0.7rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.weekly-table thead th {
+  color: var(--text-dim);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.weekly-table tbody th {
+  color: var(--text);
+  font-weight: 650;
+}
+
+.weekly-table tbody tr:last-child > * {
+  border-bottom: 0;
+}
+
+.weekly-table__rank {
+  width: 3.25rem;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.weekly-table__number {
+  width: 7rem;
+  text-align: right !important;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 62rem) {
+  .weekly-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 44rem) {
+  .site-nav a:last-child {
+    grid-column: auto;
+  }
+
+  .weekly-donations__toolbar,
+  .weekly-donations__status {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .week-selector {
+    width: 100%;
+  }
+
+  .week-selector button {
+    flex: 1 1 0;
+  }
+
+  .weekly-summary .metric-card {
+    min-height: 7.5rem;
+    padding: 1rem;
+  }
+
+  .weekly-table th,
+  .weekly-table td {
+    padding: 0.65rem 0.45rem;
+  }
+
+  .weekly-table__rank {
+    width: 2.25rem;
+  }
+
+  .weekly-table__number {
+    width: 4.8rem;
+  }
+}

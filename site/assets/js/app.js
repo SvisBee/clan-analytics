@@ -587,6 +587,120 @@ const renderWarHistory = (history) => {
   }));
 };
 
+const weeklyContract = globalThis.ClanAnalyticsDonationsWeeklyContract;
+
+const renderWeeklyDonations = (payload) => {
+  if (!weeklyContract) {
+    throw new Error("Weekly donations display contract is unavailable");
+  }
+  weeklyContract.validateWeeklyPayload(payload);
+
+  const content = requireElement("[data-donations-content]");
+  const selector = requireElement("[data-donations-selector]");
+  const buttons = Array.from(
+    selector.querySelectorAll("[data-donations-selection]")
+  );
+  const previous = weeklyContract.selectWeek(payload, "previous_usable");
+  selector.hidden = !previous;
+
+  const renderSelectedWeek = (selection) => {
+    const week = weeklyContract.selectWeek(payload, selection);
+    if (!week) return;
+    const presentation = weeklyContract.weekPresentation(week);
+
+    buttons.forEach((button) => {
+      const selected = button.dataset.donationsSelection === selection;
+      button.setAttribute("aria-pressed", String(selected));
+      button.classList.toggle("is-active", selected);
+    });
+
+    requireElement("[data-donations-week-title]").textContent = presentation.title;
+    requireElement("[data-donations-week-range]").textContent =
+      weeklyContract.formatWeekRange(week, payload.timezone);
+    requireElement("[data-donations-status]").textContent = presentation.badge;
+    requireElement("[data-donations-status-copy]").textContent = presentation.explanation;
+    setTextAll("[data-donations-total]", week.donations_confirmed);
+    setTextAll("[data-donations-received]", week.donations_received_confirmed);
+    setTextAll("[data-donations-participants]", week.participant_count);
+    setTextAll("[data-donations-contributors]", week.contributing_player_count);
+
+    const warnings = requireElement("[data-donations-warnings]");
+    const warningList = requireElement("[data-donations-warning-list]");
+    warningList.replaceChildren(
+      ...presentation.warnings.map((warning) => createElement("li", "", warning))
+    );
+    warnings.hidden = presentation.warnings.length === 0;
+
+    const tableBody = requireElement("[data-donations-players]");
+    tableBody.replaceChildren(
+      ...week.players.map((player, index) => {
+        const row = document.createElement("tr");
+        const rank = createElement("td", "weekly-table__rank", index + 1);
+        const nickname = createElement("th", "", player.nickname);
+        nickname.scope = "row";
+        row.append(
+          rank,
+          nickname,
+          createElement("td", "weekly-table__number", player.donations_confirmed),
+          createElement(
+            "td",
+            "weekly-table__number",
+            player.donations_received_confirmed
+          )
+        );
+        return row;
+      })
+    );
+  };
+
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => {
+      renderSelectedWeek(button.dataset.donationsSelection);
+    });
+  });
+
+  const observedAt = payload.latest_observed_at_utc;
+  requireElement("[data-donations-freshness]").textContent =
+    `Данные по состоянию на ${formatDate(observedAt, {
+      dateStyle: "medium",
+      timeStyle: "short"
+    })}.`;
+  renderSelectedWeek("current");
+  requireElement("[data-donations-loading]").hidden = true;
+  requireElement("[data-donations-error]").hidden = true;
+  content.hidden = false;
+};
+
+const loadWeeklyDonations = async () => {
+  const loading = document.querySelector("[data-donations-loading]");
+  const errorTarget = document.querySelector("[data-donations-error]");
+  const content = document.querySelector("[data-donations-content]");
+
+  try {
+    if (!loading || !errorTarget || !content) {
+      throw new Error("Weekly donations section is incomplete");
+    }
+    loading.hidden = false;
+    errorTarget.hidden = true;
+    content.hidden = true;
+    const response = await fetch(`data/donations-weekly.json?v=${Date.now()}`, {
+      cache: "no-store"
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    renderWeeklyDonations(await response.json());
+  } catch (error) {
+    if (loading) loading.hidden = true;
+    if (content) content.hidden = true;
+    if (errorTarget) errorTarget.hidden = false;
+    console.error(
+      "Weekly donations unavailable:",
+      error instanceof Error ? error.message : "Unknown error"
+    );
+  }
+};
+
 const renderSite = (data, config, currentWar, history) => {
   const members = [...data.members].sort((left, right) => {
     const roleDifference =
@@ -748,6 +862,7 @@ window.addEventListener("DOMContentLoaded", async () => {
       await currentWarResponse.json(),
       await historyResponse.json()
     );
+    await loadWeeklyDonations();
   } catch (error) {
     showError(error);
   }

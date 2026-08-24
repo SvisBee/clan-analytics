@@ -7,9 +7,10 @@
   <meta name="theme-color" content="#0b1220">
   <title>Clan Analytics</title>
   <link rel="stylesheet" href="assets/css/styles.css?v=current-war-v5-20260720">
-  <link rel="stylesheet" href="assets/css/live.css?v=manual-player-label-v2-20260722">
+  <link rel="stylesheet" href="assets/css/live.css?v=donations-weekly-ui-v1-20260824">
   <script src="assets/js/current-war-contract.js?v=current-war-v5-20260720" defer></script>
-  <script src="assets/js/app.js?v=manual-player-label-v2-20260722" defer></script>
+  <script src="assets/js/donations-weekly-contract.js?v=donations-weekly-ui-v1-20260824" defer></script>
+  <script src="assets/js/app.js?v=donations-weekly-ui-v1-20260824" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Перейти к содержимому</a>
@@ -37,6 +38,7 @@
         <a href="#players">Игроки</a>
         <a href="#wars">Войны</a>
         <a href="#analytics">Аналитика состава</a>
+        <a href="#donations">Пожертвования</a>
         <a href="#about">О проекте</a>
       </nav>
 
@@ -305,6 +307,96 @@
               <div class="distribution" data-distribution></div>
               <div class="role-summary" data-role-summary></div>
             </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="donations" aria-labelledby="donations-title">
+        <div class="container">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Активность состава</p>
+              <h2 id="donations-title">Недельные пожертвования</h2>
+            </div>
+            <p>
+              Показан минимум, который удалось однозначно подтвердить по собранным данным.
+              Значения не являются гарантированно полным итогом недели.
+            </p>
+          </div>
+
+          <div class="weekly-donations" data-donations-root>
+            <div class="preview-loading" data-donations-loading role="status">
+              Загружаю подтверждённые пожертвования…
+            </div>
+            <div class="preview-error" data-donations-error role="status" hidden>
+              Данные о пожертвованиях временно недоступны.
+            </div>
+
+            <div data-donations-content hidden>
+              <div class="weekly-donations__toolbar">
+                <div>
+                  <p class="weekly-donations__title" data-donations-week-title></p>
+                  <p class="weekly-donations__range" data-donations-week-range></p>
+                </div>
+                <div class="week-selector" data-donations-selector role="group" aria-label="Выбор недели">
+                  <button type="button" data-donations-selection="current" aria-pressed="true">Текущая</button>
+                  <button type="button" data-donations-selection="previous_usable" aria-pressed="false">Предыдущая</button>
+                </div>
+              </div>
+
+              <div class="weekly-donations__status">
+                <span class="status-badge status-badge--pending" data-donations-status></span>
+                <p data-donations-status-copy></p>
+              </div>
+
+              <div class="weekly-summary" aria-label="Сводка пожертвований за выбранную неделю">
+                <article class="metric-card">
+                  <span>Передано</span>
+                  <strong data-donations-total></strong>
+                  <small>подтверждённый минимум</small>
+                </article>
+                <article class="metric-card">
+                  <span>Получено</span>
+                  <strong data-donations-received></strong>
+                  <small>подтверждённый минимум</small>
+                </article>
+                <article class="metric-card">
+                  <span>Участников</span>
+                  <strong data-donations-participants></strong>
+                  <small>в опубликованной выборке</small>
+                </article>
+                <article class="metric-card">
+                  <span>Активных донатеров</span>
+                  <strong data-donations-contributors></strong>
+                  <small>с подтверждённой передачей</small>
+                </article>
+              </div>
+
+              <div class="weekly-warnings" data-donations-warnings hidden>
+                <p>Ограничения данных</p>
+                <ul data-donations-warning-list></ul>
+              </div>
+
+              <div class="weekly-donations__notes">
+                <p>Показаны только участники, которые сейчас состоят в клане.</p>
+                <p data-donations-freshness></p>
+              </div>
+
+              <div class="weekly-table-wrap">
+                <table class="weekly-table">
+                  <caption>Пожертвования участников за выбранную неделю</caption>
+                  <thead>
+                    <tr>
+                      <th class="weekly-table__rank" scope="col">№</th>
+                      <th scope="col">Игрок</th>
+                      <th class="weekly-table__number" scope="col">Передано</th>
+                      <th class="weekly-table__number" scope="col">Получено</th>
+                    </tr>
+                  </thead>
+                  <tbody data-donations-players></tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </section>

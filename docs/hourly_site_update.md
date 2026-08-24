@@ -12,6 +12,26 @@ The updater keeps both the clan roster and war data current. One normal run perf
 
 It then updates local detailed-war history, builds public-only JSON, validates the site, records one local confirmed roster observation, and publishes through Git only when public data changed.
 
+The builder also reads the existing clan snapshot-history SQLite through the
+read-only donations adapter and proposes `site/data/donations-weekly.json`.
+This happens after private roster normalization and before shared public
+validation. The production database path is fixed below the workspace root,
+and a missing or invalid store fails the builder before atomic apply. Weekly
+generation adds no API request and does not write SQLite.
+
+Because the established `snapshot_history` persistence stage follows builder
+and tests, the newly collected roster becomes weekly counter evidence on the
+next successful build. The current run still supplies the exact current-roster
+identity scope and `as_of` time. A roster input older than the latest confirmed
+snapshot fails closed instead of joining stale current membership.
+
+The approved public inventory now contains six explicit JSON files. The weekly
+file participates in the same backup, atomic replacement, restore, staging and
+push allowlist as the original five files. If its public semantics are
+unchanged, the existing weekly payload and freshness fields are preserved so an
+observation alone does not cause timestamp-only Git churn. The frontend does
+not consume this file in Phase 4.
+
 ## Roster coverage
 
 Every run rebuilds the roster from the current clan endpoint. The public site therefore reflects:

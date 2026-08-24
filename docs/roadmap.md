@@ -15,7 +15,7 @@
 7. **Clan War History v1 – завершено: schema v2, lifecycle, reconciliation, manual evidence, public metrics, Pages и hourly updater.**
 8. **collection_reliability_v1** – завершён: наблюдаемость, lifecycle и безопасная диагностика регулярного сбора подтверждены естественным scheduled run.
 9. **clan_snapshot_history_v1** – завершён: production schema v1 прошла read-only validation, successful normal runs сопоставлены с hourly observations, payload dedup и derived membership events подтверждены; public projection, backfill и retention остаются отдельными будущими задачами.
-10. **donations_weekly_v1** - `public projection core implemented, builder integration pending`.
+10. **donations_weekly_v1** - `builder integration implemented, production validation pending`.
 11. **clan_games_v1 source research** – определить безопасный источник и публичные агрегаты Игр кланов.
 12. **cwl_history_v1** – отделить историю ЛВК от обычных КВ.
 13. **capital_raids_v1** – добавить историю рейдовых выходных.
@@ -40,7 +40,7 @@
 
 Контракт состава реализован для текущего live public roster. Он остаётся основой allowlist и не заменяет будущую roster lifecycle history.
 
-Fail-closed probes и unified updater прошли live validation. Clan War History v1, collection_reliability_v1 и clan_snapshot_history_v1 закрыты; для следующего технического приоритета `donations_weekly_v1` public projection core реализован, builder integration ожидает следующей фазы.
+Fail-closed probes и unified updater прошли live validation. Clan War History v1, collection_reliability_v1 и clan_snapshot_history_v1 закрыты; для следующего технического приоритета `donations_weekly_v1` builder integration реализована, production publication validation ожидает контролируемого запуска.
 
 Инженерная готовность дополнена project-local skills и правилами reuse-first/minimal diff. Strix readiness подготовлен документально, но остаётся неактивным: установка, выполнение и CI не выполнялись. Реальный security scan рассматривается только после появления backend, API или другого динамического attack surface и после отдельных разрешений на инструмент, runtime, LLM, сеть, target, mode, команду и обработку результатов.
 

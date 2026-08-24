@@ -17,7 +17,10 @@ from pathlib import Path
 SCHEMA_VERSION = 1
 MAX_FILE_BYTES = 20 * 1024 * 1024
 MAX_BUNDLE_BYTES = 80 * 1024 * 1024
-PUBLIC_NAMES = ("roster.json", "current-war.json", "war-log.json", "war-history.json", "site-config.json")
+PUBLIC_NAMES = (
+    "roster.json", "current-war.json", "war-log.json", "war-history.json",
+    "site-config.json", "donations-weekly.json",
+)
 
 
 class BundleError(RuntimeError):
@@ -131,10 +134,44 @@ def replay(args: argparse.Namespace) -> int:
     repo = Path(__file__).resolve().parents[2]
     workspace = bundle / "workspace"
     with tempfile.TemporaryDirectory(prefix="clan-builder-replay-") as temporary:
+        replay_workspace = Path(temporary) / "workspace"
+        snapshot_database = (
+            replay_workspace
+            / "data/clan_snapshot_history/clan_snapshot_history.v1.sqlite3"
+        )
+        sys.path.insert(0, str(repo / "src"))
+        from clan_analytics.api.normalization import normalize_clan
+        from clan_analytics.clan_snapshot_history import (
+            initialize_snapshot_store,
+            record_confirmed_observation,
+        )
+
+        roster_raw = json.loads(
+            (bundle / "inputs/roster/raw_clan_response.json").read_text(encoding="utf-8")
+        )
+        roster_metadata = json.loads(
+            (bundle / "inputs/roster/probe_metadata.json").read_text(encoding="utf-8")
+        )
+        observed_at = str(roster_metadata["collected_at"])
+        initialize_snapshot_store(snapshot_database)
+        record_confirmed_observation(
+            snapshot_database,
+            normalize_clan(
+                roster_raw,
+                collected_at=observed_at,
+                raw_source_reference="offline-replay",
+            ),
+            observed_at,
+            "offline-builder-replay",
+            "builder-replay-v1",
+        )
         command = [sys.executable, str(repo / "scripts/update/build_site_update.py"),
             "--roster-run", str(bundle / "inputs/roster"), "--current-war-run", str(bundle / "inputs/current-war"),
             "--war-log-run", str(bundle / "inputs/war-log"), "--history-path", str(workspace / "data/war_history/history.json"),
-            "--site-data-dir", str(workspace / "repo/site/data"), "--output-dir", str(Path(temporary) / "proposal")]
+            "--site-data-dir", str(workspace / "repo/site/data"),
+            "--workspace-root", str(replay_workspace),
+            "--snapshot-history-db", str(snapshot_database),
+            "--output-dir", str(Path(temporary) / "proposal")]
         result = subprocess.run(command, text=True, capture_output=True, check=False)
     if result.returncode:
         safe_path = re.search(r"history\.wars\[\d+\](?:\.[A-Za-z_]+)+", result.stderr)

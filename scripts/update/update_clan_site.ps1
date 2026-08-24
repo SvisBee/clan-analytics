@@ -30,7 +30,8 @@ $AllowedSiteFiles = @(
     'site/data/current-war.json',
     'site/data/war-log.json',
     'site/data/war-history.json',
-    'site/data/site-config.json'
+    'site/data/site-config.json',
+    'site/data/donations-weekly.json'
 )
 
 function Write-Status {
@@ -264,6 +265,8 @@ try {
         '--war-log-run', $warLogDir,
         '--history-path', $HistoryPath,
         '--site-data-dir', $SiteDataDir,
+        '--workspace-root', $WorkspaceRoot,
+        '--snapshot-history-db', $SnapshotDatabasePath,
         '--output-dir', $buildDir
     )
     $script:LastCheckedOutput = @($builderProcess.stderr_safe)
@@ -378,7 +381,7 @@ try {
 
     try {
         $currentStage = 'atomic_apply'; $currentHealthStage = Start-HealthStage -Health $health -Stage $currentStage
-        foreach ($name in @('roster.json', 'current-war.json', 'war-log.json', 'war-history.json', 'site-config.json')) {
+        foreach ($name in @('roster.json', 'current-war.json', 'war-log.json', 'war-history.json', 'site-config.json', 'donations-weekly.json')) {
             Publish-FileAtomic `
                 -Source (Join-Path $buildDir "site-data\$name") `
                 -Destination (Join-Path $SiteDataDir $name)

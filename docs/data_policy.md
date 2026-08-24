@@ -56,6 +56,17 @@ Player tags и defender tags используются для внутренне�
 
 Public privacy scanning normalizes camelCase, snake_case and separator variants of private keys. It also rejects Windows drive paths, UNC paths, raw source references, authorization/token values and DPAPI metadata. Safe HTTPS URLs and neutral public text remain allowed.
 
+### Weekly donations public allowlist v1
+
+`site/data/donations-weekly.json` contains at most the current Moscow week and
+the latest usable completed week for current roster members. Public player rows
+allow only the current nickname, confirmed donation and received-donation lower
+bounds, and reset/gap/boundary evidence flags. Week totals are recalculated from
+those visible rows. Departed contributions, stable tags, tag hashes, internal
+and segment IDs, payload and observation IDs, fingerprints, source run IDs,
+SQLite paths and local provenance are forbidden. The exact private tag join is
+performed only in builder memory before public validation.
+
 ## 4. Секреты
 
 API-токены, ключи и данные доступа. Хранятся только в `D:\coc\data\secrets`, не копируются в документацию, логи, Git или сайт.

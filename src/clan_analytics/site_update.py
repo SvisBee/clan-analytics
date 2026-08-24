@@ -6,6 +6,7 @@ import json
 import re
 import warnings
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping
 from urllib.parse import urlsplit
@@ -40,6 +41,7 @@ PUBLIC_FILENAMES = (
     "war-log.json",
     "war-history.json",
     "site-config.json",
+    "donations-weekly.json",
 )
 _FORBIDDEN_NORMALIZED_KEYS = {
     "playertag", "attackertag", "defendertag", "clantag", "opponenttag",
@@ -49,8 +51,12 @@ _FORBIDDEN_NORMALIZED_KEYS = {
     "secrets", "dpapi", "dpapiblob", "dpapimetadata", "localpath", "internalpath",
     "warid", "linkedwarid", "evidenceid", "sourcefiles", "sourcehashes",
     "order", "attackorder", "globalorder",
+    "playeridinternal", "internalid", "membershipsegmentid", "segmentid",
+    "payloadid", "observationid", "fingerprint", "sourcerunid", "sourcehash",
+    "hash",
 }
-_TAG_PATTERN = re.compile(r"#[A-Z0-9]{3,20}")
+_TAG_PATTERN = re.compile(r"#[A-Z0-9]{3,20}", re.IGNORECASE)
+_HASH_PATTERN = re.compile(r"[0-9a-f]{40,64}", re.IGNORECASE)
 _WINDOWS_PATH_PATTERN = re.compile(r"(?:\b[A-Za-z]:[\\/]|\\\\[^\\/]+[\\/])")
 _CREDENTIAL_VALUE_PATTERN = re.compile(
     r"(?:^\s*authorization\s*[:=]|\bbearer\s+\S|\b(?:api|access|refresh)[_ -]?token\s*[:=]|\bdpapi(?:[_ -]?(?:blob|metadata))?\s*[:=])",
@@ -150,6 +156,8 @@ def _scan_public(value: Any, path: str = "$") -> None:
             raise SiteUpdateError(f"forbidden public string at {path}")
         if _TAG_PATTERN.fullmatch(value.strip()):
             raise SiteUpdateError(f"game tag leaked into public output at {path}")
+        if _HASH_PATTERN.fullmatch(value.strip()):
+            raise SiteUpdateError(f"hash leaked into public output at {path}")
 
 
 def _write_json(path: Path, payload: Any) -> None:
@@ -161,6 +169,108 @@ def _write_json(path: Path, payload: Any) -> None:
     )
 
 
+def _parse_utc_timestamp(value: object, field: str) -> datetime:
+    if not isinstance(value, str):
+        raise SiteUpdateError(f"{field} must be a timestamp")
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError as error:
+        raise SiteUpdateError(f"{field} must be a timestamp") from error
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise SiteUpdateError(f"{field} must be timezone-aware")
+    return parsed.astimezone(timezone.utc)
+
+
+def _weekly_semantics(payload: Mapping[str, Any]) -> dict[str, Any]:
+    """Return the public meaning of a weekly payload without freshness evidence."""
+
+    return {
+        key: value
+        for key, value in payload.items()
+        if key not in {"generated_at_utc", "latest_observed_at_utc"}
+    }
+
+
+def _build_weekly_public(
+    *,
+    clan: Any,
+    snapshot_history_db: Path,
+    collected_at: object,
+    existing: Any,
+) -> tuple[dict[str, Any], dict[str, int]]:
+    """Read private donation evidence and return one validated public projection."""
+
+    # Local imports avoid a module cycle: the Phase 3 public validator reuses
+    # this module's general public privacy scanner.
+    from .donations_weekly import DonationsWeeklyError, derive_weekly_donations
+    from .donations_weekly_adapter import (
+        SnapshotDonationAdapterError,
+        read_snapshot_donation_observations,
+    )
+    from .donations_weekly_public import (
+        CurrentPublicMember,
+        DonationsWeeklyPublicError,
+        build_public_weekly_donations,
+        validate_public_weekly_donations,
+    )
+
+    try:
+        loaded = read_snapshot_donation_observations(snapshot_history_db)
+        source_time = _parse_utc_timestamp(collected_at, "roster collected_at")
+        latest = loaded.summary.latest_observed_at_utc
+        if latest is not None and latest > source_time:
+            raise SiteUpdateError(
+                "roster input is older than the latest snapshot observation"
+            )
+        as_of = source_time
+        derived = derive_weekly_donations(
+            loaded.observations,
+            as_of_utc=as_of,
+        )
+        candidate = build_public_weekly_donations(
+            derived,
+            (
+                CurrentPublicMember(member.player_tag, member.display_name)
+                for member in clan.members
+            ),
+            generated_at_utc=as_of,
+            as_of_utc=as_of,
+            latest_observed_at_utc=latest,
+        )
+        validate_public_weekly_donations(candidate)
+
+        if existing is not None:
+            if not isinstance(existing, Mapping):
+                raise DonationsWeeklyPublicError(
+                    "existing public weekly payload must be an object"
+                )
+            validate_public_weekly_donations(existing)
+            if _weekly_semantics(candidate) == _weekly_semantics(existing):
+                candidate = dict(existing)
+
+        serialized = json.dumps(candidate, ensure_ascii=False, sort_keys=True)
+        private_identities = {
+            member.player_tag for member in clan.members
+        } | {item.player_id_internal for item in loaded.observations}
+        if any(identity in serialized for identity in private_identities):
+            raise DonationsWeeklyPublicError(
+                "private identity leaked into public weekly payload"
+            )
+        validate_public_weekly_donations(candidate)
+        return candidate, {
+            "selected_week_count": len(candidate["weeks"]),
+            "public_player_row_count": sum(
+                len(week["players"]) for week in candidate["weeks"]
+            ),
+        }
+    except (
+        SnapshotDonationAdapterError,
+        DonationsWeeklyError,
+        DonationsWeeklyPublicError,
+    ) as error:
+        raise SiteUpdateError("weekly donations build failed safely") from error
+
+
 def build_site_update(
     *,
     roster_run: Path,
@@ -168,6 +278,7 @@ def build_site_update(
     war_log_run: Path,
     existing_history_path: Path,
     existing_site_data_dir: Path,
+    snapshot_history_db: Path,
     output_dir: Path,
     allow_history_migration: bool = False,
 ) -> dict[str, Any]:
@@ -250,15 +361,26 @@ def build_site_update(
     existing_history_public = _load_existing(
         existing_site_data_dir / "war-history.json", None
     )
+    existing_donations_weekly = _load_existing(
+        existing_site_data_dir / "donations-weekly.json", None
+    )
     existing_config = _load_existing(existing_site_data_dir / "site-config.json", {})
     if not isinstance(existing_config, Mapping):
         existing_config = {}
+
+    donations_weekly, donations_summary = _build_weekly_public(
+        clan=clan,
+        snapshot_history_db=snapshot_history_db,
+        collected_at=roster_probe.metadata["collected_at"],
+        existing=existing_donations_weekly,
+    )
 
     changed = {
         "roster": roster != existing_roster,
         "current_war": current_war_public != existing_current,
         "war_log": war_log_public != existing_war_log,
         "war_history": war_history_public != existing_history_public,
+        "donations_weekly": donations_weekly != existing_donations_weekly,
     }
 
     badge_url = _safe_badge_url(roster_probe.raw)
@@ -289,6 +411,7 @@ def build_site_update(
         "war-log.json": war_log_public,
         "war-history.json": war_history_public,
         "site-config.json": config,
+        "donations-weekly.json": donations_weekly,
     }
     for name, payload in public_files.items():
         _scan_public(payload, f"$.{name}")
@@ -311,6 +434,12 @@ def build_site_update(
             "site_config": config_changed,
         },
         "public_change_count": sum(changed.values()) + int(config_changed),
+        "donations_weekly": {
+            "built": True,
+            "schema_version": donations_weekly["schema_version"],
+            **donations_summary,
+            "logical_public_file_path": "site/data/donations-weekly.json",
+        },
     }
     _write_json(output_dir / "summary.json", summary)
     return summary

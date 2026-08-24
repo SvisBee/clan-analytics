@@ -10,6 +10,9 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from clan_analytics.site_update import _scan_public  # noqa: E402
+from clan_analytics.donations_weekly_public import (  # noqa: E402
+    validate_public_weekly_donations,
+)
 
 
 class PublicSiteDataTests(unittest.TestCase):
@@ -21,6 +24,15 @@ class PublicSiteDataTests(unittest.TestCase):
             "war-history.json": dict,
             "site-config.json": dict,
         }
+        optional_until_first_builder_publication = {
+            "donations-weekly.json": dict,
+        }
+        actual_names = {path.name for path in (REPO_ROOT / "site" / "data").glob("*.json")}
+        required_names = set(expected)
+        released_names = required_names | set(optional_until_first_builder_publication)
+        self.assertIn(actual_names, (required_names, released_names))
+        if "donations-weekly.json" in actual_names:
+            expected.update(optional_until_first_builder_publication)
         for name, root_type in expected.items():
             with self.subTest(name=name):
                 raw = (REPO_ROOT / "site" / "data" / name).read_bytes()
@@ -31,6 +43,8 @@ class PublicSiteDataTests(unittest.TestCase):
                 payload = json.loads(text)
                 self.assertIsInstance(payload, root_type)
                 _scan_public(payload, f"$.{name}")
+                if name == "donations-weekly.json":
+                    validate_public_weekly_donations(payload)
 
 
 if __name__ == "__main__":

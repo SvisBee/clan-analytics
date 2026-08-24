@@ -1,15 +1,16 @@
 # Weekly donations v1
 
-Status: `public projection core implemented; builder/site integration pending`
+Status: `builder integration implemented; production publication validation pending`
 
 ## Scope
 
 Phase 1 implements a deterministic pure-Python derivation core for weekly
 donation counter evidence. Phase 2 adds a read-only production adapter that
 converts confirmed snapshot-history rows into that pure input model. Phase 3
-adds an in-memory, privacy-safe public projection core for fictional and future
-builder inputs. These phases do not write derived data to SQLite or interact
-with the frontend. Phase 3 does not create a production public JSON file.
+adds an in-memory, privacy-safe public projection core. Phase 4 connects those
+components to the production builder and proposes
+`site/data/donations-weekly.json`. No phase writes derived data to SQLite, and
+the frontend still does not request or display the weekly file.
 
 The authoritative future source remains confirmed raw snapshots in the local
 snapshot-history SQLite. Weekly values are deterministic derived projections,
@@ -31,9 +32,9 @@ does not install an external dependency.
 
 Direct `ZoneInfo("Europe/Moscow")` lookup in the current Python executable is
 unavailable without that fallback, while the project loader succeeds in the
-same executable. Phase 4 must validate this existing fallback in the natural
-builder environment when integrating the metric; Phase 3 does not change the
-updater or its environment.
+same executable. The builder test forces the direct lookup to fail and proves
+that the Git for Windows fallback still loads the named IANA zone. Production
+validation in the Scheduled Task environment remains pending.
 
 ## Read-only snapshot adapter
 
@@ -199,18 +200,63 @@ serialized. The strict schema validator rejects unknown fields, invalid types,
 negative counters, inconsistent totals, invalid selection, and privacy scanner
 violations.
 
+## Phase 4 builder contract
+
+The builder receives the snapshot store explicitly as
+`--snapshot-history-db`. The normal CLI accepts only the fixed path below its
+declared workspace root:
+
+```text
+data/clan_snapshot_history/clan_snapshot_history.v1.sqlite3
+```
+
+The adapter validates and opens that existing database read-only. A missing or
+invalid store fails the builder before proposal output is accepted. Direct
+Python tests may inject a temporary fictional store without weakening the
+normal CLI boundary.
+
+The existing updater builds its proposal before its normal-only
+`snapshot_history` write. Weekly output therefore uses all confirmed
+observations present at builder start; the roster collected in the same run is
+used for current-scope identity and `as_of`, then becomes donation evidence for
+the next successful build after the normal snapshot stage records it. A roster
+input older than the latest stored observation fails closed.
+
+Weekly derivation runs after the clan response has been normalized, while the
+private `player_tag` values and current public nicknames are both available in
+memory. The join uses exact tag equality. Private identities are checked
+against the serialized projection and are never written to the proposal,
+summary or public JSON.
+
+The proposal contains exactly six approved public files, including
+`donations-weekly.json`. The weekly file passes its schema validator and the
+shared recursive privacy scanner before any atomic apply. The updater backs up,
+replaces, stages and restores this sixth file through the same explicit
+allowlist as the existing five files. A weekly adapter, derivation, projection
+or privacy failure stops the builder; existing published files remain intact.
+
+`generated_at_utc` is source-evidence time, not an unconditional wall-clock
+timestamp. When a newly built projection has the same public semantics as the
+existing weekly file, the builder preserves the existing payload, including
+both freshness fields. The JSON therefore remains byte-stable and cannot create
+an hourly commit only because another unchanged observation was collected. A
+changed value, selected week, status, evidence flag or current-roster scope
+produces a new payload.
+
+`site-config.json` currently contains only data used directly by the frontend;
+it is not a general downloadable-resource catalog. Because Phase 4 does not
+load weekly donations in the UI, no new site-config resource is added.
+
 ## Deferred work
 
 - Compact public JSON.
-- Builder and updater integration.
 - Frontend and public wording.
-- Controlled PreviewOnly, natural-run, and Pages validation.
+- Controlled production run and Pages validation.
 
-Phase 4 will obtain current private identities from the latest confirmed
-snapshot and call the Phase 3 projection at the existing roster normalization
-boundary before player tags are removed. Production JSON, builder wiring,
-timezone fallback validation in the natural runtime, and controlled preview are
-explicitly deferred.
+Phase 4 implementation obtains current private identities from the normalized
+roster and calls the Phase 3 projection before player tags are removed.
+Production publication and the Scheduled Task runtime validation remain pending
+until the controlled run succeeds.
 
 No API request, public output, leadership rule, donation requirement, fuzzy
 identity, backfill, or new authoritative storage is part of Phase 1 through

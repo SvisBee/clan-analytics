@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import inspect
+import os
 import sys
 import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from unittest.mock import patch
+from zoneinfo import ZoneInfoNotFoundError
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
@@ -44,6 +47,31 @@ def derive(items, *, as_of=utc(23, 12), coverage_start=None):
 
 
 class WeekContractTests(unittest.TestCase):
+    def test_git_for_windows_timezone_fallback_is_runtime_deterministic(self) -> None:
+        zoneinfo_file = (
+            Path(os.environ.get("ProgramFiles", r"C:\Program Files"))
+            / "Git/mingw64/share/zoneinfo/Europe/Moscow"
+        )
+        if not zoneinfo_file.is_file():
+            self.skipTest("Git for Windows timezone database is unavailable")
+
+        real_zoneinfo = module.ZoneInfo
+
+        class ForcedFallback:
+            def __call__(self, key: str):
+                raise ZoneInfoNotFoundError(key)
+
+            @staticmethod
+            def from_file(stream, *, key: str):
+                return real_zoneinfo.from_file(stream, key=key)
+
+        module._moscow_timezone.cache_clear()
+        try:
+            with patch.object(module, "ZoneInfo", ForcedFallback()), patch.object(module, "TZPATH", ()):
+                self.assertEqual("Europe/Moscow", module._moscow_timezone().key)
+        finally:
+            module._moscow_timezone.cache_clear()
+
     def test_moscow_monday_boundary_uses_timezone_database(self) -> None:
         before = week_window(utc(23, 20, 59), as_of_utc=utc(24, 1))
         after = week_window(utc(23, 21), as_of_utc=utc(24, 1))

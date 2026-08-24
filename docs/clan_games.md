@@ -1,6 +1,6 @@
 # Clan Games v1
 
-Статус: source validation пройдён; Phase 1 player source client/normalizer реализована; operator-confirmed event registry, storage, collector, public projection и frontend остаются pending.
+Статус: source validation пройдён; Phase 1 player source client/normalizer и Phase 2 operator-confirmed event registry реализованы; observation storage, collector, public projection и frontend остаются pending.
 
 ## Подтверждённый источник
 
@@ -81,9 +81,79 @@ Safe result содержит только operational поля: status, result c
 
 `player_tag_internal` остаётся только во внутреннем snapshot. Он не должен передаваться в safe logger или public serializer.
 
+## Local event registry Phase 2
+
+Event registry хранится как local operational/domain authority по логическому пути:
+
+```text
+data/clan_games/event_registry.v1.json
+```
+
+Фактический production path в этом workspace: `D:\coc\data\clan_games\event_registry.v1.json`. Он находится вне Git, Pages и Codebase Memory, сохраняется между запусками и не создаёт dirty-Git blocker. Import модуля, player client и hourly updater не создают registry автоматически. В Phase 2 production registry и production event record не создавались: для этого требуется отдельное explicit operator action с подтверждёнными boundaries и official source.
+
+Schema v1 имеет строгий вид:
+
+```json
+{
+  "schema_version": 1,
+  "events": [
+    {
+      "event_id": "fictional-event",
+      "start_at_utc": "2026-09-10T06:00:00.000000Z",
+      "end_at_utc": "2026-09-16T06:00:00.000000Z",
+      "official_source_url": "https://supercell.com/fictional-evidence/",
+      "confirmed_at_utc": "2026-08-20T12:00:00.000000Z"
+    }
+  ]
+}
+```
+
+Пример только показывает schema и не является production event или предположением о датах. Registry не содержит cap, recurrence, mutable `active`, player identity или points.
+
+`event_id` задаётся оператором и является immutable identity. Допускаются 1–64 ASCII-символа: lowercase letters, digits, `-` и `_`; первый символ должен быть буквой или цифрой. ID не выводится из URL и не обязан иметь календарный формат.
+
+Все timestamps принимаются только с timezone, нормализуются в fixed-width UTC `YYYY-MM-DDTHH:MM:SS.ffffffZ`; naive timestamps отклоняются. Обязательно `start_at_utc < end_at_utc`. Local Moscow timezone и recurring monthly dates не зашиты.
+
+Source research использовал query-free официальные страницы на `supercell.com`, поэтому v1 allowlist допускает только exact host `supercell.com` по HTTPS без userinfo, custom port, query или fragment. `www.supercell.com`, arbitrary domains, localhost и IP literals fail closed. Registry не fetch-ит URL при записи: оператор подтверждает provenance, а transient web availability не влияет на локальную регистрацию.
+
+Events сериализуются детерминированно по `start_at_utc`, `end_at_utc`, `event_id`. IDs должны быть unique; overlapping windows запрещены. Касание boundaries допустимо. Обычный `register` идемпотентен только для exact canonical retry; тот же ID с другими полями является conflict.
+
+Correction выполняется только отдельным explicit replace. Existing ID обязателен, candidate полностью валидируется, overlap проверяется до записи, старый registry сохраняется byte-for-byte как validated local backup в `data/clan_games/backups/event_registry/`, затем candidate публикуется atomic replace. Backup не перезаписывается. Generic delete отсутствует.
+
+Статус не хранится. Он вычисляется от timezone-aware `as_of`:
+
+- `upcoming`, если `as_of < start_at_utc`;
+- `active`, если `start_at_utc <= as_of < end_at_utc`;
+- `ended`, если `as_of >= end_at_utc`.
+
+Ended records сохраняются как provenance/history operator confirmations. `get_upcoming_event` возвращает ближайший event со `start_at_utc > as_of`; отсутствие active/upcoming event возвращает `None`, а не ошибку.
+
+## Operator CLI Phase 2
+
+CLI: `scripts/clan_games/manage_event_registry.py`.
+
+Commands:
+
+- `init` – explicit atomic initialization пустой schema v1;
+- `validate` – read-only strict validation;
+- `list` – deterministic event metadata;
+- `status [--as-of ...]` – derived active/upcoming/ended state;
+- `register --event-id ... --start ... --end ... --official-source-url ...`;
+- `replace ... --confirm-replace` – explicit correction с validated backup.
+
+Production mode использует только фиксированный logical path. Arbitrary production `--path` отсутствует. `--test-registry` разрешён только для файла `event_registry.v1.json` внутри системного temp и предназначен для offline tests. CLI не выводит absolute registry path; для production показывается `data/clan_games/event_registry.v1.json`.
+
+Future collector contract:
+
+```python
+registry = load_event_registry(path)
+event = get_active_event(registry, now)
+```
+
+Если `event is None`, будущий collector должен вернуть `no_active_event` без player requests. Если event активен, отдельная будущая фаза сможет выполнить bounded scan. Registry уже предоставляет точные start/end boundaries, но не хранит `baseline_done` или `final_done`: это состояние будущего observation storage/collector.
+
 ## Что ещё не реализовано
 
-- operator-confirmed timezone-aware event registry с official source URL;
 - отдельная local SQLite authority;
 - event-only bounded collector;
 - health aggregation и partial batch;

@@ -42,36 +42,29 @@ War log может подтвердить завершение и официал
 
 Подробности: [reliable_history_foundation.md](reliable_history_foundation.md).
 
-## Предварительный поток Игр кланов
+## Поток Игр кланов v1
 
 ```text
-ручной CSV или другой подтверждённый источник
-→ валидация player_tag и события
-→ локальное хранилище
+operator-confirmed event registry
+→ active-event lookup
+→ official player profile / Games Champion
+→ будущая local observation SQLite
 → расчёт показателей
 → публичная безопасная выгрузка
 → статический сайт
 ```
 
-Технический источник ещё не подтверждён. Доступность результатов Игр кланов через официальный API должна проверяться отдельным probe; до проверки нельзя утверждать, что такие данные API предоставляет. Архитектура v1 должна поддерживать ручной импорт. Опубликованный HTML нельзя редактировать вручную вместо загрузки и проверки исходных данных.
+Source validation подтвердила official-derived lifetime cumulative candidate `Games Champion` в official player profile. Phase 1 reusable client/normalizer реализована, но не подключена к hourly updater. Phase 2 реализовала local-only schema-v1 registry конкретных событий по пути `data/clan_games/event_registry.v1.json`. Registry создаётся и наполняется только explicit operator action, требует exact start/end и query-free HTTPS source на доказанном host `supercell.com`, не содержит recurrence или cap и не fetch-ит source URL автоматически. Production event в implementation-фазе не зарегистрирован.
 
-`player_tag` – основной устойчивый идентификатор игрока. Публичные и внутренние поля формируются раздельно: причины отсутствия и служебные комментарии не входят в публичную выгрузку.
+`player_tag` – основной устойчивый идентификатор будущих observations. Публичные и внутренние поля формируются раздельно: identity и provenance registry не становятся public автоматически.
 
-Предполагаемый CSV-контракт, статус `draft`:
+Event status вычисляется от timezone-aware `as_of`; `start <= as_of < end` означает active. Overlap запрещён, touching boundaries разрешены, ended records сохраняются. Explicit replacement требует validated local backup и atomic replace. Observation SQLite, collector, scheduling, public projection и frontend остаются следующими отдельными фазами.
+
+Предыдущий CSV draft не является production authority. Актуальный registry contract:
 
 ```text
-event_id,event_start_date,event_end_date,player_tag,points,max_points,status,absence_reason
+event_id,start_at_utc,end_at_utc,official_source_url,confirmed_at_utc
 ```
-
-Предварительные значения `status`:
-
-- `participated` – игрок участвовал и результат учитывается в метриках участия;
-- `no_points` – игрок относится к событию, но подтверждённых очков нет;
-- `excused` – отсутствие имеет внутреннюю подтверждённую причину;
-- `unknown` – данных недостаточно для классификации;
-- `not_in_clan` – игрок не состоял в клане в применимый период события.
-
-Окончательный формат, значения статусов и правила дедупликации утверждаются после проверки источника данных.
 
 ## Границы хранения
 

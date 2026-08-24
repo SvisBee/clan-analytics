@@ -277,12 +277,12 @@
     },
     {
       "attacks_available": 18,
-      "attacks_used": 16,
-      "average_stars": 2.5,
+      "attacks_used": 17,
+      "average_stars": 2.53,
       "last_war_date": "2026-08-25",
-      "new_stars_contributed": 36,
+      "new_stars_contributed": 39,
       "nickname": "Али",
-      "stars_earned": 40,
+      "stars_earned": 43,
       "war_participations": 9
     },
     {
@@ -325,11 +325,11 @@
   "schema_version": 2,
   "wars": [
     {
-      "attack_stars_total": 0,
+      "attack_stars_total": 3,
       "attacks_available": 20,
       "attacks_per_member": 2,
-      "attacks_used": 0,
-      "clan_stars": 0,
+      "attacks_used": 1,
+      "clan_stars": 3,
       "end_time": "2026-08-25",
       "lifecycle_status": "active",
       "members": [
@@ -345,11 +345,11 @@
         },
         {
           "attacks_available": 2,
-          "attacks_used": 0,
-          "average_stars": null,
-          "new_stars_contributed": 0,
+          "attacks_used": 1,
+          "average_stars": 3.0,
+          "new_stars_contributed": 3,
           "nickname": "Али",
-          "stars_earned": 0,
+          "stars_earned": 3,
           "town_hall_level": 9,
           "war_position": 2
         },
@@ -437,8 +437,8 @@
       "new_stars_contribution_status": "available",
       "participants": 10,
       "reconciliation_status": "not_reconciled",
-      "stars_consistency_status": "unavailable",
-      "state": "preparation",
+      "stars_consistency_status": "consistent",
+      "state": "inWar",
       "team_size": 10
     },
     {

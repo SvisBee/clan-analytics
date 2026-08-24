@@ -5,7 +5,7 @@
   },
   "composition": {
     "members_with_limited_composition_data": 0,
-    "total_members": 21,
+    "total_members": 20,
     "town_hall_distribution": [
       {
         "members": 1,
@@ -20,7 +20,7 @@
         "town_hall_level": 10
       },
       {
-        "members": 11,
+        "members": 10,
         "town_hall_level": 9
       },
       {
@@ -34,18 +34,6 @@
     ]
   },
   "members": [
-    {
-      "attacks_available": 18,
-      "attacks_used": 16,
-      "average_stars": 2.88,
-      "clan_role": "member",
-      "data_status": "available",
-      "last_war_date": "2026-08-23",
-      "nickname": "SvisBuha",
-      "stars_earned": 46,
-      "town_hall_level": 9,
-      "war_participations": 9
-    },
     {
       "attacks_available": 24,
       "attacks_used": 18,
@@ -323,7 +311,7 @@
     }
   ],
   "war_data_coverage": {
-    "members_with_data": 15,
+    "members_with_data": 14,
     "members_without_data": 6
   }
 }

@@ -48,7 +48,7 @@ War log может подтвердить завершение и официал
 operator-confirmed event registry
 → active-event lookup
 → official player profile / Games Champion
-→ будущая local observation SQLite
+→ local event-scoped observation SQLite
 → расчёт показателей
 → публичная безопасная выгрузка
 → статический сайт
@@ -56,9 +56,11 @@ operator-confirmed event registry
 
 Source validation подтвердила official-derived lifetime cumulative candidate `Games Champion` в official player profile. Phase 1 reusable client/normalizer реализована, но не подключена к hourly updater. Phase 2 реализовала local-only schema-v1 registry конкретных событий по пути `data/clan_games/event_registry.v1.json`. Registry создаётся и наполняется только explicit operator action, требует exact start/end и query-free HTTPS source на доказанном host `supercell.com`, не содержит recurrence или cap и не fetch-ит source URL автоматически. Production event в implementation-фазе не зарегистрирован.
 
-`player_tag` – основной устойчивый идентификатор будущих observations. Публичные и внутренние поля формируются раздельно: identity и provenance registry не становятся public автоматически.
+`player_tag` – основной устойчивый идентификатор observations. Публичные и внутренние поля формируются раздельно: identity и provenance registry/storage не становятся public автоматически.
 
-Event status вычисляется от timezone-aware `as_of`; `start <= as_of < end` означает active. Overlap запрещён, touching boundaries разрешены, ended records сохраняются. Explicit replacement требует validated local backup и atomic replace. Observation SQLite, collector, scheduling, public projection и frontend остаются следующими отдельными фазами.
+Event status вычисляется от timezone-aware `as_of`; `start <= as_of < end` означает active. Overlap запрещён, touching boundaries разрешены, ended records сохраняются. Explicit replacement требует validated local backup и atomic replace.
+
+Phase 3 добавила отдельную local-only SQLite authority schema v1 по логическому пути `data/clan_games/clan_games.v1.sqlite3`. Она сохраняет immutable snapshots точного event definition, атомарные scan batches `baseline`/`periodic`/`final` и один success/failed/skipped result для каждой requested private identity. Exact retry дедуплицируется по canonical scan fingerprint, конфликтующий `scan_id` и регрессирующая chronology fail closed. Storage не выполняет API requests и не вычисляет event points. Production DB в implementation-фазе не создавалась. Collector, event-only scheduling, derived points, public projection и frontend остаются следующими отдельными фазами.
 
 Предыдущий CSV draft не является production authority. Актуальный registry contract:
 

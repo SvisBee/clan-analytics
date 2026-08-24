@@ -16,7 +16,7 @@
 8. **collection_reliability_v1** – завершён: наблюдаемость, lifecycle и безопасная диагностика регулярного сбора подтверждены естественным scheduled run.
 9. **clan_snapshot_history_v1** – завершён: production schema v1 прошла read-only validation, successful normal runs сопоставлены с hourly observations, payload dedup и derived membership events подтверждены; public projection, backfill и retention остаются отдельными будущими задачами.
 10. **donations_weekly_v1** - завершён: deterministic weekly derivation, read-only snapshot adapter, current-roster public projection, builder publication, frontend и первый natural scheduled run после frontend deployment подтверждены.
-11. **clan_games_v1** – source validation и Phase 1 official player source реализованы; Phase 2 operator-confirmed event registry реализована; observation storage pending.
+11. **clan_games_v1** – source validation, Phase 1 official player source, Phase 2 operator-confirmed event registry и Phase 3 local player observation storage реализованы; collector pending.
 12. **cwl_history_v1** – отделить историю ЛВК от обычных КВ.
 13. **capital_raids_v1** – добавить историю рейдовых выходных.
 14. **leadership_tools_v1** – спроектировать локальные, непубличные инструменты руководства.
@@ -40,7 +40,7 @@
 
 Контракт состава реализован для текущего live public roster. Он остаётся основой allowlist и не заменяет будущую roster lifecycle history.
 
-Fail-closed probes и unified updater прошли live validation. Clan War History v1, collection_reliability_v1, clan_snapshot_history_v1 и donations_weekly_v1 закрыты. Для `clan_games_v1` source validation, Phase 1 official player client/normalizer и Phase 2 local event registry завершены; следующий отдельный этап - observation storage. Production event не зарегистрирован, player client не подключён к hourly updater.
+Fail-closed probes и unified updater прошли live validation. Clan War History v1, collection_reliability_v1, clan_snapshot_history_v1 и donations_weekly_v1 закрыты. Для `clan_games_v1` source validation, Phase 1 official player client/normalizer, Phase 2 local event registry и Phase 3 separate observation SQLite завершены; следующий отдельный этап - bounded collector. Production event и production Clan Games DB не созданы, player client не подключён к hourly updater.
 
 Инженерная готовность дополнена project-local skills и правилами reuse-first/minimal diff. Strix readiness подготовлен документально, но остаётся неактивным: установка, выполнение и CI не выполнялись. Реальный security scan рассматривается только после появления backend, API или другого динамического attack surface и после отдельных разрешений на инструмент, runtime, LLM, сеть, target, mode, команду и обработку результатов.
 

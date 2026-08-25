@@ -2,13 +2,13 @@
 
 Проект аналитики клана Clash of Clans с публикацией только подготовленной публичной части как статического сайта.
 
-**Текущий статус:** `Clan War History v1 completed; collection reliability v1 completed; clan snapshot history v1 completed; donations weekly v1 completed; clan_games_v1 Phase 3 observation storage implemented`. Следующая фаза: bounded collector.
+**Текущий статус:** `Clan War History v1 completed; collection reliability v1 completed; clan snapshot history v1 completed; donations weekly v1 completed; clan_games_v1 Phase 4 bounded collector implemented`. Следующая фаза: event scheduling.
 
 Официальный Clash of Clans API подключён локально через три fail-closed probe: текущий состав, current war и war log. Подготовленные публичные данные публикуются на GitHub Pages, а отключаемый Windows Scheduled Task выполняет unified updater каждый час и при входе пользователя. Raw responses, стабильные игровые tags, token и подробная внутренняя history остаются вне Git.
 
 Текущий публичный сайт использует реальные данные состава, текущей войны, накопленной истории обычных КВ и подтверждённые минимальные недельные показатели пожертвований для текущего состава. Schema v2, immutable observations, reconciliation, manual evidence для первых двух старых войн и восстановленные public player metrics завершены. Рейтинг игроков и рекомендации состава не реализованы.
 
-Будущие модули охватывают дальнейшие метрики обычных КВ, ЛВК, рейды и Игры кланов. Недельные пожертвования v1 уже реализованы как подтверждённый минимум по накопленным snapshots. Для Игр кланов подтверждён official-derived source: reusable Phase 1 client извлекает lifetime cumulative `Games Champion` из player profile, но ещё не подключён к updater. Phase 2 добавила local-only operator-confirmed event registry, а Phase 3 добавила отдельный versioned SQLite store для immutable event-scoped scans и player observations. Production event и production DB ещё не созданы; collector, derived points, public projection и frontend не реализованы.
+Будущие модули охватывают дальнейшие метрики обычных КВ, ЛВК, рейды и Игры кланов. Недельные пожертвования v1 уже реализованы как подтверждённый минимум по накопленным snapshots. Для Игр кланов подтверждён official-derived source: reusable Phase 1 client извлекает lifetime cumulative `Games Champion` из player profile. Phase 2 добавила local-only operator-confirmed event registry, Phase 3 добавила отдельный versioned SQLite store, а Phase 4 добавила standalone bounded collector. Production event и production DB ещё не созданы; collector не запланирован, не подключён к updater и не выполнялся против real player API. Derived points, public projection и frontend не реализованы.
 
 Публичный прототип развивается последовательно: информационная страница → состав клана → базовые карточки игроков → обычные КВ → метрики атак и рекомендации состава → остальные модули. Публичный сайт содержит только явно разрешённые поля. Личные и управленческие заметки остаются локально в исключённой области `D:\coc\data` и не попадают в Git, Codebase Memory, Obsidian или GitHub Pages.
 
@@ -50,7 +50,7 @@ Strix исследован только на уровне readiness-докуме
 
 Контракт внутренней модели и публичного allowlist описан в [docs/roster_data_contract.md](docs/roster_data_contract.md). `site/data/roster.json` генерируется из live snapshot и не содержит `player_tag`.
 
-Источник состава уже выбран: локальные fail-closed probes официального API. Для `clan_games_v1` source validation, Phase 1 player client/normalizer, Phase 2 event registry и Phase 3 observation storage завершены; следующий отдельный этап ограничен bounded collector. Подробности: [docs/clan_games.md](docs/clan_games.md).
+Источник состава уже выбран: локальные fail-closed probes официального API. Для `clan_games_v1` source validation, Phase 1 player client/normalizer, Phase 2 event registry, Phase 3 observation storage и Phase 4 bounded collector завершены; следующий отдельный этап ограничен event scheduling. Подробности: [docs/clan_games.md](docs/clan_games.md).
 
 План первого раунда, вопросы и реестр предложений: [docs/clan_feedback_round_1.md](docs/clan_feedback_round_1.md).
 

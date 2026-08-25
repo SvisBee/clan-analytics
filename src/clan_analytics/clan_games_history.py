@@ -1168,6 +1168,28 @@ def list_scan_summaries(
         connection.close()
 
 
+def get_scan_by_id(path: str | Path, scan_id: str) -> dict[str, Any] | None:
+    """Return one identity-free scan summary for an operational retry gate."""
+
+    if not isinstance(scan_id, str) or not _SCAN_ID_PATTERN.fullmatch(scan_id):
+        raise ClanGamesStoreError("invalid_scan", "scan identity is invalid")
+    validate_clan_games_store(path)
+    connection = _readonly_connect(_safe_path(Path(path)))
+    try:
+        row = connection.execute(
+            "SELECT s.scan_id, s.event_id, s.scan_kind, s.started_at_utc, "
+            "s.finished_at_utc, s.requested_count, s.successful_count, "
+            "s.failed_count, s.skipped_count, s.status, s.result_code, "
+            "s.recorded_at_utc, (SELECT COUNT(*) FROM player_scan_result p "
+            "WHERE p.scan_id = s.scan_id AND p.attempted_at_utc IS NOT NULL) "
+            "AS attempted_count FROM collection_scan s WHERE s.scan_id = ?",
+            (scan_id,),
+        ).fetchone()
+        return dict(row) if row is not None else None
+    finally:
+        connection.close()
+
+
 def load_event_player_observations(
     path: str | Path, event_id: str
 ) -> list[dict[str, Any]]:

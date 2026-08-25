@@ -1,6 +1,6 @@
 # Clan Games v1
 
-Статус: source validation пройдён; Phase 1 player source client/normalizer, Phase 2 operator-confirmed event registry и Phase 3 local player observation storage реализованы; collector, derived points, public projection и frontend остаются pending.
+Статус: source validation пройдён; Phase 1 player source client/normalizer, Phase 2 operator-confirmed event registry, Phase 3 local player observation storage и Phase 4 bounded collector реализованы; event scheduling, derived points, public projection и frontend остаются pending.
 
 ## Подтверждённый источник
 
@@ -40,7 +40,7 @@ fetch_games_champion(
 
 Network и pure normalization разделены. Default client переиспользует существующий `UrllibTransport`, официальный base URL, Bearer handling, запрет redirect/retry, timeout, лимит ответа, origin/content-type проверки, JSON parsing и token-echo guard.
 
-Один вызов `fetch_games_champion` выполняет не больше одного HTTP request. Retry, batch, concurrency и event lifecycle не принадлежат Phase 1 и остаются ответственностью будущего bounded collector.
+Один вызов `fetch_games_champion` выполняет не больше одного HTTP request. Retry, batch, concurrency и event lifecycle не принадлежат Phase 1. Phase 4 bounded collector оркестрирует batch без изменения этого source contract.
 
 ## Внутренняя модель
 
@@ -71,7 +71,7 @@ Network boundary фиксирует response-received time. Pure normalizer пр
 | `games_champion_invalid` | Matching achievement имеет невалидные required fields. |
 | `unexpected_error` | Непредвиденный безопасно редактированный сбой Phase 1 boundary. |
 
-`api_http_other` и `api_transport_failure` выбраны вместо новых синонимов `api_http_error` и `transport_error`, поскольку это уже используемые project result codes. Batch-stop для 403 будет реализован только в Phase 5; Phase 1 уже возвращает совместимый code и operator hint.
+`api_http_other` и `api_transport_failure` выбраны вместо новых синонимов `api_http_error` и `transport_error`, поскольку это уже используемые project result codes. Phase 4 collector использует explicit `api_http_403` как единственное systemic stop condition и возвращает operator hint `enable_approved_vpn`.
 
 ## Privacy и persistence
 
@@ -143,14 +143,14 @@ Commands:
 
 Production mode использует только фиксированный logical path. Arbitrary production `--path` отсутствует. `--test-registry` разрешён только для файла `event_registry.v1.json` внутри системного temp и предназначен для offline tests. CLI не выводит absolute registry path; для production показывается `data/clan_games/event_registry.v1.json`.
 
-Future collector contract:
+Future scheduler contract:
 
 ```python
 registry = load_event_registry(path)
 event = get_active_event(registry, now)
 ```
 
-Если `event is None`, будущий collector должен вернуть `no_active_event` без player requests. Если event активен, Phase 4 сможет выполнить bounded scan и записать его через Phase 3 storage. Registry предоставляет точные start/end boundaries, а наличие baseline/final определяется по сохранённым scans, а не mutable flags в registry.
+Если `event is None`, будущий scheduler не должен вызывать collector. Если event активен, scheduler передаёт exact immutable event, explicit scan kind и stable scan ID в Phase 4 collector. Registry предоставляет точные start/end boundaries, а наличие baseline/final определяется по сохранённым scans, а не mutable flags в registry.
 
 ## Local observation storage Phase 3
 
@@ -160,7 +160,7 @@ event = get_active_event(registry, now)
 data/clan_games/clan_games.v1.sqlite3
 ```
 
-Она не смешивается с `data/clan_snapshot_history/clan_snapshot_history.v1.sqlite3`, не создаётся при import и не подключена к hourly updater. В Phase 3 production DB и каталог `data/clan_games` не создавались. Инициализация доступна только через explicit internal API `initialize_clan_games_store(path)`; production CLI пока отсутствует.
+Она не смешивается с `data/clan_snapshot_history/clan_snapshot_history.v1.sqlite3`, не создаётся при import и не подключена к hourly updater. В Phase 3 и Phase 4 production DB и каталог `data/clan_games` не создавались. Инициализация доступна через explicit internal API `initialize_clan_games_store(path)` и будущий valid first collector scan.
 
 SQLite connection включает `foreign_keys=ON`, bounded `busy_timeout=5000`, WAL и `synchronous=FULL`. Один future scan записывается одной `BEGIN IMMEDIATE` transaction: exact event definition snapshot, scan metadata и все player results либо commit-ятся вместе, либо полностью rollback-ятся. `partial_success` описывает domain coverage batch, а не частичную DB transaction. Automatic migration, restore, VACUUM, cleanup и retention отсутствуют.
 
@@ -185,7 +185,7 @@ SQLite connection включает `foreign_keys=ON`, bounded `busy_timeout=5000
 
 Fingerprint является SHA-256 stable UTF-8 JSON из пяти canonical event fields без `recorded_at_utc`. Exact definition дедуплицируется. Explicit correction registry создаёт новую definition с другим fingerprint; уже записанные scans продолжают ссылаться на прежнюю provenance. `event_id` поэтому намеренно не unique в definition table.
 
-`collection_scan` хранит opaque future collector `scan_id`, event/definition reference, `scan_kind`, start/finish, derived coverage counts, status/result code, local canonical fingerprint и `recorded_at_utc`. Разрешены только:
+`collection_scan` хранит opaque collector `scan_id`, event/definition reference, `scan_kind`, start/finish, derived coverage counts, status/result code, local canonical fingerprint и `recorded_at_utc`. Разрешены только:
 
 - `baseline` - cumulative observation до или около старта event;
 - `periodic` - обычный event-active scan;
@@ -217,7 +217,7 @@ Scan fingerprint включает definition fingerprint, scan metadata и playe
 
 `validate_clan_games_store` fail closed проверяет exact application tables, columns, types, nullability, primary/unique indexes, foreign keys, required indexes и CHECK constraints. Затем проверяются metadata, SQLite integrity/FKs, canonical timestamps, event/definition identity, fingerprints, coverage counts, status/result shapes, chronology и отсутствие orphan/empty identities. Unknown schema version не мигрируется автоматически.
 
-Future derivation может использовать internal read APIs для deterministic scan summaries, latest/kind scans и private player observations с coverage evidence. Отдельная aggregate summary возвращает только counts и earliest/latest scan без identities.
+Future derivation может использовать internal read APIs для deterministic scan summaries, latest/kind scans и private player observations с coverage evidence. Отдельная aggregate summary возвращает только counts и earliest/latest scan без identities. Narrow `get_scan_by_id` возвращает identity-free summary и используется collector до token/network для безопасного operational retry.
 
 `create_validated_clan_games_backup` создаёт standalone rollback-journal backup через SQLite backup API, временный файл и atomic replace. Source и candidate backup проходят strict validation; default collision fail closed, а explicit overwrite сохраняет прежний destination до успешной проверки replacement. Helper не вызывается перед обычным scan и не выполняет restore автоматически.
 
@@ -225,14 +225,43 @@ Future derivation может использовать internal read APIs для 
 
 DB содержит private tags, cumulative achievement values и event provenance, поэтому остаётся вне Git, Pages, Codebase Memory и permanent run artifacts. Raw player profiles, display names, tokens, public/hash identities и API transport data не сохраняются. Storage принимает normalized `GamesChampionSnapshot` или safe failed/skipped models и не импортирует HTTP transport.
 
-Phase 3 не выполняет player API requests, не создаёт collector или event scheduling, не меняет request count hourly updater и не создаёт public JSON. `event_points`, delta, clan total и cap progress отсутствуют: отдельная derived phase сможет считать их только после валидных baseline/final observations.
+Phase 3 не выполняет player API requests или event scheduling, не меняет request count hourly updater и не создаёт public JSON. `event_points`, delta, clan total и cap progress отсутствуют: отдельная derived phase сможет считать их только после валидных baseline/final observations.
+
+## Bounded event player collector Phase 4
+
+Production orchestration находится в `src/clan_analytics/clan_games_collector.py`. Один explicit вызов принимает validated `ClanGamesEvent`, `scan_id` и один из `baseline`, `periodic`, `final`. Core не выбирает active event, не создаёт random ID и не планирует следующий запуск. Standalone CLI `scripts/clan_games/collect_games_champion.py` требует `--event-id`, `--scan-id`, `--scan-kind`, допускает `--max-workers` только от 1 до 8 и использует фиксированные production paths. PowerShell boundary `scripts/clan_games/run_games_champion_collector.ps1` выполняет local preflight до DPAPI access и передаёт token только через process-local `COC_API_TOKEN`; `--token` не поддерживается.
+
+### Current roster и request ownership
+
+`read_current_roster_identities` строго валидирует `data/clan_snapshot_history/clan_snapshot_history.v1.sqlite3`, открывает его в `mode=ro`, выбирает последний `confirmed` observation и читает только exact private tags из соответствующего `member_state`. Display names не читаются. Identity set сортируется, пустой roster, invalid store и размер больше 50 fail closed. Ушедшие игроки из более старых payload не запрашиваются, но их прежние Clan Games observations не удаляются. Дополнительный clan-profile request отсутствует.
+
+Каждая current identity получает не больше одного Phase 1 player request с timeout 15 секунд и без retry. Default concurrency равна 4, hard maximum равен 8. Очередь заполняется инкрементально не более чем до worker bound. Completion order не влияет на canonical порядок player rows.
+
+### Failure и atomic scan semantics
+
+Первый explicit `api_http_403` прекращает scheduling новых requests. Уже выполняющиеся requests завершаются, а never-started identities записываются как `skipped_after_systemic_failure`; safe result получает `enable_approved_vpn`. Другие typed player failures и unexpected client exceptions становятся bounded failed rows и не останавливают batch. Zero fill отсутствует.
+
+После завершения in-flight requests collector формирует весь `ClanGamesScan` в памяти, сортирует results по private tag и вызывает `record_clan_games_scan` ровно один раз. All success даёт `success/success`; смешанный независимый batch даёт `partial_success/partial_player_failures`; explicit 403 сохраняет код `api_http_403`; zero successes без 403 даёт `failed/all_player_requests_failed`. Partial scan является usable observation, поэтому CLI возвращает process exit 0 для `success`, `partial_success` и `already_recorded`; failed local/source/storage result возвращает 1.
+
+Safe collector result содержит только scan/event/kind, status/result code, requested/attempted/success/failed/skipped counts, duration, record/init flags, optional operator hint и logical DB path. Tags, names, per-player values, fingerprints, raw profiles, token и private paths отсутствуют.
+
+### Timing, initialization и retry
+
+- `baseline`: scan start не позже event start; equality разрешена;
+- `periodic`: `event.start <= scan start < event.end`;
+- `final`: scan start не раньше event end; equality разрешена.
+
+Rejected timing, invalid/missing/empty roster и invalid configuration завершаются до player requests. Baseline после event start не превращается в fake baseline; для уже начавшегося event возможны только valid periodic observations, а future derivation должна пометить отсутствие baseline как partial coverage.
+
+CLI загружает production registry, требует exact event ID и не выбирает first/active event автоматически. После registry/event, timing, roster и token-boundary preconditions отсутствующий store может быть явно инициализирован перед network batch. Production registry и store этой implementation-фазой не создавались.
+
+Если `scan_id` уже записан, identity-free lookup возвращает `no_change/already_recorded` до roster, token и network. Если storage write не состоялся, pending response cache отсутствует: retry того же ID повторит network и новые response timestamps могут конфликтовать с ранее неизвестной внешней authority. Future scheduler не должен слепо повторять ID после неопределённого write outcome без отдельной reconciliation policy.
 
 ## Что ещё не реализовано
 
-- event-only bounded collector;
-- health aggregation и partial batch;
+- event scheduling и health integration;
 - production cumulative delta model;
 - public projection и frontend;
 - real-event baseline/intermediate/final validation.
 
-Future cadence recommendation остаётся: только во время подтверждённого event каждые 6 часов, обязательный pre-event baseline и post-event final scan. Recurring dates и cap нельзя угадывать или hardcode. Реализация cadence и collector относится к Phase 4.
+Future cadence recommendation остаётся: только во время подтверждённого event каждые 6 часов, обязательный pre-event baseline и post-event final scan. Recurring dates и cap нельзя угадывать или hardcode. Реализация cadence относится к следующей scheduling phase; Phase 4 collector остаётся standalone и не подключён к hourly updater или Scheduled Task.

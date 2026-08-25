@@ -13,14 +13,19 @@
         "stale_end_snapshot": false,
         "stale_player_count": 0
       },
-      "donations": 3150,
-      "donations_received": 2013,
+      "donations": 3336,
+      "donations_received": 2199,
       "participant_count": 42,
       "players": [
         {
           "donations": 438,
           "donations_received": 67,
           "nickname": "Арче"
+        },
+        {
+          "donations": 404,
+          "donations_received": 510,
+          "nickname": "SvisBee"
         },
         {
           "donations": 397,
@@ -33,11 +38,6 @@
           "nickname": "FRENI"
         },
         {
-          "donations": 332,
-          "donations_received": 449,
-          "nickname": "SvisBee"
-        },
-        {
           "donations": 300,
           "donations_received": 234,
           "nickname": "MiKiRi"
@@ -48,14 +48,14 @@
           "nickname": "сява"
         },
         {
+          "donations": 246,
+          "donations_received": 32,
+          "nickname": "Саша Саша"
+        },
+        {
           "donations": 227,
           "donations_received": 208,
           "nickname": "Kedr"
-        },
-        {
-          "donations": 132,
-          "donations_received": 1,
-          "nickname": "Саша Саша"
         },
         {
           "donations": 114,
@@ -89,7 +89,7 @@
         },
         {
           "donations": 34,
-          "donations_received": 186,
+          "donations_received": 280,
           "nickname": "Али"
         },
         {

@@ -13,8 +13,8 @@
         "stale_end_snapshot": false,
         "stale_player_count": 0
       },
-      "donations": 3057,
-      "donations_received": 1920,
+      "donations": 3150,
+      "donations_received": 2013,
       "participant_count": 42,
       "players": [
         {
@@ -53,6 +53,11 @@
           "nickname": "Kedr"
         },
         {
+          "donations": 132,
+          "donations_received": 1,
+          "nickname": "Саша Саша"
+        },
+        {
           "donations": 114,
           "donations_received": 180,
           "nickname": "Fyst"
@@ -63,19 +68,14 @@
           "nickname": "Alexvils"
         },
         {
-          "donations": 71,
-          "donations_received": 0,
-          "nickname": "Саша Саша"
+          "donations": 83,
+          "donations_received": 155,
+          "nickname": "Anarbek"
         },
         {
           "donations": 61,
           "donations_received": 1,
           "nickname": "wss"
-        },
-        {
-          "donations": 52,
-          "donations_received": 155,
-          "nickname": "Anarbek"
         },
         {
           "donations": 50,
@@ -88,8 +88,8 @@
           "nickname": "VB(;"
         },
         {
-          "donations": 33,
-          "donations_received": 125,
+          "donations": 34,
+          "donations_received": 186,
           "nickname": "Али"
         },
         {
@@ -134,6 +134,11 @@
         },
         {
           "donations": 0,
+          "donations_received": 32,
+          "nickname": "govnozhuy"
+        },
+        {
+          "donations": 0,
           "donations_received": 25,
           "nickname": "Mr.killer"
         },
@@ -141,11 +146,6 @@
           "donations": 0,
           "donations_received": 20,
           "nickname": "Ronnurik"
-        },
-        {
-          "donations": 0,
-          "donations_received": 1,
-          "nickname": "govnozhuy"
         },
         {
           "donations": 0,

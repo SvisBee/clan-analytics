@@ -1,6 +1,6 @@
 {
-  "generated_at_utc": "2026-08-25T11:00:05.717877Z",
-  "latest_observed_at_utc": "2026-08-25T10:00:07.329722Z",
+  "generated_at_utc": "2026-08-25T12:00:05.989593Z",
+  "latest_observed_at_utc": "2026-08-25T11:00:05.717877Z",
   "metric_semantics": "confirmed_lower_bound",
   "schema_version": 1,
   "scope": "current_roster",
@@ -9,8 +9,8 @@
     {
       "boundary_ambiguous": true,
       "contributing_player_count": 10,
-      "donations_confirmed": 294,
-      "donations_received_confirmed": 290,
+      "donations_confirmed": 325,
+      "donations_received_confirmed": 321,
       "gap_affected": true,
       "is_current": true,
       "participant_count": 34,
@@ -26,9 +26,17 @@
         {
           "boundary_ambiguous": true,
           "donations_confirmed": 61,
-          "donations_received_confirmed": 30,
+          "donations_received_confirmed": 61,
           "gap_affected": true,
           "nickname": "SvisBee",
+          "reset_affected": false
+        },
+        {
+          "boundary_ambiguous": false,
+          "donations_confirmed": 61,
+          "donations_received_confirmed": 0,
+          "gap_affected": false,
+          "nickname": "wss",
           "reset_affected": false
         },
         {
@@ -53,14 +61,6 @@
           "donations_received_confirmed": 20,
           "gap_affected": true,
           "nickname": "Alexvils",
-          "reset_affected": false
-        },
-        {
-          "boundary_ambiguous": false,
-          "donations_confirmed": 30,
-          "donations_received_confirmed": 0,
-          "gap_affected": false,
-          "nickname": "wss",
           "reset_affected": false
         },
         {

@@ -13,9 +13,9 @@
         "stale_end_snapshot": false,
         "stale_player_count": 0
       },
-      "donations": 2949,
-      "donations_received": 1807,
-      "participant_count": 40,
+      "donations": 2980,
+      "donations_received": 1843,
+      "participant_count": 42,
       "players": [
         {
           "donations": 438,
@@ -58,13 +58,18 @@
           "nickname": "Fyst"
         },
         {
+          "donations": 71,
+          "donations_received": 0,
+          "nickname": "Саша Саша"
+        },
+        {
           "donations": 61,
           "donations_received": 1,
           "nickname": "wss"
         },
         {
           "donations": 52,
-          "donations_received": 93,
+          "donations_received": 124,
           "nickname": "Anarbek"
         },
         {
@@ -76,11 +81,6 @@
           "donations": 42,
           "donations_received": 130,
           "nickname": "VB(;"
-        },
-        {
-          "donations": 40,
-          "donations_received": 0,
-          "nickname": "Саша Саша"
         },
         {
           "donations": 33,
@@ -124,7 +124,7 @@
         },
         {
           "donations": 1,
-          "donations_received": 15,
+          "donations_received": 20,
           "nickname": "Kohan"
         },
         {
@@ -171,6 +171,16 @@
           "donations": 0,
           "donations_received": 0,
           "nickname": "iTeeshka"
+        },
+        {
+          "donations": 0,
+          "donations_received": 0,
+          "nickname": "Jako"
+        },
+        {
+          "donations": 0,
+          "donations_received": 0,
+          "nickname": "KING"
         },
         {
           "donations": 0,
@@ -229,7 +239,7 @@
       "contributing_player_count": 13,
       "coverage": {
         "insufficient_data": true,
-        "missing_player_count": 24,
+        "missing_player_count": 26,
         "reset_observed": false,
         "stale_end_snapshot": false,
         "stale_player_count": 0

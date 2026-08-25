@@ -1,10 +1,14 @@
 {
   "data_status": "available",
   "date_range": {
-    "newest": "2026-08-23",
+    "newest": "2026-08-25",
     "oldest": "2026-07-17"
   },
   "result_distribution": [
+    {
+      "result": "lose",
+      "wars": 1
+    },
     {
       "result": "tie",
       "wars": 2
@@ -17,7 +21,7 @@
   "team_size_distribution": [
     {
       "team_size": 10,
-      "wars": 2
+      "wars": 3
     },
     {
       "team_size": 15,
@@ -28,5 +32,5 @@
       "wars": 1
     }
   ],
-  "wars_observed": 11
+  "wars_observed": 12
 }

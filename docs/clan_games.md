@@ -1,6 +1,6 @@
 # Clan Games v1
 
-Статус: source validation пройдён; Phase 1 player source client/normalizer, Phase 2 operator-confirmed event registry, Phase 3 local player observation storage и Phase 4 bounded collector реализованы; event scheduling, derived points, public projection и frontend остаются pending.
+Статус: source validation пройдён; Phase 1 player source, Phase 2 event registry, Phase 3 observation storage, Phase 4 bounded collector и Phase 5 event scheduler/health реализованы. Production event и DB ещё отсутствуют; derived points, public projection и frontend остаются pending.
 
 ## Подтверждённый источник
 
@@ -150,7 +150,7 @@ registry = load_event_registry(path)
 event = get_active_event(registry, now)
 ```
 
-Если `event is None`, будущий scheduler не должен вызывать collector. Если event активен, scheduler передаёт exact immutable event, explicit scan kind и stable scan ID в Phase 4 collector. Registry предоставляет точные start/end boundaries, а наличие baseline/final определяется по сохранённым scans, а не mutable flags в registry.
+Если registry отсутствует, scheduler не вызывает collector. Если event actionable, scheduler передаёт exact immutable event ID, explicit scan kind и stable scan ID в Phase 4 collector. Registry предоставляет точные start/end boundaries, а наличие baseline/final определяется по сохранённым scans, а не mutable flags в registry.
 
 ## Local observation storage Phase 3
 
@@ -257,11 +257,32 @@ CLI загружает production registry, требует exact event ID и н�
 
 Если `scan_id` уже записан, identity-free lookup возвращает `no_change/already_recorded` до roster, token и network. Если storage write не состоялся, pending response cache отсутствует: retry того же ID повторит network и новые response timestamps могут конфликтовать с ранее неизвестной внешней authority. Future scheduler не должен слепо повторять ID после неопределённого write outcome без отдельной reconciliation policy.
 
+## Event scheduler и health Phase 5
+
+Pure policy находится в `src/clan_analytics/clan_games_schedule.py`. Она принимает validated registry, identity-free scan summaries и explicit timezone-aware clock. Решение содержит не больше одного действия. Scan ID детерминированно выводится из полного event ID, scan kind и canonical planned slot; повторное планирование того же slot получает тот же ID.
+
+Cadence равна 6 часам:
+
+- baseline slot находится в `event.start - 6h`; due window включает interval от slot до exact start;
+- exact start всё ещё разрешает отсутствующий baseline, но после start baseline не подделывается и фиксируется `baseline_missed`;
+- active periodic выбирает только последний наступивший `start + N * 6h` slot, без catch-up burst;
+- final становится due в exact end или позже;
+- missing final старого event не запускается после начала более нового registered event.
+
+Приоритет одного run: active periodic, затем upcoming baseline, затем latest relevant final. Существующий scan ID делает решение idempotent. Definition mismatch, overlapping active events, invalid clock и ambiguous stored identity fail closed как `schedule_conflict`.
+
+Read-only planner `scripts/clan_games/plan_clan_games_scan.py` не читает token или roster. Если `data/clan_games/event_registry.v1.json` отсутствует, он возвращает `no_event_registry` с exit 0 и не создаёт directory или DB.
+
+Runtime `scripts/clan_games/run_clan_games_scheduler.ps1` использует собственный workspace-scoped mutex. Site updater mutex проверяется только как короткий exclusion gate и не удерживается во время batch. Busy site updater даёт bounded warning `workspace_busy` без planner, token или API. Due action вызывает существующий Phase 4 PowerShell collector ровно один раз; no-due action collector не вызывает.
+
+Health хранится отдельно в `local/health/clan_games`: `latest-run.json`, `last-scan-success.json`, `latest-failure.json` и optional `latest-warning.json`. Запись atomic, schema versioned и identity-free относительно игроков. Operator command `scripts/clan_games/show_clan_games_health.ps1` поддерживает human и JSON output и спокойно обрабатывает отсутствующий health.
+
+Dedicated task `Clash Clan Analytics - Clan Games Collector` запускает только Clan Games scheduler каждый час около `XX:20` и при logon. Contract использует current interactive user, Limited run level, `IgnoreNew`, network gate, `StartWhenAvailable`, wake и bounded 20-minute execution limit. Он не меняет task `Clash Clan Analytics - Hourly Update`.
+
 ## Что ещё не реализовано
 
-- event scheduling и health integration;
 - production cumulative delta model;
 - public projection и frontend;
 - real-event baseline/intermediate/final validation.
 
-Future cadence recommendation остаётся: только во время подтверждённого event каждые 6 часов, обязательный pre-event baseline и post-event final scan. Recurring dates и cap нельзя угадывать или hardcode. Реализация cadence относится к следующей scheduling phase; Phase 4 collector остаётся standalone и не подключён к hourly updater или Scheduled Task.
+Recurring dates и cap нельзя угадывать или hardcode. Scheduler действует только по operator-confirmed registry. До появления production registry его normal result равен `no_event_registry`, а token/API/DB остаются нетронутыми.

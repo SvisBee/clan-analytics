@@ -71,21 +71,21 @@
       "war_participations": 2
     },
     {
-      "attacks_available": 16,
+      "attacks_available": 18,
       "attacks_used": 8,
       "average_stars": 2.5,
-      "last_war_date": "2026-08-25",
+      "last_war_date": "2026-08-27",
       "new_stars_contributed": 18,
       "nickname": "Fyst",
       "stars_earned": 20,
-      "war_participations": 8
+      "war_participations": 9
     },
     {
-      "attacks_available": 24,
+      "attacks_available": 26,
       "attacks_used": 20,
       "average_stars": 2.7,
       "data_status": "available",
-      "last_war_date": "2026-08-25",
+      "last_war_date": "2026-08-27",
       "manual_attacks_used": 3,
       "manual_stars_earned": 8,
       "manual_war_participations": 1,
@@ -94,14 +94,14 @@
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "Kedr",
       "stars_earned": 54,
-      "war_participations": 12
+      "war_participations": 13
     },
     {
-      "attacks_available": 24,
+      "attacks_available": 26,
       "attacks_used": 15,
       "average_stars": 2.93,
       "data_status": "available",
-      "last_war_date": "2026-08-25",
+      "last_war_date": "2026-08-27",
       "manual_attacks_used": 2,
       "manual_stars_earned": 6,
       "manual_war_participations": 1,
@@ -110,7 +110,17 @@
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "kent",
       "stars_earned": 44,
-      "war_participations": 12
+      "war_participations": 13
+    },
+    {
+      "attacks_available": 2,
+      "attacks_used": 0,
+      "average_stars": null,
+      "last_war_date": "2026-08-27",
+      "new_stars_contributed": 0,
+      "nickname": "Kohan",
+      "stars_earned": 0,
+      "war_participations": 1
     },
     {
       "attacks_available": 4,
@@ -133,14 +143,14 @@
       "war_participations": 7
     },
     {
-      "attacks_available": 10,
+      "attacks_available": 12,
       "attacks_used": 8,
       "average_stars": 2.0,
-      "last_war_date": "2026-08-25",
+      "last_war_date": "2026-08-27",
       "new_stars_contributed": 15,
       "nickname": "MiKiRi",
       "stars_earned": 16,
-      "war_participations": 5
+      "war_participations": 6
     },
     {
       "attacks_available": 2,
@@ -209,11 +219,11 @@
       "war_participations": 1
     },
     {
-      "attacks_available": 20,
+      "attacks_available": 22,
       "attacks_used": 18,
       "average_stars": 2.94,
       "data_status": "available",
-      "last_war_date": "2026-08-23",
+      "last_war_date": "2026-08-27",
       "manual_attacks_used": 2,
       "manual_stars_earned": 6,
       "manual_war_participations": 1,
@@ -222,7 +232,7 @@
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "SvisBee",
       "stars_earned": 53,
-      "war_participations": 10
+      "war_participations": 11
     },
     {
       "attacks_available": 18,
@@ -250,11 +260,11 @@
       "war_participations": 4
     },
     {
-      "attacks_available": 24,
+      "attacks_available": 26,
       "attacks_used": 19,
       "average_stars": 2.79,
       "data_status": "available",
-      "last_war_date": "2026-08-25",
+      "last_war_date": "2026-08-27",
       "manual_attacks_used": 2,
       "manual_stars_earned": 6,
       "manual_war_participations": 1,
@@ -263,7 +273,7 @@
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "VB(;",
       "stars_earned": 53,
-      "war_participations": 12
+      "war_participations": 13
     },
     {
       "attacks_available": 6,
@@ -276,41 +286,81 @@
       "war_participations": 3
     },
     {
-      "attacks_available": 18,
+      "attacks_available": 20,
       "attacks_used": 18,
       "average_stars": 2.56,
-      "last_war_date": "2026-08-25",
+      "last_war_date": "2026-08-27",
       "new_stars_contributed": 42,
       "nickname": "Али",
       "stars_earned": 46,
-      "war_participations": 9
-    },
-    {
-      "attacks_available": 20,
-      "attacks_used": 15,
-      "average_stars": 2.8,
-      "last_war_date": "2026-08-25",
-      "new_stars_contributed": 34,
-      "nickname": "кума88",
-      "stars_earned": 42,
       "war_participations": 10
     },
     {
-      "attacks_available": 6,
+      "attacks_available": 2,
+      "attacks_used": 0,
+      "average_stars": null,
+      "last_war_date": "2026-08-27",
+      "new_stars_contributed": 0,
+      "nickname": "Дилмурат",
+      "stars_earned": 0,
+      "war_participations": 1
+    },
+    {
+      "attacks_available": 22,
+      "attacks_used": 15,
+      "average_stars": 2.8,
+      "last_war_date": "2026-08-27",
+      "new_stars_contributed": 34,
+      "nickname": "кума88",
+      "stars_earned": 42,
+      "war_participations": 11
+    },
+    {
+      "attacks_available": 2,
+      "attacks_used": 0,
+      "average_stars": null,
+      "last_war_date": "2026-08-27",
+      "new_stars_contributed": 0,
+      "nickname": "Марк про 67",
+      "stars_earned": 0,
+      "war_participations": 1
+    },
+    {
+      "attacks_available": 2,
+      "attacks_used": 0,
+      "average_stars": null,
+      "last_war_date": "2026-08-27",
+      "new_stars_contributed": 0,
+      "nickname": "нурс",
+      "stars_earned": 0,
+      "war_participations": 1
+    },
+    {
+      "attacks_available": 2,
+      "attacks_used": 0,
+      "average_stars": null,
+      "last_war_date": "2026-08-27",
+      "new_stars_contributed": 0,
+      "nickname": "Саша Саша",
+      "stars_earned": 0,
+      "war_participations": 1
+    },
+    {
+      "attacks_available": 8,
       "attacks_used": 6,
       "average_stars": 2.5,
-      "last_war_date": "2026-08-25",
+      "last_war_date": "2026-08-27",
       "new_stars_contributed": 15,
       "nickname": "сява",
       "stars_earned": 15,
-      "war_participations": 3
+      "war_participations": 4
     },
     {
-      "attacks_available": 12,
+      "attacks_available": 14,
       "attacks_used": 8,
       "average_stars": 2.75,
       "data_status": "available",
-      "last_war_date": "2026-08-25",
+      "last_war_date": "2026-08-27",
       "manual_attacks_used": 1,
       "manual_stars_earned": 3,
       "manual_war_participations": 1,
@@ -319,11 +369,178 @@
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "шкура",
       "stars_earned": 22,
-      "war_participations": 6
+      "war_participations": 7
     }
   ],
   "schema_version": 2,
   "wars": [
+    {
+      "attack_stars_total": 0,
+      "attacks_available": 30,
+      "attacks_per_member": 2,
+      "attacks_used": 0,
+      "clan_stars": 0,
+      "end_time": "2026-08-27",
+      "lifecycle_status": "active",
+      "members": [
+        {
+          "attacks_available": 2,
+          "attacks_used": 0,
+          "average_stars": null,
+          "new_stars_contributed": 0,
+          "nickname": "кума88",
+          "stars_earned": 0,
+          "town_hall_level": 10,
+          "war_position": 1
+        },
+        {
+          "attacks_available": 2,
+          "attacks_used": 0,
+          "average_stars": null,
+          "new_stars_contributed": 0,
+          "nickname": "Саша Саша",
+          "stars_earned": 0,
+          "town_hall_level": 9,
+          "war_position": 2
+        },
+        {
+          "attacks_available": 2,
+          "attacks_used": 0,
+          "average_stars": null,
+          "new_stars_contributed": 0,
+          "nickname": "нурс",
+          "stars_earned": 0,
+          "town_hall_level": 9,
+          "war_position": 3
+        },
+        {
+          "attacks_available": 2,
+          "attacks_used": 0,
+          "average_stars": null,
+          "new_stars_contributed": 0,
+          "nickname": "Али",
+          "stars_earned": 0,
+          "town_hall_level": 9,
+          "war_position": 4
+        },
+        {
+          "attacks_available": 2,
+          "attacks_used": 0,
+          "average_stars": null,
+          "new_stars_contributed": 0,
+          "nickname": "Kedr",
+          "stars_earned": 0,
+          "town_hall_level": 9,
+          "war_position": 5
+        },
+        {
+          "attacks_available": 2,
+          "attacks_used": 0,
+          "average_stars": null,
+          "new_stars_contributed": 0,
+          "nickname": "kent",
+          "stars_earned": 0,
+          "town_hall_level": 9,
+          "war_position": 6
+        },
+        {
+          "attacks_available": 2,
+          "attacks_used": 0,
+          "average_stars": null,
+          "new_stars_contributed": 0,
+          "nickname": "SvisBee",
+          "stars_earned": 0,
+          "town_hall_level": 9,
+          "war_position": 7
+        },
+        {
+          "attacks_available": 2,
+          "attacks_used": 0,
+          "average_stars": null,
+          "new_stars_contributed": 0,
+          "nickname": "Дилмурат",
+          "stars_earned": 0,
+          "town_hall_level": 9,
+          "war_position": 8
+        },
+        {
+          "attacks_available": 2,
+          "attacks_used": 0,
+          "average_stars": null,
+          "new_stars_contributed": 0,
+          "nickname": "Kohan",
+          "stars_earned": 0,
+          "town_hall_level": 9,
+          "war_position": 9
+        },
+        {
+          "attacks_available": 2,
+          "attacks_used": 0,
+          "average_stars": null,
+          "new_stars_contributed": 0,
+          "nickname": "сява",
+          "stars_earned": 0,
+          "town_hall_level": 9,
+          "war_position": 10
+        },
+        {
+          "attacks_available": 2,
+          "attacks_used": 0,
+          "average_stars": null,
+          "new_stars_contributed": 0,
+          "nickname": "Марк про 67",
+          "stars_earned": 0,
+          "town_hall_level": 9,
+          "war_position": 11
+        },
+        {
+          "attacks_available": 2,
+          "attacks_used": 0,
+          "average_stars": null,
+          "new_stars_contributed": 0,
+          "nickname": "Fyst",
+          "stars_earned": 0,
+          "town_hall_level": 8,
+          "war_position": 12
+        },
+        {
+          "attacks_available": 2,
+          "attacks_used": 0,
+          "average_stars": null,
+          "new_stars_contributed": 0,
+          "nickname": "VB(;",
+          "stars_earned": 0,
+          "town_hall_level": 8,
+          "war_position": 13
+        },
+        {
+          "attacks_available": 2,
+          "attacks_used": 0,
+          "average_stars": null,
+          "new_stars_contributed": 0,
+          "nickname": "MiKiRi",
+          "stars_earned": 0,
+          "town_hall_level": 9,
+          "war_position": 14
+        },
+        {
+          "attacks_available": 2,
+          "attacks_used": 0,
+          "average_stars": null,
+          "new_stars_contributed": 0,
+          "nickname": "шкура",
+          "stars_earned": 0,
+          "town_hall_level": 8,
+          "war_position": 15
+        }
+      ],
+      "new_stars_contribution_status": "available",
+      "participants": 15,
+      "reconciliation_status": "not_reconciled",
+      "stars_consistency_status": "unavailable",
+      "state": "preparation",
+      "team_size": 15
+    },
     {
       "attack_stars_total": 31,
       "attacks_available": 20,
@@ -2497,5 +2714,5 @@
       "team_size": 10
     }
   ],
-  "wars_observed": 12
+  "wars_observed": 13
 }

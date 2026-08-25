@@ -13,9 +13,9 @@
         "stale_end_snapshot": false,
         "stale_player_count": 0
       },
-      "donations": 3336,
-      "donations_received": 2199,
-      "participant_count": 42,
+      "donations": 3368,
+      "donations_received": 2231,
+      "participant_count": 43,
       "players": [
         {
           "donations": 438,
@@ -89,8 +89,13 @@
         },
         {
           "donations": 34,
-          "donations_received": 280,
+          "donations_received": 312,
           "nickname": "Али"
+        },
+        {
+          "donations": 34,
+          "donations_received": 20,
+          "nickname": "Kohan"
         },
         {
           "donations": 31,
@@ -121,11 +126,6 @@
           "donations": 20,
           "donations_received": 0,
           "nickname": "Дилмурат"
-        },
-        {
-          "donations": 2,
-          "donations_received": 20,
-          "nickname": "Kohan"
         },
         {
           "donations": 1,
@@ -226,6 +226,11 @@
           "donations": 0,
           "donations_received": 0,
           "nickname": "роза"
+        },
+        {
+          "donations": 0,
+          "donations_received": 0,
+          "nickname": "самир"
         }
       ],
       "selection": "current",
@@ -239,7 +244,7 @@
       "contributing_player_count": 13,
       "coverage": {
         "insufficient_data": true,
-        "missing_player_count": 26,
+        "missing_player_count": 27,
         "reset_observed": false,
         "stale_end_snapshot": false,
         "stale_player_count": 0

@@ -218,6 +218,10 @@ def _build_weekly_public(
                 for member in clan.members
             ),
             as_of_utc=source_time,
+            current_raw_counters={
+                member.player_tag: (member.donations, member.donations_received)
+                for member in clan.members
+            },
         )
         validate_public_weekly_donations(candidate)
 

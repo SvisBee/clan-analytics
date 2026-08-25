@@ -203,6 +203,18 @@ class ScopeIdentityAndOrderingTests(unittest.TestCase):
         )["weeks"][0]
         self.assertEqual((70, 40), (current["donations"], current["donations_received"]))
 
+    def test_same_run_current_snapshot_supports_new_roster_identity(self) -> None:
+        payload = build_public_weekly_donations(
+            (),
+            roster(("#NEW", "New member")),
+            as_of_utc=AS_OF,
+            current_raw_counters={"#NEW": (70, 40)},
+        )
+        current = payload["weeks"][0]
+        self.assertEqual((70, 40, 1), (
+            current["donations"], current["donations_received"], current["participant_count"]
+        ))
+
     def test_duplicate_nicknames_remain_separate_and_private_tiebreak_is_stable(self) -> None:
         observations = (
             observation("#B", CURRENT_LATEST, 4, 2),

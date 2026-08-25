@@ -188,6 +188,7 @@ def build_public_weekly_donations(
     *,
     as_of_utc: datetime,
     freshness_threshold: timedelta = DEFAULT_GAP_THRESHOLD,
+    current_raw_counters: Mapping[str, tuple[int | None, int | None]] | None = None,
 ) -> dict[str, Any]:
     """Build schema v2 directly from confirmed raw counter observations."""
 
@@ -208,7 +209,19 @@ def build_public_weekly_donations(
     first_current: dict[str, DonationObservation] = {}
     for member in roster:
         items = grouped.get(member.player_id_internal, ())
-        if items and items[-1].observed_at_utc == latest_confirmed_at:
+        if current_raw_counters is not None and member.player_id_internal in current_raw_counters:
+            donations, received = current_raw_counters[member.player_id_internal]
+            for field, value in (("donations", donations), ("donations_received", received)):
+                if value is not None:
+                    _non_negative_integer(value, f"current_raw_counters.{field}")
+            current_selected[member.player_id_internal] = DonationObservation(
+                member.player_id_internal,
+                as_of,
+                donations,
+                received,
+                "same-run-current-snapshot",
+            )
+        elif items and items[-1].observed_at_utc == latest_confirmed_at:
             current_selected[member.player_id_internal] = items[-1]
         prior = [item for item in items if previous.week_start_utc <= item.observed_at_utc < previous.week_end_utc]
         if prior:

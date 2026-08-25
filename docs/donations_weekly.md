@@ -2,12 +2,14 @@
 
 ## Public counter-snapshot semantics (schema v2)
 
-Status: implementation complete; controlled production validation pending.
+Status: implementation complete; natural production validation pending after
+the controlled run exposed a safely handled roster-churn edge case.
 
 The public primary metric supersedes the earlier confirmed-delta projection.
 For each member of the current roster, the current selection publishes the
-latest confirmed raw `donations` and `donations_received` counters exactly as
-stored in snapshot history. It does not subtract a Monday baseline, sum
+latest successful same-run clan snapshot's raw `donations` and
+`donations_received` counters. That snapshot is written to authoritative
+history by the existing later updater stage. The projection does not subtract a Monday baseline, sum
 positive transitions, interpolate gaps or exclude resets. A game reset is
 therefore represented directly: a new raw value of zero is published as zero.
 
@@ -27,8 +29,11 @@ stable tags remain private in-memory join keys.
 The current observation timestamp is intentionally absent from the semantic
 payload. Site-level freshness comes from `site-config.json`; another confirmed
 observation with the same counters and roster leaves `donations-weekly.json`
-byte-identical. The existing snapshot SQLite remains authoritative and is read
-only by the builder. No probe or API request was added.
+byte-identical. The existing snapshot SQLite remains authoritative for previous
+observations and is read only by the builder. Current counters reuse the
+already collected roster response, including a newly joined identity that
+cannot yet exist in the pre-builder SQLite view. No probe or API request was
+added.
 
 The delta derivation described below remains an internal historical and audit
 utility. It is no longer the production source of displayed donation values.

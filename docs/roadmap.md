@@ -15,7 +15,7 @@
 7. **Clan War History v1 – завершено: schema v2, lifecycle, reconciliation, manual evidence, public metrics, Pages и hourly updater.**
 8. **collection_reliability_v1** – завершён: наблюдаемость, lifecycle и безопасная диагностика регулярного сбора подтверждены естественным scheduled run.
 9. **clan_snapshot_history_v1** – завершён: production schema v1 прошла read-only validation, successful normal runs сопоставлены с hourly observations, payload dedup и derived membership events подтверждены; public projection, backfill и retention остаются отдельными будущими задачами.
-10. **donations_weekly_v1** - исходный этап завершён; semantic correction на public schema v2 реализован offline и ожидает controlled production validation. Новая primary metric показывает прямые игровые counters, а не сумму положительных deltas.
+10. **donations_weekly_v1** - исходный этап завершён; semantic correction на public schema v2 реализован offline. Первый controlled run выявил roster-churn edge case и завершился fail-safe до apply; offline fix ожидает natural production validation без manual retry. Новая primary metric показывает прямые игровые counters, а не сумму положительных deltas.
 11. **clan_games_v1** – source validation и Phase 1-5 реализованы: official player source, operator-confirmed event registry, local observation storage, bounded collector, deterministic scheduling, dedicated health и task contract; production event и derived/public слои pending.
 12. **cwl_history_v1** – отделить историю ЛВК от обычных КВ.
 13. **capital_raids_v1** – добавить историю рейдовых выходных.

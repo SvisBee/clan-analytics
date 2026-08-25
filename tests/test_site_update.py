@@ -106,6 +106,11 @@ class SiteUpdateTests(unittest.TestCase):
 
     def make_probe(self, root: Path, name: str, raw_name: str, payload, collected_at: str):
         run = root / name
+        payload = copy.deepcopy(payload)
+        if raw_name == "raw_clan_response.json":
+            for member in payload.get("memberList", []):
+                member.setdefault("donations", 0)
+                member.setdefault("donationsReceived", 0)
         write(run / raw_name, payload)
         write(
             run / "probe_metadata.json",

@@ -5,7 +5,7 @@
   },
   "composition": {
     "members_with_limited_composition_data": 0,
-    "total_members": 34,
+    "total_members": 38,
     "town_hall_distribution": [
       {
         "members": 1,
@@ -17,10 +17,14 @@
       },
       {
         "members": 1,
+        "town_hall_level": 11
+      },
+      {
+        "members": 1,
         "town_hall_level": 10
       },
       {
-        "members": 24,
+        "members": 27,
         "town_hall_level": 9
       },
       {
@@ -41,6 +45,18 @@
       "clan_role": "member",
       "data_status": "insufficient_data",
       "last_war_date": null,
+      "nickname": "Islamov",
+      "stars_earned": null,
+      "town_hall_level": 11,
+      "war_participations": 0
+    },
+    {
+      "attacks_available": null,
+      "attacks_used": null,
+      "average_stars": null,
+      "clan_role": "member",
+      "data_status": "insufficient_data",
+      "last_war_date": null,
       "nickname": "nao",
       "stars_earned": null,
       "town_hall_level": 9,
@@ -53,7 +69,7 @@
       "clan_role": "member",
       "data_status": "insufficient_data",
       "last_war_date": null,
-      "nickname": "FRENZY",
+      "nickname": "shaxboz",
       "stars_earned": null,
       "town_hall_level": 9,
       "war_participations": 0
@@ -65,7 +81,19 @@
       "clan_role": "member",
       "data_status": "insufficient_data",
       "last_war_date": null,
-      "nickname": "shaxboz",
+      "nickname": "AGGRESSOR",
+      "stars_earned": null,
+      "town_hall_level": 9,
+      "war_participations": 0
+    },
+    {
+      "attacks_available": null,
+      "attacks_used": null,
+      "average_stars": null,
+      "clan_role": "member",
+      "data_status": "insufficient_data",
+      "last_war_date": null,
+      "nickname": "Krushutell",
       "stars_earned": null,
       "town_hall_level": 9,
       "war_participations": 0
@@ -215,6 +243,18 @@
       "clan_role": "member",
       "data_status": "insufficient_data",
       "last_war_date": null,
+      "nickname": "iTeeshka",
+      "stars_earned": null,
+      "town_hall_level": 9,
+      "war_participations": 0
+    },
+    {
+      "attacks_available": null,
+      "attacks_used": null,
+      "average_stars": null,
+      "clan_role": "member",
+      "data_status": "insufficient_data",
+      "last_war_date": null,
       "nickname": "Арче",
       "stars_earned": null,
       "town_hall_level": 12,
@@ -239,7 +279,7 @@
       "clan_role": "member",
       "data_status": "insufficient_data",
       "last_war_date": null,
-      "nickname": "wss",
+      "nickname": "Mr.killer",
       "stars_earned": null,
       "town_hall_level": 9,
       "war_participations": 0
@@ -251,7 +291,7 @@
       "clan_role": "member",
       "data_status": "insufficient_data",
       "last_war_date": null,
-      "nickname": "qqq",
+      "nickname": "wss",
       "stars_earned": null,
       "town_hall_level": 9,
       "war_participations": 0
@@ -291,6 +331,18 @@
       "stars_earned": 46,
       "town_hall_level": 9,
       "war_participations": 9
+    },
+    {
+      "attacks_available": null,
+      "attacks_used": null,
+      "average_stars": null,
+      "clan_role": "member",
+      "data_status": "insufficient_data",
+      "last_war_date": null,
+      "nickname": "самир",
+      "stars_earned": null,
+      "town_hall_level": 9,
+      "war_participations": 0
     },
     {
       "attacks_available": null,
@@ -394,6 +446,18 @@
       "war_participations": 0
     },
     {
+      "attacks_available": null,
+      "attacks_used": null,
+      "average_stars": null,
+      "clan_role": "member",
+      "data_status": "insufficient_data",
+      "last_war_date": null,
+      "nickname": "Terzi_T",
+      "stars_earned": null,
+      "town_hall_level": 9,
+      "war_participations": 0
+    },
+    {
       "attacks_available": 16,
       "attacks_used": 8,
       "average_stars": 2.5,
@@ -422,18 +486,6 @@
       "stars_earned": 53,
       "town_hall_level": 8,
       "war_participations": 12
-    },
-    {
-      "attacks_available": null,
-      "attacks_used": null,
-      "average_stars": null,
-      "clan_role": "member",
-      "data_status": "insufficient_data",
-      "last_war_date": null,
-      "nickname": "BELYKH862",
-      "stars_earned": null,
-      "town_hall_level": 9,
-      "war_participations": 0
     },
     {
       "attacks_available": 6,
@@ -480,6 +532,6 @@
   ],
   "war_data_coverage": {
     "members_with_data": 14,
-    "members_without_data": 20
+    "members_without_data": 24
   }
 }

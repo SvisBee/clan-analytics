@@ -5,7 +5,7 @@
   },
   "composition": {
     "members_with_limited_composition_data": 0,
-    "total_members": 22,
+    "total_members": 34,
     "town_hall_distribution": [
       {
         "members": 1,
@@ -20,7 +20,7 @@
         "town_hall_level": 10
       },
       {
-        "members": 12,
+        "members": 24,
         "town_hall_level": 9
       },
       {
@@ -35,9 +35,45 @@
   },
   "members": [
     {
+      "attacks_available": null,
+      "attacks_used": null,
+      "average_stars": null,
+      "clan_role": "member",
+      "data_status": "insufficient_data",
+      "last_war_date": null,
+      "nickname": "nao",
+      "stars_earned": null,
+      "town_hall_level": 9,
+      "war_participations": 0
+    },
+    {
+      "attacks_available": null,
+      "attacks_used": null,
+      "average_stars": null,
+      "clan_role": "member",
+      "data_status": "insufficient_data",
+      "last_war_date": null,
+      "nickname": "FRENZY",
+      "stars_earned": null,
+      "town_hall_level": 9,
+      "war_participations": 0
+    },
+    {
+      "attacks_available": null,
+      "attacks_used": null,
+      "average_stars": null,
+      "clan_role": "member",
+      "data_status": "insufficient_data",
+      "last_war_date": null,
+      "nickname": "shaxboz",
+      "stars_earned": null,
+      "town_hall_level": 9,
+      "war_participations": 0
+    },
+    {
       "attacks_available": 24,
-      "attacks_used": 18,
-      "average_stars": 2.78,
+      "attacks_used": 20,
+      "average_stars": 2.7,
       "clan_role": "admin",
       "data_status": "available",
       "last_war_date": "2026-08-25",
@@ -48,7 +84,7 @@
       "new_stars_contributed": null,
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "Kedr",
-      "stars_earned": 50,
+      "stars_earned": 54,
       "town_hall_level": 9,
       "war_participations": 12
     },
@@ -77,6 +113,18 @@
       "war_participations": 0
     },
     {
+      "attacks_available": null,
+      "attacks_used": null,
+      "average_stars": null,
+      "clan_role": "member",
+      "data_status": "insufficient_data",
+      "last_war_date": null,
+      "nickname": "Дилмурат",
+      "stars_earned": null,
+      "town_hall_level": 9,
+      "war_participations": 0
+    },
+    {
       "attacks_available": 12,
       "attacks_used": 8,
       "average_stars": 1.0,
@@ -99,6 +147,30 @@
       "stars_earned": 0,
       "town_hall_level": 7,
       "war_participations": 1
+    },
+    {
+      "attacks_available": null,
+      "attacks_used": null,
+      "average_stars": null,
+      "clan_role": "member",
+      "data_status": "insufficient_data",
+      "last_war_date": null,
+      "nickname": "dodiq",
+      "stars_earned": null,
+      "town_hall_level": 9,
+      "war_participations": 0
+    },
+    {
+      "attacks_available": null,
+      "attacks_used": null,
+      "average_stars": null,
+      "clan_role": "member",
+      "data_status": "insufficient_data",
+      "last_war_date": null,
+      "nickname": "роза",
+      "stars_earned": null,
+      "town_hall_level": 9,
+      "war_participations": 0
     },
     {
       "attacks_available": null,
@@ -155,6 +227,30 @@
       "clan_role": "member",
       "data_status": "insufficient_data",
       "last_war_date": null,
+      "nickname": "SHREK2009",
+      "stars_earned": null,
+      "town_hall_level": 9,
+      "war_participations": 0
+    },
+    {
+      "attacks_available": null,
+      "attacks_used": null,
+      "average_stars": null,
+      "clan_role": "member",
+      "data_status": "insufficient_data",
+      "last_war_date": null,
+      "nickname": "wss",
+      "stars_earned": null,
+      "town_hall_level": 9,
+      "war_participations": 0
+    },
+    {
+      "attacks_available": null,
+      "attacks_used": null,
+      "average_stars": null,
+      "clan_role": "member",
+      "data_status": "insufficient_data",
+      "last_war_date": null,
       "nickname": "qqq",
       "stars_earned": null,
       "town_hall_level": 9,
@@ -162,13 +258,13 @@
     },
     {
       "attacks_available": 10,
-      "attacks_used": 6,
-      "average_stars": 1.67,
+      "attacks_used": 8,
+      "average_stars": 2.0,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-08-25",
       "nickname": "MiKiRi",
-      "stars_earned": 10,
+      "stars_earned": 16,
       "town_hall_level": 9,
       "war_participations": 5
     },
@@ -195,6 +291,18 @@
       "stars_earned": 46,
       "town_hall_level": 9,
       "war_participations": 9
+    },
+    {
+      "attacks_available": null,
+      "attacks_used": null,
+      "average_stars": null,
+      "clan_role": "member",
+      "data_status": "insufficient_data",
+      "last_war_date": null,
+      "nickname": "govnozhuy",
+      "stars_earned": null,
+      "town_hall_level": 9,
+      "war_participations": 0
     },
     {
       "attacks_available": 24,
@@ -233,20 +341,32 @@
     },
     {
       "attacks_available": 20,
-      "attacks_used": 14,
-      "average_stars": 2.93,
+      "attacks_used": 15,
+      "average_stars": 2.8,
       "clan_role": "leader",
       "data_status": "available",
       "last_war_date": "2026-08-25",
       "nickname": "кума88",
-      "stars_earned": 41,
+      "stars_earned": 42,
       "town_hall_level": 10,
       "war_participations": 10
     },
     {
+      "attacks_available": null,
+      "attacks_used": null,
+      "average_stars": null,
+      "clan_role": "member",
+      "data_status": "insufficient_data",
+      "last_war_date": null,
+      "nickname": "Kohan",
+      "stars_earned": null,
+      "town_hall_level": 9,
+      "war_participations": 0
+    },
+    {
       "attacks_available": 12,
-      "attacks_used": 7,
-      "average_stars": 2.71,
+      "attacks_used": 8,
+      "average_stars": 2.75,
       "clan_role": "coLeader",
       "data_status": "available",
       "last_war_date": "2026-08-25",
@@ -257,7 +377,7 @@
       "new_stars_contributed": null,
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "шкура",
-      "stars_earned": 19,
+      "stars_earned": 22,
       "town_hall_level": 8,
       "war_participations": 6
     },
@@ -304,6 +424,18 @@
       "war_participations": 12
     },
     {
+      "attacks_available": null,
+      "attacks_used": null,
+      "average_stars": null,
+      "clan_role": "member",
+      "data_status": "insufficient_data",
+      "last_war_date": null,
+      "nickname": "BELYKH862",
+      "stars_earned": null,
+      "town_hall_level": 9,
+      "war_participations": 0
+    },
+    {
       "attacks_available": 6,
       "attacks_used": 6,
       "average_stars": 2.5,
@@ -314,6 +446,18 @@
       "stars_earned": 15,
       "town_hall_level": 9,
       "war_participations": 3
+    },
+    {
+      "attacks_available": null,
+      "attacks_used": null,
+      "average_stars": null,
+      "clan_role": "member",
+      "data_status": "insufficient_data",
+      "last_war_date": null,
+      "nickname": "Марк про 67",
+      "stars_earned": null,
+      "town_hall_level": 9,
+      "war_participations": 0
     },
     {
       "attacks_available": 20,
@@ -336,6 +480,6 @@
   ],
   "war_data_coverage": {
     "members_with_data": 14,
-    "members_without_data": 8
+    "members_without_data": 20
   }
 }

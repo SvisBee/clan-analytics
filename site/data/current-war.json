@@ -1,19 +1,19 @@
 {
-  "attack_stars_total": 17,
+  "attack_stars_total": 31,
   "attacks_available": 20,
   "attacks_per_member": 2,
-  "attacks_used": 6,
-  "clan_stars": 17,
+  "attacks_used": 12,
+  "clan_stars": 28,
   "data_status": "available",
   "end_time": "2026-08-25",
   "members": [
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 1,
+      "average_stars": 1.0,
+      "new_stars_contributed": 1,
       "nickname": "кума88",
-      "stars_earned": 0,
+      "stars_earned": 1,
       "town_hall_level": 10,
       "war_position": 1
     },
@@ -29,11 +29,11 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 2,
+      "average_stars": 2.0,
+      "new_stars_contributed": 1,
       "nickname": "Kedr",
-      "stars_earned": 0,
+      "stars_earned": 4,
       "town_hall_level": 9,
       "war_position": 3
     },
@@ -89,29 +89,29 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 1,
+      "attacks_used": 2,
       "average_stars": 3.0,
-      "new_stars_contributed": 3,
+      "new_stars_contributed": 6,
       "nickname": "шкура",
-      "stars_earned": 3,
+      "stars_earned": 6,
       "town_hall_level": 8,
       "war_position": 9
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
-      "new_stars_contributed": 0,
+      "attacks_used": 2,
+      "average_stars": 3.0,
+      "new_stars_contributed": 6,
       "nickname": "MiKiRi",
-      "stars_earned": 0,
+      "stars_earned": 6,
       "town_hall_level": 9,
       "war_position": 10
     }
   ],
   "new_stars_contribution_status": "available",
   "participants": 10,
-  "reconstructed_clan_stars": 17,
+  "reconstructed_clan_stars": 28,
   "stars_consistency_status": "consistent",
-  "stars_earned": 17,
+  "stars_earned": 28,
   "state": "inWar"
 }

@@ -1,6 +1,6 @@
 {
-  "generated_at_utc": "2026-08-24T20:00:05.588333Z",
-  "latest_observed_at_utc": "2026-08-24T19:00:05.362801Z",
+  "generated_at_utc": "2026-08-25T09:00:07.321178Z",
+  "latest_observed_at_utc": "2026-08-24T21:00:07.126643Z",
   "metric_semantics": "confirmed_lower_bound",
   "schema_version": 1,
   "scope": "current_roster",
@@ -8,12 +8,12 @@
   "weeks": [
     {
       "boundary_ambiguous": true,
-      "contributing_player_count": 4,
-      "donations_confirmed": 117,
-      "donations_received_confirmed": 148,
+      "contributing_player_count": 6,
+      "donations_confirmed": 187,
+      "donations_received_confirmed": 178,
       "gap_affected": true,
       "is_current": true,
-      "participant_count": 20,
+      "participant_count": 22,
       "players": [
         {
           "boundary_ambiguous": true,
@@ -21,6 +21,14 @@
           "donations_received_confirmed": 0,
           "gap_affected": true,
           "nickname": "FRENI",
+          "reset_affected": false
+        },
+        {
+          "boundary_ambiguous": false,
+          "donations_confirmed": 40,
+          "donations_received_confirmed": 0,
+          "gap_affected": false,
+          "nickname": "Саша Саша",
           "reset_affected": false
         },
         {
@@ -33,8 +41,16 @@
         },
         {
           "boundary_ambiguous": true,
+          "donations_confirmed": 30,
+          "donations_received_confirmed": 0,
+          "gap_affected": true,
+          "nickname": "SvisBee",
+          "reset_affected": false
+        },
+        {
+          "boundary_ambiguous": true,
           "donations_confirmed": 0,
-          "donations_received_confirmed": 122,
+          "donations_received_confirmed": 152,
           "gap_affected": true,
           "nickname": "Али",
           "reset_affected": false
@@ -45,6 +61,14 @@
           "donations_received_confirmed": 26,
           "gap_affected": true,
           "nickname": "Kedr",
+          "reset_affected": false
+        },
+        {
+          "boundary_ambiguous": false,
+          "donations_confirmed": 0,
+          "donations_received_confirmed": 0,
+          "gap_affected": false,
+          "nickname": "Alexvils",
           "reset_affected": false
         },
         {
@@ -124,14 +148,6 @@
           "donations_confirmed": 0,
           "donations_received_confirmed": 0,
           "gap_affected": true,
-          "nickname": "SvisBee",
-          "reset_affected": false
-        },
-        {
-          "boundary_ambiguous": true,
-          "donations_confirmed": 0,
-          "donations_received_confirmed": 0,
-          "gap_affected": true,
           "nickname": "utena",
           "reset_affected": false
         },
@@ -156,7 +172,7 @@
           "donations_confirmed": 0,
           "donations_received_confirmed": 0,
           "gap_affected": false,
-          "nickname": "Саша Саша",
+          "nickname": "нурс",
           "reset_affected": false
         },
         {

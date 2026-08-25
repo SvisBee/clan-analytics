@@ -5,7 +5,7 @@
   "timezone": "Europe/Moscow",
   "weeks": [
     {
-      "contributing_player_count": 23,
+      "contributing_player_count": 24,
       "coverage": {
         "insufficient_data": false,
         "missing_player_count": 0,
@@ -13,8 +13,8 @@
         "stale_end_snapshot": false,
         "stale_player_count": 0
       },
-      "donations": 3368,
-      "donations_received": 2231,
+      "donations": 3425,
+      "donations_received": 2288,
       "participant_count": 43,
       "players": [
         {
@@ -78,6 +78,11 @@
           "nickname": "wss"
         },
         {
+          "donations": 60,
+          "donations_received": 343,
+          "nickname": "Али"
+        },
+        {
           "donations": 50,
           "donations_received": 0,
           "nickname": "шкура"
@@ -89,13 +94,13 @@
         },
         {
           "donations": 34,
-          "donations_received": 312,
-          "nickname": "Али"
-        },
-        {
-          "donations": 34,
           "donations_received": 20,
           "nickname": "Kohan"
+        },
+        {
+          "donations": 31,
+          "donations_received": 26,
+          "nickname": "самир"
         },
         {
           "donations": 31,
@@ -226,11 +231,6 @@
           "donations": 0,
           "donations_received": 0,
           "nickname": "роза"
-        },
-        {
-          "donations": 0,
-          "donations_received": 0,
-          "nickname": "самир"
         }
       ],
       "selection": "current",

@@ -1,6 +1,6 @@
 {
-  "generated_at_utc": "2026-08-25T09:00:07.321178Z",
-  "latest_observed_at_utc": "2026-08-24T21:00:07.126643Z",
+  "generated_at_utc": "2026-08-25T10:00:07.329722Z",
+  "latest_observed_at_utc": "2026-08-25T09:00:07.321178Z",
   "metric_semantics": "confirmed_lower_bound",
   "schema_version": 1,
   "scope": "current_roster",
@@ -8,12 +8,12 @@
   "weeks": [
     {
       "boundary_ambiguous": true,
-      "contributing_player_count": 6,
-      "donations_confirmed": 187,
-      "donations_received_confirmed": 178,
+      "contributing_player_count": 9,
+      "donations_confirmed": 233,
+      "donations_received_confirmed": 229,
       "gap_affected": true,
       "is_current": true,
-      "participant_count": 22,
+      "participant_count": 34,
       "players": [
         {
           "boundary_ambiguous": true,
@@ -24,19 +24,27 @@
           "reset_affected": false
         },
         {
+          "boundary_ambiguous": true,
+          "donations_confirmed": 46,
+          "donations_received_confirmed": 0,
+          "gap_affected": true,
+          "nickname": "кума88",
+          "reset_affected": false
+        },
+        {
           "boundary_ambiguous": false,
           "donations_confirmed": 40,
           "donations_received_confirmed": 0,
-          "gap_affected": false,
+          "gap_affected": true,
           "nickname": "Саша Саша",
           "reset_affected": false
         },
         {
-          "boundary_ambiguous": true,
-          "donations_confirmed": 31,
-          "donations_received_confirmed": 0,
+          "boundary_ambiguous": false,
+          "donations_confirmed": 30,
+          "donations_received_confirmed": 20,
           "gap_affected": true,
-          "nickname": "кума88",
+          "nickname": "Alexvils",
           "reset_affected": false
         },
         {
@@ -49,10 +57,26 @@
         },
         {
           "boundary_ambiguous": true,
+          "donations_confirmed": 1,
+          "donations_received_confirmed": 0,
+          "gap_affected": true,
+          "nickname": "MiKiRi",
+          "reset_affected": false
+        },
+        {
+          "boundary_ambiguous": true,
           "donations_confirmed": 0,
           "donations_received_confirmed": 152,
           "gap_affected": true,
           "nickname": "Али",
+          "reset_affected": true
+        },
+        {
+          "boundary_ambiguous": false,
+          "donations_confirmed": 0,
+          "donations_received_confirmed": 31,
+          "gap_affected": true,
+          "nickname": "Anarbek",
           "reset_affected": false
         },
         {
@@ -64,27 +88,11 @@
           "reset_affected": false
         },
         {
-          "boundary_ambiguous": false,
-          "donations_confirmed": 0,
-          "donations_received_confirmed": 0,
-          "gap_affected": false,
-          "nickname": "Alexvils",
-          "reset_affected": false
-        },
-        {
           "boundary_ambiguous": true,
           "donations_confirmed": 0,
           "donations_received_confirmed": 0,
           "gap_affected": true,
           "nickname": "Alican",
-          "reset_affected": false
-        },
-        {
-          "boundary_ambiguous": false,
-          "donations_confirmed": 0,
-          "donations_received_confirmed": 0,
-          "gap_affected": false,
-          "nickname": "Anarbek",
           "reset_affected": false
         },
         {
@@ -96,11 +104,43 @@
           "reset_affected": false
         },
         {
+          "boundary_ambiguous": false,
+          "donations_confirmed": 0,
+          "donations_received_confirmed": 0,
+          "gap_affected": false,
+          "nickname": "BELYKH862",
+          "reset_affected": false
+        },
+        {
+          "boundary_ambiguous": false,
+          "donations_confirmed": 0,
+          "donations_received_confirmed": 0,
+          "gap_affected": false,
+          "nickname": "dodiq",
+          "reset_affected": false
+        },
+        {
+          "boundary_ambiguous": false,
+          "donations_confirmed": 0,
+          "donations_received_confirmed": 0,
+          "gap_affected": false,
+          "nickname": "FRENZY",
+          "reset_affected": false
+        },
+        {
           "boundary_ambiguous": true,
           "donations_confirmed": 0,
           "donations_received_confirmed": 0,
           "gap_affected": true,
           "nickname": "Fyst",
+          "reset_affected": false
+        },
+        {
+          "boundary_ambiguous": false,
+          "donations_confirmed": 0,
+          "donations_received_confirmed": 0,
+          "gap_affected": false,
+          "nickname": "govnozhuy",
           "reset_affected": false
         },
         {
@@ -112,11 +152,11 @@
           "reset_affected": false
         },
         {
-          "boundary_ambiguous": true,
+          "boundary_ambiguous": false,
           "donations_confirmed": 0,
           "donations_received_confirmed": 0,
-          "gap_affected": true,
-          "nickname": "MiKiRi",
+          "gap_affected": false,
+          "nickname": "Kohan",
           "reset_affected": false
         },
         {
@@ -124,6 +164,14 @@
           "donations_confirmed": 0,
           "donations_received_confirmed": 0,
           "gap_affected": false,
+          "nickname": "nao",
+          "reset_affected": false
+        },
+        {
+          "boundary_ambiguous": false,
+          "donations_confirmed": 0,
+          "donations_received_confirmed": 0,
+          "gap_affected": true,
           "nickname": "ospo56",
           "reset_affected": false
         },
@@ -131,7 +179,7 @@
           "boundary_ambiguous": false,
           "donations_confirmed": 0,
           "donations_received_confirmed": 0,
-          "gap_affected": false,
+          "gap_affected": true,
           "nickname": "qqq",
           "reset_affected": false
         },
@@ -141,6 +189,22 @@
           "donations_received_confirmed": 0,
           "gap_affected": true,
           "nickname": "Ronnurik",
+          "reset_affected": false
+        },
+        {
+          "boundary_ambiguous": false,
+          "donations_confirmed": 0,
+          "donations_received_confirmed": 0,
+          "gap_affected": false,
+          "nickname": "shaxboz",
+          "reset_affected": false
+        },
+        {
+          "boundary_ambiguous": false,
+          "donations_confirmed": 0,
+          "donations_received_confirmed": 0,
+          "gap_affected": false,
+          "nickname": "SHREK2009",
           "reset_affected": false
         },
         {
@@ -160,6 +224,14 @@
           "reset_affected": false
         },
         {
+          "boundary_ambiguous": false,
+          "donations_confirmed": 0,
+          "donations_received_confirmed": 0,
+          "gap_affected": false,
+          "nickname": "wss",
+          "reset_affected": false
+        },
+        {
           "boundary_ambiguous": true,
           "donations_confirmed": 0,
           "donations_received_confirmed": 0,
@@ -172,7 +244,31 @@
           "donations_confirmed": 0,
           "donations_received_confirmed": 0,
           "gap_affected": false,
+          "nickname": "Дилмурат",
+          "reset_affected": false
+        },
+        {
+          "boundary_ambiguous": false,
+          "donations_confirmed": 0,
+          "donations_received_confirmed": 0,
+          "gap_affected": false,
+          "nickname": "Марк про 67",
+          "reset_affected": false
+        },
+        {
+          "boundary_ambiguous": false,
+          "donations_confirmed": 0,
+          "donations_received_confirmed": 0,
+          "gap_affected": true,
           "nickname": "нурс",
+          "reset_affected": false
+        },
+        {
+          "boundary_ambiguous": false,
+          "donations_confirmed": 0,
+          "donations_received_confirmed": 0,
+          "gap_affected": false,
+          "nickname": "роза",
           "reset_affected": false
         },
         {
@@ -192,7 +288,7 @@
           "reset_affected": false
         }
       ],
-      "reset_affected": false,
+      "reset_affected": true,
       "selection": "current",
       "status": "partial",
       "week_end": "2026-08-31T00:00:00+03:00",

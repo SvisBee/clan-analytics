@@ -1,66 +1,39 @@
-"""Privacy-safe in-memory public projection for weekly donations.
+"""Privacy-safe raw counter projection for weekly donations schema v2.
 
-This Phase 3 module does not read SQLite, write JSON, call the API, or integrate
-with the production builder. Private identities exist only long enough to join
-derived weekly rows to the current public roster.
+The public metric does not derive counter deltas. Current values are the
+latest confirmed raw game counters for current roster members; previous values
+are their last confirmed raw counters observed in the preceding Moscow week.
+Private identity exists only for the in-memory join.
 """
 
 from __future__ import annotations
 
 import re
+from collections import defaultdict
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from .donations_weekly import (
-    AggregateWeeklyDonations,
-    DonationsWeeklyResult,
-    PlayerWeeklyDonations,
-    TIMEZONE_NAME,
-    week_window,
-)
+from .donations_weekly import DEFAULT_GAP_THRESHOLD, DonationObservation, TIMEZONE_NAME, week_window
 from .site_update import SiteUpdateError, _scan_public
 
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 SCOPE = "current_roster"
-METRIC_SEMANTICS = "confirmed_lower_bound"
-
-_TOP_LEVEL_FIELDS = {
-    "schema_version",
-    "timezone",
-    "scope",
-    "metric_semantics",
-    "generated_at_utc",
-    "latest_observed_at_utc",
-    "weeks",
-}
+METRIC_SEMANTICS = "game_counter_snapshot"
+_TOP_LEVEL_FIELDS = {"schema_version", "timezone", "scope", "metric_semantics", "weeks"}
 _WEEK_FIELDS = {
-    "week_id",
-    "week_start",
-    "week_end",
-    "is_current",
-    "selection",
-    "status",
-    "donations_confirmed",
-    "donations_received_confirmed",
-    "participant_count",
-    "contributing_player_count",
-    "reset_affected",
-    "gap_affected",
-    "boundary_ambiguous",
-    "players",
+    "week_id", "week_start", "week_end", "selection", "status",
+    "snapshot_at_utc", "donations", "donations_received", "participant_count",
+    "contributing_player_count", "coverage", "players",
 }
-_PLAYER_FIELDS = {
-    "nickname",
-    "donations_confirmed",
-    "donations_received_confirmed",
-    "reset_affected",
-    "gap_affected",
-    "boundary_ambiguous",
+_COVERAGE_FIELDS = {
+    "stale_end_snapshot", "stale_player_count", "missing_player_count",
+    "insufficient_data", "reset_observed",
 }
-_STATUSES = {"complete", "partial", "insufficient_data"}
+_PLAYER_FIELDS = {"nickname", "donations", "donations_received"}
+_STATUSES = {"current", "recorded", "partial"}
 
 
 class DonationsWeeklyPublicError(ValueError):
@@ -97,9 +70,7 @@ def _non_negative_integer(value: object, field: str) -> int:
     return value
 
 
-def _validated_roster(
-    members: Iterable[CurrentPublicMember],
-) -> tuple[CurrentPublicMember, ...]:
+def _validated_roster(members: Iterable[CurrentPublicMember]) -> tuple[CurrentPublicMember, ...]:
     output = []
     identities: set[str] = set()
     for member in members:
@@ -116,107 +87,88 @@ def _validated_roster(
     return tuple(output)
 
 
-def _validate_internal_result(result: DonationsWeeklyResult) -> None:
-    if not isinstance(result, DonationsWeeklyResult):
-        raise DonationsWeeklyPublicError("weekly derivation result has an invalid type")
-    if result.timezone_name != TIMEZONE_NAME:
-        raise DonationsWeeklyPublicError("weekly derivation timezone is invalid")
-    aggregate_ids: set[str] = set()
-    for week in result.weeks:
-        if not isinstance(week, AggregateWeeklyDonations) or week.week_id in aggregate_ids:
-            raise DonationsWeeklyPublicError("weekly aggregate sequence is invalid")
-        if week.status not in _STATUSES:
-            raise DonationsWeeklyPublicError("weekly aggregate status is invalid")
-        if not isinstance(week.is_current, bool):
-            raise DonationsWeeklyPublicError("weekly aggregate current flag is invalid")
-        _local_text(week.week_start_local, "week_start_local")
-        _local_text(week.week_end_local, "week_end_local")
-        aggregate_ids.add(week.week_id)
-    player_keys: set[tuple[str, str]] = set()
-    for item in result.player_weeks:
-        if not isinstance(item, PlayerWeeklyDonations):
-            raise DonationsWeeklyPublicError("player weekly result has an invalid type")
+def _validated_observations(
+    observations: Iterable[DonationObservation], *, as_of_utc: datetime
+) -> dict[str, tuple[DonationObservation, ...]]:
+    grouped: dict[str, list[DonationObservation]] = defaultdict(list)
+    seen: set[tuple[str, datetime]] = set()
+    for item in observations:
+        if not isinstance(item, DonationObservation):
+            raise DonationsWeeklyPublicError("donation observation has an invalid type")
         if not isinstance(item.player_id_internal, str) or not item.player_id_internal:
-            raise DonationsWeeklyPublicError("player weekly identity is invalid")
-        if item.status not in _STATUSES:
-            raise DonationsWeeklyPublicError("player weekly status is invalid")
-        key = (item.player_id_internal, item.week_id)
-        if key in player_keys:
-            raise DonationsWeeklyPublicError("player weekly result is duplicated")
-        player_keys.add(key)
-        _non_negative_integer(item.donations_confirmed, "donations_confirmed")
-        _non_negative_integer(
-            item.donations_received_confirmed,
-            "donations_received_confirmed",
-        )
+            raise DonationsWeeklyPublicError("donation observation identity is invalid")
+        observed_at = _aware_utc(item.observed_at_utc, "observed_at_utc")
+        if observed_at > as_of_utc:
+            raise DonationsWeeklyPublicError("donation observation is later than as_of_utc")
+        key = (item.player_id_internal, observed_at)
+        if key in seen:
+            raise DonationsWeeklyPublicError("donation observation timestamp is duplicated")
+        seen.add(key)
+        for field, value in (("donations", item.donations), ("donations_received", item.donations_received)):
+            if value is not None:
+                _non_negative_integer(value, field)
+        grouped[item.player_id_internal].append(item)
+    return {
+        identity: tuple(sorted(items, key=lambda item: item.observed_at_utc))
+        for identity, items in grouped.items()
+    }
 
 
-def _public_players(
-    result: DonationsWeeklyResult,
-    members_by_identity: Mapping[str, CurrentPublicMember],
-    week_id: str,
+def _public_rows(
+    selected: Mapping[str, DonationObservation], roster: tuple[CurrentPublicMember, ...]
 ) -> list[dict[str, Any]]:
     rows: list[tuple[str, dict[str, Any]]] = []
-    for item in result.player_weeks:
-        member = members_by_identity.get(item.player_id_internal)
-        if item.week_id != week_id or member is None:
+    for member in roster:
+        item = selected.get(member.player_id_internal)
+        if item is None or item.donations is None or item.donations_received is None:
             continue
-        rows.append(
-            (
-                item.player_id_internal,
-                {
-                    "nickname": member.nickname,
-                    "donations_confirmed": item.donations_confirmed,
-                    "donations_received_confirmed": item.donations_received_confirmed,
-                    "reset_affected": item.reset_affected,
-                    "gap_affected": item.gap_affected,
-                    "boundary_ambiguous": item.boundary_ambiguous,
-                },
-            )
-        )
-    rows.sort(
-        key=lambda pair: (
-            -pair[1]["donations_confirmed"],
-            -pair[1]["donations_received_confirmed"],
-            pair[1]["nickname"].casefold(),
-            pair[0],
-        )
-    )
+        rows.append((member.player_id_internal, {
+            "nickname": member.nickname,
+            "donations": item.donations,
+            "donations_received": item.donations_received,
+        }))
+    rows.sort(key=lambda pair: (
+        -pair[1]["donations"], -pair[1]["donations_received"],
+        pair[1]["nickname"].casefold(), pair[0],
+    ))
     return [row for _, row in rows]
 
 
-def _public_week(
-    *,
-    week_id: str,
-    week_start: datetime,
-    week_end: datetime,
-    is_current: bool,
-    selection: str,
-    status: str,
-    players: list[dict[str, Any]],
+def _week_payload(
+    *, window: Any, selection: str, status: str,
+    snapshot_at_utc: datetime | None, players: list[dict[str, Any]],
+    stale_player_count: int, missing_player_count: int, reset_observed: bool,
 ) -> dict[str, Any]:
     return {
-        "week_id": week_id,
-        "week_start": _local_text(week_start, "week_start"),
-        "week_end": _local_text(week_end, "week_end"),
-        "is_current": is_current,
+        "week_id": window.week_id,
+        "week_start": _local_text(window.week_start_local, "week_start"),
+        "week_end": _local_text(window.week_end_local, "week_end"),
         "selection": selection,
         "status": status,
-        "donations_confirmed": sum(row["donations_confirmed"] for row in players),
-        "donations_received_confirmed": sum(
-            row["donations_received_confirmed"] for row in players
-        ),
+        "snapshot_at_utc": _utc_text(snapshot_at_utc, "snapshot_at_utc") if snapshot_at_utc else None,
+        "donations": sum(row["donations"] for row in players),
+        "donations_received": sum(row["donations_received"] for row in players),
         "participant_count": len(players),
-        "contributing_player_count": sum(
-            row["donations_confirmed"] > 0
-            or row["donations_received_confirmed"] > 0
-            for row in players
-        ),
-        "reset_affected": any(row["reset_affected"] for row in players),
-        "gap_affected": any(row["gap_affected"] for row in players),
-        "boundary_ambiguous": any(row["boundary_ambiguous"] for row in players),
+        "contributing_player_count": sum(row["donations"] > 0 for row in players),
+        "coverage": {
+            "stale_end_snapshot": stale_player_count > 0,
+            "stale_player_count": stale_player_count,
+            "missing_player_count": missing_player_count,
+            "insufficient_data": missing_player_count > 0 or not players,
+            "reset_observed": reset_observed,
+        },
         "players": players,
     }
+
+
+def _counter_decreased(before: DonationObservation, after: DonationObservation) -> bool:
+    return any(
+        left is not None and right is not None and right < left
+        for left, right in (
+            (before.donations, after.donations),
+            (before.donations_received, after.donations_received),
+        )
+    )
 
 
 def _string_values(value: Any) -> Iterable[str]:
@@ -231,93 +183,94 @@ def _string_values(value: Any) -> Iterable[str]:
 
 
 def build_public_weekly_donations(
-    result: DonationsWeeklyResult,
+    observations: Iterable[DonationObservation],
     current_roster: Iterable[CurrentPublicMember],
     *,
-    generated_at_utc: datetime,
     as_of_utc: datetime,
-    latest_observed_at_utc: datetime | None,
+    freshness_threshold: timedelta = DEFAULT_GAP_THRESHOLD,
 ) -> dict[str, Any]:
-    """Build an allowlist-only current-roster projection in memory."""
+    """Build schema v2 directly from confirmed raw counter observations."""
 
-    generated = _aware_utc(generated_at_utc, "generated_at_utc")
     as_of = _aware_utc(as_of_utc, "as_of_utc")
-    latest = (
-        _aware_utc(latest_observed_at_utc, "latest_observed_at_utc")
-        if latest_observed_at_utc is not None
-        else None
-    )
-    _validate_internal_result(result)
+    if not isinstance(freshness_threshold, timedelta) or freshness_threshold <= timedelta(0):
+        raise DonationsWeeklyPublicError("freshness_threshold must be positive")
     roster = _validated_roster(current_roster)
-    members_by_identity = {member.player_id_internal: member for member in roster}
-
-    current_window = week_window(as_of, as_of_utc=as_of)
-    aggregates = {week.week_id: week for week in result.weeks}
-    current_aggregate = aggregates.get(current_window.week_id)
-    current_players = _public_players(result, members_by_identity, current_window.week_id)
-    weeks = [
-        _public_week(
-            week_id=current_window.week_id,
-            week_start=(
-                current_aggregate.week_start_local
-                if current_aggregate is not None
-                else current_window.week_start_local
-            ),
-            week_end=(
-                current_aggregate.week_end_local
-                if current_aggregate is not None
-                else current_window.week_end_local
-            ),
-            is_current=True,
-            selection="current",
-            status="partial",
-            players=current_players,
-        )
-    ]
-
-    completed = sorted(
-        (
-            week
-            for week in result.weeks
-            if week.week_start_utc < current_window.week_start_utc
-            and week.status != "insufficient_data"
-        ),
-        key=lambda week: week.week_start_utc,
-        reverse=True,
+    grouped = _validated_observations(observations, as_of_utc=as_of)
+    latest_confirmed_at = max(
+        (item.observed_at_utc for items in grouped.values() for item in items),
+        default=None,
     )
-    for week in completed:
-        players = _public_players(result, members_by_identity, week.week_id)
-        if not players:
-            continue
-        weeks.append(
-            _public_week(
-                week_id=week.week_id,
-                week_start=week.week_start_local,
-                week_end=week.week_end_local,
-                is_current=False,
-                selection="previous_usable",
-                status=week.status,
-                players=players,
-            )
-        )
-        break
+    current = week_window(as_of, as_of_utc=as_of)
+    previous = week_window(current.week_start_utc - timedelta(microseconds=1), as_of_utc=as_of)
+
+    current_selected: dict[str, DonationObservation] = {}
+    previous_selected: dict[str, DonationObservation] = {}
+    first_current: dict[str, DonationObservation] = {}
+    for member in roster:
+        items = grouped.get(member.player_id_internal, ())
+        if items and items[-1].observed_at_utc == latest_confirmed_at:
+            current_selected[member.player_id_internal] = items[-1]
+        prior = [item for item in items if previous.week_start_utc <= item.observed_at_utc < previous.week_end_utc]
+        if prior:
+            previous_selected[member.player_id_internal] = prior[-1]
+        after_boundary = [item for item in items if current.week_start_utc <= item.observed_at_utc <= as_of]
+        if after_boundary:
+            first_current[member.player_id_internal] = after_boundary[0]
+
+    missing_current = [
+        member.player_id_internal for member in roster
+        if member.player_id_internal not in current_selected
+        or current_selected[member.player_id_internal].donations is None
+        or current_selected[member.player_id_internal].donations_received is None
+    ]
+    if missing_current:
+        raise DonationsWeeklyPublicError("latest raw counters are unavailable for a current roster member")
+
+    current_players = _public_rows(current_selected, roster)
+    previous_players = _public_rows(previous_selected, roster)
+    previous_missing = len(roster) - len(previous_players)
+    roster_ids = {member.player_id_internal for member in roster}
+    stale_count = sum(
+        previous.week_end_utc - item.observed_at_utc > freshness_threshold
+        for identity, item in previous_selected.items()
+        if identity in roster_ids and item.donations is not None and item.donations_received is not None
+    )
+    reset_observed = any(
+        identity in first_current and _counter_decreased(item, first_current[identity])
+        for identity, item in previous_selected.items()
+    )
+    previous_snapshot = max(
+        (
+            item.observed_at_utc
+            for item in previous_selected.values()
+            if item.donations is not None and item.donations_received is not None
+        ),
+        default=None,
+    )
 
     payload: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
         "timezone": TIMEZONE_NAME,
         "scope": SCOPE,
         "metric_semantics": METRIC_SEMANTICS,
-        "generated_at_utc": _utc_text(generated, "generated_at_utc"),
-        "latest_observed_at_utc": (
-            _utc_text(latest, "latest_observed_at_utc") if latest is not None else None
-        ),
-        "weeks": weeks,
+        "weeks": [
+            _week_payload(
+                window=current, selection="current", status="current",
+                snapshot_at_utc=None, players=current_players,
+                stale_player_count=0, missing_player_count=0,
+                reset_observed=reset_observed,
+            ),
+            _week_payload(
+                window=previous, selection="previous",
+                status="recorded" if previous_players and previous_missing == 0 and stale_count == 0 else "partial",
+                snapshot_at_utc=previous_snapshot, players=previous_players,
+                stale_player_count=stale_count, missing_player_count=previous_missing,
+                reset_observed=False,
+            ),
+        ],
     }
     validate_public_weekly_donations(payload)
-
-    private_values = {
-        item.player_id_internal for item in result.player_weeks
-    } | set(members_by_identity)
+    private_values = set(grouped) | {member.player_id_internal for member in roster}
     if private_values.intersection(_string_values(payload)):
         raise DonationsWeeklyPublicError("private identity leaked into public projection")
     return payload
@@ -325,7 +278,7 @@ def build_public_weekly_donations(
 
 def _exact_fields(value: Mapping[str, Any], expected: set[str], path: str) -> None:
     if set(value) != expected:
-        raise DonationsWeeklyPublicError(f"{path} fields do not match schema v1")
+        raise DonationsWeeklyPublicError(f"{path} fields do not match schema v2")
 
 
 def _parse_timestamp(value: object, field: str, *, require_utc: bool) -> datetime:
@@ -337,13 +290,13 @@ def _parse_timestamp(value: object, field: str, *, require_utc: bool) -> datetim
         raise DonationsWeeklyPublicError(f"{field} must be a timestamp") from error
     if parsed.tzinfo is None or parsed.utcoffset() is None:
         raise DonationsWeeklyPublicError(f"{field} must be timezone-aware")
-    if require_utc and (not value.endswith("Z") or parsed.utcoffset() != timezone.utc.utcoffset(None)):
+    if require_utc and (not value.endswith("Z") or parsed.utcoffset() != timedelta(0)):
         raise DonationsWeeklyPublicError(f"{field} must be canonical UTC")
     return parsed
 
 
 def validate_public_weekly_donations(payload: Mapping[str, Any]) -> None:
-    """Fail closed unless ``payload`` exactly matches public schema v1."""
+    """Fail closed unless ``payload`` exactly matches public schema v2."""
 
     if not isinstance(payload, Mapping):
         raise DonationsWeeklyPublicError("public weekly payload must be an object")
@@ -354,53 +307,46 @@ def validate_public_weekly_donations(payload: Mapping[str, Any]) -> None:
         raise DonationsWeeklyPublicError("public weekly timezone is invalid")
     if payload["scope"] != SCOPE or payload["metric_semantics"] != METRIC_SEMANTICS:
         raise DonationsWeeklyPublicError("public weekly semantics are invalid")
-    _parse_timestamp(payload["generated_at_utc"], "generated_at_utc", require_utc=True)
-    latest = payload["latest_observed_at_utc"]
-    if latest is not None:
-        _parse_timestamp(latest, "latest_observed_at_utc", require_utc=True)
 
     weeks = payload["weeks"]
     if not isinstance(weeks, list) or not 1 <= len(weeks) <= 2:
         raise DonationsWeeklyPublicError("public weekly payload must contain one or two weeks")
-    parsed_starts = []
+    starts: list[datetime] = []
     for index, week in enumerate(weeks):
         path = f"weeks[{index}]"
         if not isinstance(week, Mapping):
             raise DonationsWeeklyPublicError(f"{path} must be an object")
         _exact_fields(week, _WEEK_FIELDS, path)
-        if not isinstance(week["week_id"], str) or re.fullmatch(
-            r"\d{4}-W\d{2}", week["week_id"]
-        ) is None:
+        if not isinstance(week["week_id"], str) or re.fullmatch(r"\d{4}-W\d{2}", week["week_id"]) is None:
             raise DonationsWeeklyPublicError(f"{path}.week_id is invalid")
         start = _parse_timestamp(week["week_start"], f"{path}.week_start", require_utc=False)
         end = _parse_timestamp(week["week_end"], f"{path}.week_end", require_utc=False)
-        if end <= start:
-            raise DonationsWeeklyPublicError(f"{path} boundaries are invalid")
-        if end - start != timedelta(days=7) or start.weekday() != 0 or any(
-            (start.hour, start.minute, start.second, start.microsecond)
-        ):
+        if end - start != timedelta(days=7) or start.weekday() != 0 or any((start.hour, start.minute, start.second, start.microsecond)):
             raise DonationsWeeklyPublicError(f"{path} boundaries do not define a calendar week")
         iso_year, iso_week, _ = start.date().isocalendar()
         if week["week_id"] != f"{iso_year}-W{iso_week:02d}":
             raise DonationsWeeklyPublicError(f"{path}.week_id does not match boundaries")
-        parsed_starts.append(start)
-        if not isinstance(week["is_current"], bool):
-            raise DonationsWeeklyPublicError(f"{path}.is_current is invalid")
-        if week["selection"] not in {"current", "previous_usable"}:
-            raise DonationsWeeklyPublicError(f"{path}.selection is invalid")
-        if week["status"] not in _STATUSES:
-            raise DonationsWeeklyPublicError(f"{path}.status is invalid")
-        for field in (
-            "donations_confirmed",
-            "donations_received_confirmed",
-            "participant_count",
-            "contributing_player_count",
-        ):
+        starts.append(start)
+        if week["selection"] not in {"current", "previous"} or week["status"] not in _STATUSES:
+            raise DonationsWeeklyPublicError(f"{path} selection or status is invalid")
+        snapshot = week["snapshot_at_utc"]
+        if snapshot is not None:
+            parsed_snapshot = _parse_timestamp(snapshot, f"{path}.snapshot_at_utc", require_utc=True)
+            if not start.astimezone(timezone.utc) <= parsed_snapshot < end.astimezone(timezone.utc):
+                raise DonationsWeeklyPublicError(f"{path}.snapshot_at_utc is outside the week")
+        for field in ("donations", "donations_received", "participant_count", "contributing_player_count"):
             _non_negative_integer(week[field], f"{path}.{field}")
-        for field in ("reset_affected", "gap_affected", "boundary_ambiguous"):
-            if not isinstance(week[field], bool):
-                raise DonationsWeeklyPublicError(f"{path}.{field} is invalid")
-
+        coverage = week["coverage"]
+        if not isinstance(coverage, Mapping):
+            raise DonationsWeeklyPublicError(f"{path}.coverage must be an object")
+        _exact_fields(coverage, _COVERAGE_FIELDS, f"{path}.coverage")
+        for field in ("stale_end_snapshot", "insufficient_data", "reset_observed"):
+            if not isinstance(coverage[field], bool):
+                raise DonationsWeeklyPublicError(f"{path}.coverage.{field} is invalid")
+        for field in ("stale_player_count", "missing_player_count"):
+            _non_negative_integer(coverage[field], f"{path}.coverage.{field}")
+        if coverage["stale_end_snapshot"] != (coverage["stale_player_count"] > 0):
+            raise DonationsWeeklyPublicError(f"{path}.coverage stale fields disagree")
         players = week["players"]
         if not isinstance(players, list):
             raise DonationsWeeklyPublicError(f"{path}.players must be a list")
@@ -411,56 +357,46 @@ def validate_public_weekly_donations(payload: Mapping[str, Any]) -> None:
             _exact_fields(player, _PLAYER_FIELDS, player_path)
             if not isinstance(player["nickname"], str) or not player["nickname"].strip():
                 raise DonationsWeeklyPublicError(f"{player_path}.nickname is invalid")
-            for field in ("donations_confirmed", "donations_received_confirmed"):
-                _non_negative_integer(player[field], f"{player_path}.{field}")
-            for field in ("reset_affected", "gap_affected", "boundary_ambiguous"):
-                if not isinstance(player[field], bool):
-                    raise DonationsWeeklyPublicError(f"{player_path}.{field} is invalid")
-
-        public_order = [
-            (
-                -player["donations_confirmed"],
-                -player["donations_received_confirmed"],
-                player["nickname"].casefold(),
-            )
-            for player in players
-        ]
-        if public_order != sorted(public_order):
+            _non_negative_integer(player["donations"], f"{player_path}.donations")
+            _non_negative_integer(player["donations_received"], f"{player_path}.donations_received")
+        order = [(-row["donations"], -row["donations_received"], row["nickname"].casefold()) for row in players]
+        if order != sorted(order):
             raise DonationsWeeklyPublicError(f"{path}.players ordering is invalid")
-
         if week["participant_count"] != len(players):
             raise DonationsWeeklyPublicError(f"{path}.participant_count does not match players")
-        if week["donations_confirmed"] != sum(
-            player["donations_confirmed"] for player in players
-        ) or week["donations_received_confirmed"] != sum(
-            player["donations_received_confirmed"] for player in players
-        ):
+        if week["donations"] != sum(row["donations"] for row in players) or week["donations_received"] != sum(row["donations_received"] for row in players):
             raise DonationsWeeklyPublicError(f"{path} totals do not match players")
-        contributing = sum(
-            player["donations_confirmed"] > 0
-            or player["donations_received_confirmed"] > 0
-            for player in players
-        )
-        if week["contributing_player_count"] != contributing:
-            raise DonationsWeeklyPublicError(
-                f"{path}.contributing_player_count does not match players"
-            )
-        for field in ("reset_affected", "gap_affected", "boundary_ambiguous"):
-            if week[field] != any(player[field] for player in players):
-                raise DonationsWeeklyPublicError(f"{path}.{field} does not match players")
+        if week["contributing_player_count"] != sum(row["donations"] > 0 for row in players):
+            raise DonationsWeeklyPublicError(f"{path}.contributing_player_count does not match players")
+        expected_insufficient = coverage["missing_player_count"] > 0 or not players
+        if coverage["insufficient_data"] != expected_insufficient:
+            raise DonationsWeeklyPublicError(f"{path}.coverage insufficient fields disagree")
 
-    if weeks[0]["selection"] != "current" or weeks[0]["is_current"] is not True:
-        raise DonationsWeeklyPublicError("first selected week must be current")
-    if weeks[0]["status"] != "partial":
-        raise DonationsWeeklyPublicError("current week must be partial")
+    if weeks[0]["selection"] != "current" or weeks[0]["status"] != "current" or weeks[0]["snapshot_at_utc"] is not None:
+        raise DonationsWeeklyPublicError("first selected week must be current without a churn timestamp")
+    current_coverage = weeks[0]["coverage"]
+    if (
+        current_coverage["stale_end_snapshot"]
+        or current_coverage["stale_player_count"] != 0
+        or current_coverage["missing_player_count"] != 0
+        or current_coverage["insufficient_data"]
+    ):
+        raise DonationsWeeklyPublicError("current week coverage is invalid")
     if len(weeks) == 2:
-        if weeks[1]["selection"] != "previous_usable" or weeks[1]["is_current"] is not False:
-            raise DonationsWeeklyPublicError("second selected week must be previous usable")
-        if weeks[1]["status"] == "insufficient_data":
-            raise DonationsWeeklyPublicError("previous selected week must be usable")
-        if parsed_starts[1] >= parsed_starts[0]:
-            raise DonationsWeeklyPublicError("previous selected week is not earlier")
-
+        if weeks[1]["selection"] != "previous" or weeks[1]["status"] not in {"recorded", "partial"}:
+            raise DonationsWeeklyPublicError("second selected week must be previous")
+        if starts[1] + timedelta(days=7) != starts[0]:
+            raise DonationsWeeklyPublicError("previous selected week is not immediately previous")
+        previous = weeks[1]
+        should_be_recorded = (
+            previous["participant_count"] > 0
+            and not previous["coverage"]["stale_end_snapshot"]
+            and previous["coverage"]["missing_player_count"] == 0
+        )
+        if (previous["status"] == "recorded") != should_be_recorded:
+            raise DonationsWeeklyPublicError("previous status does not match coverage")
+        if previous["participant_count"] and previous["snapshot_at_utc"] is None:
+            raise DonationsWeeklyPublicError("previous snapshot timestamp is required")
     try:
         _scan_public(payload, "$.donations_weekly")
     except SiteUpdateError as error:

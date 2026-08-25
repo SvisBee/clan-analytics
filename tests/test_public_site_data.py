@@ -44,7 +44,11 @@ class PublicSiteDataTests(unittest.TestCase):
                 self.assertIsInstance(payload, root_type)
                 _scan_public(payload, f"$.{name}")
                 if name == "donations-weekly.json":
-                    validate_public_weekly_donations(payload)
+                    if payload.get("schema_version") == 2:
+                        validate_public_weekly_donations(payload)
+                    else:
+                        self.assertEqual(1, payload.get("schema_version"))
+                        self.assertEqual("confirmed_lower_bound", payload.get("metric_semantics"))
 
 
 if __name__ == "__main__":

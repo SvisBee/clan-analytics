@@ -2,6 +2,13 @@
 
 Status: `completed`
 
+Superseded public semantics: this closeout records the original schema-v1
+confirmed-delta implementation. The production public metric is being replaced
+by schema v2 `game_counter_snapshot`, which publishes direct raw counters for
+the current roster and the last observed raw counters from the immediately
+previous Moscow week. The pure delta core is retained only as an internal
+historical/audit utility.
+
 ## Scope
 
 `donations_weekly_v1` derives conservative weekly donation evidence from the

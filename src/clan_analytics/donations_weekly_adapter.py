@@ -1,8 +1,8 @@
 """Read-only snapshot-history adapter for weekly donation derivation.
 
-This module converts confirmed snapshot rows into the pure Phase 1 input
-model. It derives membership continuity only; week, delta, reset, gap, and
-completeness semantics remain exclusively in ``donations_weekly``.
+This module converts confirmed snapshot rows into immutable counter
+observations. It still supports the internal delta-audit core, while the
+production schema-v2 projection consumes the same observations directly.
 """
 
 from __future__ import annotations

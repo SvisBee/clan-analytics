@@ -35,7 +35,14 @@ class BuilderFailureBundleTests(unittest.TestCase):
         for directory, raw_name, fixture in pairs:
             target = probes / directory
             target.mkdir(parents=True)
-            (target / raw_name).write_bytes((FIXTURES / fixture).read_bytes())
+            if directory == "roster":
+                payload = json.loads((FIXTURES / fixture).read_text(encoding="utf-8"))
+                for member in payload.get("memberList", []):
+                    member.setdefault("donations", 0)
+                    member.setdefault("donationsReceived", 0)
+                write(target / raw_name, payload)
+            else:
+                (target / raw_name).write_bytes((FIXTURES / fixture).read_bytes())
             write(target / "probe_metadata.json", {"collected_at": "2026-07-20T12:00:00Z", "request_count": 1, "response_status": 200, "redirects_followed": 0})
         history = {"schema_version": 2, "wars": [], "diagnostics": []}
         if invalid_history:

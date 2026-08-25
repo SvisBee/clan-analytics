@@ -7,10 +7,10 @@
   <meta name="theme-color" content="#0b1220">
   <title>Clan Analytics</title>
   <link rel="stylesheet" href="assets/css/styles.css?v=current-war-v5-20260720">
-  <link rel="stylesheet" href="assets/css/live.css?v=donations-weekly-ui-v1-20260824">
+  <link rel="stylesheet" href="assets/css/live.css?v=donations-counter-schema-v2-20260825">
   <script src="assets/js/current-war-contract.js?v=current-war-v5-20260720" defer></script>
-  <script src="assets/js/donations-weekly-contract.js?v=donations-weekly-ui-v1-20260824" defer></script>
-  <script src="assets/js/app.js?v=donations-weekly-ui-v1-20260824" defer></script>
+  <script src="assets/js/donations-weekly-contract.js?v=donations-counter-schema-v2-20260825" defer></script>
+  <script src="assets/js/app.js?v=donations-counter-schema-v2-20260825" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Перейти к содержимому</a>
@@ -319,14 +319,14 @@
               <h2 id="donations-title">Недельные пожертвования</h2>
             </div>
             <p>
-              Показан минимум, который удалось однозначно подтвердить по собранным данным.
-              Значения не являются гарантированно полным итогом недели.
+              Показываются последние значения игровых счётчиков для текущего состава.
+              Предыдущая неделя основана на последнем доступном снимке перед её окончанием.
             </p>
           </div>
 
           <div class="weekly-donations" data-donations-root>
             <div class="preview-loading" data-donations-loading role="status">
-              Загружаю подтверждённые пожертвования…
+              Загружаю показатели пожертвований…
             </div>
             <div class="preview-error" data-donations-error role="status" hidden>
               Данные о пожертвованиях временно недоступны.
@@ -340,7 +340,7 @@
                 </div>
                 <div class="week-selector" data-donations-selector role="group" aria-label="Выбор недели">
                   <button type="button" data-donations-selection="current" aria-pressed="true">Текущая</button>
-                  <button type="button" data-donations-selection="previous_usable" aria-pressed="false">Предыдущая</button>
+                  <button type="button" data-donations-selection="previous" aria-pressed="false">Предыдущая</button>
                 </div>
               </div>
 
@@ -353,12 +353,12 @@
                 <article class="metric-card">
                   <span>Передано</span>
                   <strong data-donations-total></strong>
-                  <small>подтверждённый минимум</small>
+                  <small>игровой счётчик</small>
                 </article>
                 <article class="metric-card">
                   <span>Получено</span>
                   <strong data-donations-received></strong>
-                  <small>подтверждённый минимум</small>
+                  <small>игровой счётчик</small>
                 </article>
                 <article class="metric-card">
                   <span>Участников</span>

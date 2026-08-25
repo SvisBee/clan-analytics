@@ -181,16 +181,6 @@ def _parse_utc_timestamp(value: object, field: str) -> datetime:
     return parsed.astimezone(timezone.utc)
 
 
-def _weekly_semantics(payload: Mapping[str, Any]) -> dict[str, Any]:
-    """Return the public meaning of a weekly payload without freshness evidence."""
-
-    return {
-        key: value
-        for key, value in payload.items()
-        if key not in {"generated_at_utc", "latest_observed_at_utc"}
-    }
-
-
 def _build_weekly_public(
     *,
     clan: Any,
@@ -202,7 +192,6 @@ def _build_weekly_public(
 
     # Local imports avoid a module cycle: the Phase 3 public validator reuses
     # this module's general public privacy scanner.
-    from .donations_weekly import DonationsWeeklyError, derive_weekly_donations
     from .donations_weekly_adapter import (
         SnapshotDonationAdapterError,
         read_snapshot_donation_observations,
@@ -222,20 +211,13 @@ def _build_weekly_public(
             raise SiteUpdateError(
                 "roster input is older than the latest snapshot observation"
             )
-        as_of = source_time
-        derived = derive_weekly_donations(
-            loaded.observations,
-            as_of_utc=as_of,
-        )
         candidate = build_public_weekly_donations(
-            derived,
+            loaded.observations,
             (
                 CurrentPublicMember(member.player_tag, member.display_name)
                 for member in clan.members
             ),
-            generated_at_utc=as_of,
-            as_of_utc=as_of,
-            latest_observed_at_utc=latest,
+            as_of_utc=source_time,
         )
         validate_public_weekly_donations(candidate)
 
@@ -244,8 +226,14 @@ def _build_weekly_public(
                 raise DonationsWeeklyPublicError(
                     "existing public weekly payload must be an object"
                 )
-            validate_public_weekly_donations(existing)
-            if _weekly_semantics(candidate) == _weekly_semantics(existing):
+            existing_schema = existing.get("schema_version")
+            if existing_schema == 2:
+                validate_public_weekly_donations(existing)
+            elif existing_schema != 1:
+                raise DonationsWeeklyPublicError(
+                    "existing public weekly schema version is unsupported"
+                )
+            if existing_schema == 2 and candidate == existing:
                 candidate = dict(existing)
 
         serialized = json.dumps(candidate, ensure_ascii=False, sort_keys=True)
@@ -265,7 +253,6 @@ def _build_weekly_public(
         }
     except (
         SnapshotDonationAdapterError,
-        DonationsWeeklyError,
         DonationsWeeklyPublicError,
     ) as error:
         raise SiteUpdateError("weekly donations build failed safely") from error

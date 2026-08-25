@@ -47,6 +47,10 @@ class SiteUpdateTests(unittest.TestCase):
     ) -> Path:
         path = root / "snapshot" / "history.sqlite3"
         initialize_snapshot_store(path)
+        payload = copy.deepcopy(payload)
+        for member in payload.get("memberList", []):
+            member.setdefault("donations", 0)
+            member.setdefault("donationsReceived", 0)
         before = copy.deepcopy(payload)
         for member in before.get("memberList", []):
             member["donations"] = max(0, int(member.get("donations", 0)) - 3)
@@ -173,7 +177,10 @@ class SiteUpdateTests(unittest.TestCase):
             weekly = json.loads(
                 (output / "site-data" / "donations-weekly.json").read_text()
             )
-            self.assertEqual(1, weekly["schema_version"])
+            self.assertEqual(2, weekly["schema_version"])
+            self.assertEqual("game_counter_snapshot", weekly["metric_semantics"])
+            self.assertIn("donations", weekly["weeks"][0])
+            self.assertNotIn("donations_confirmed", weekly["weeks"][0])
             self.assertEqual("current_roster", weekly["scope"])
             self.assertEqual(6, len(PUBLIC_FILENAMES))
             self.assertEqual(
@@ -346,6 +353,9 @@ class SiteUpdateTests(unittest.TestCase):
                 target.write_bytes((first / "site-data" / name).read_bytes())
 
             changed_clan = copy.deepcopy(clan)
+            for member in changed_clan["memberList"]:
+                member.setdefault("donations", 0)
+                member.setdefault("donationsReceived", 0)
             changed_clan["memberList"][1]["donations"] += 5
             changed_clan["memberList"][1]["donationsReceived"] += 4
             record_confirmed_observation(
@@ -410,7 +420,7 @@ class SiteUpdateTests(unittest.TestCase):
             weekly = json.loads((output / "site-data" / "donations-weekly.json").read_text())
             current = weekly["weeks"][0]
             self.assertEqual(["Twin", "Twin"], [row["nickname"] for row in current["players"]])
-            self.assertEqual((10, 7), (current["donations_confirmed"], current["donations_received_confirmed"]))
+            self.assertEqual((25, 22), (current["donations"], current["donations_received"]))
             self.assertNotIn("Departed", json.dumps(weekly))
             self.assertNotIn("#AAAA", json.dumps(weekly))
 

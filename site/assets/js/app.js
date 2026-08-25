@@ -589,24 +589,26 @@ const renderWarHistory = (history) => {
 
 const weeklyContract = globalThis.ClanAnalyticsDonationsWeeklyContract;
 
-const renderWeeklyDonations = (payload) => {
+const renderWeeklyDonations = (payload, collectedAt = null) => {
   if (!weeklyContract) {
     throw new Error("Weekly donations display contract is unavailable");
   }
-  weeklyContract.validateWeeklyPayload(payload);
+  const normalized = weeklyContract.validateWeeklyPayload(payload);
 
   const content = requireElement("[data-donations-content]");
   const selector = requireElement("[data-donations-selector]");
   const buttons = Array.from(
     selector.querySelectorAll("[data-donations-selection]")
   );
-  const previous = weeklyContract.selectWeek(payload, "previous_usable");
+  const previous = weeklyContract.selectWeek(normalized, "previous");
   selector.hidden = !previous;
 
   const renderSelectedWeek = (selection) => {
-    const week = weeklyContract.selectWeek(payload, selection);
+    const week = weeklyContract.selectWeek(normalized, selection);
     if (!week) return;
-    const presentation = weeklyContract.weekPresentation(week);
+    const presentation = weeklyContract.weekPresentation(week, {
+      legacySchema: normalized.legacy_schema === true
+    });
 
     buttons.forEach((button) => {
       const selected = button.dataset.donationsSelection === selection;
@@ -616,11 +618,11 @@ const renderWeeklyDonations = (payload) => {
 
     requireElement("[data-donations-week-title]").textContent = presentation.title;
     requireElement("[data-donations-week-range]").textContent =
-      weeklyContract.formatWeekRange(week, payload.timezone);
+      weeklyContract.formatWeekRange(week, normalized.timezone);
     requireElement("[data-donations-status]").textContent = presentation.badge;
     requireElement("[data-donations-status-copy]").textContent = presentation.explanation;
-    setTextAll("[data-donations-total]", week.donations_confirmed);
-    setTextAll("[data-donations-received]", week.donations_received_confirmed);
+    setTextAll("[data-donations-total]", week.donations);
+    setTextAll("[data-donations-received]", week.donations_received);
     setTextAll("[data-donations-participants]", week.participant_count);
     setTextAll("[data-donations-contributors]", week.contributing_player_count);
 
@@ -641,11 +643,11 @@ const renderWeeklyDonations = (payload) => {
         row.append(
           rank,
           nickname,
-          createElement("td", "weekly-table__number", player.donations_confirmed),
+          createElement("td", "weekly-table__number", player.donations),
           createElement(
             "td",
             "weekly-table__number",
-            player.donations_received_confirmed
+            player.donations_received
           )
         );
         return row;
@@ -659,19 +661,19 @@ const renderWeeklyDonations = (payload) => {
     });
   });
 
-  const observedAt = payload.latest_observed_at_utc;
-  requireElement("[data-donations-freshness]").textContent =
-    `Данные по состоянию на ${formatDate(observedAt, {
-      dateStyle: "medium",
-      timeStyle: "short"
-    })}.`;
+  requireElement("[data-donations-freshness]").textContent = collectedAt
+    ? `Данные по состоянию на ${formatDate(collectedAt, {
+        dateStyle: "medium",
+        timeStyle: "short"
+      })}.`
+    : "Время последнего обновления временно недоступно.";
   renderSelectedWeek("current");
   requireElement("[data-donations-loading]").hidden = true;
   requireElement("[data-donations-error]").hidden = true;
   content.hidden = false;
 };
 
-const loadWeeklyDonations = async () => {
+const loadWeeklyDonations = async (collectedAt = null) => {
   const loading = document.querySelector("[data-donations-loading]");
   const errorTarget = document.querySelector("[data-donations-error]");
   const content = document.querySelector("[data-donations-content]");
@@ -689,7 +691,7 @@ const loadWeeklyDonations = async () => {
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);
     }
-    renderWeeklyDonations(await response.json());
+    renderWeeklyDonations(await response.json(), collectedAt);
   } catch (error) {
     if (loading) loading.hidden = true;
     if (content) content.hidden = true;
@@ -856,13 +858,12 @@ window.addEventListener("DOMContentLoaded", async () => {
     }
     if (!historyResponse.ok) throw new Error(`war-history.json: HTTP ${historyResponse.status}`);
 
-    renderSite(
-      await rosterResponse.json(),
-      await configResponse.json(),
-      await currentWarResponse.json(),
-      await historyResponse.json()
-    );
-    await loadWeeklyDonations();
+    const roster = await rosterResponse.json();
+    const config = await configResponse.json();
+    const currentWar = await currentWarResponse.json();
+    const history = await historyResponse.json();
+    renderSite(roster, config, currentWar, history);
+    await loadWeeklyDonations(config.collected_at);
   } catch (error) {
     showError(error);
   }

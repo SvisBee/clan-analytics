@@ -31,11 +31,11 @@ class DonationsWeeklyFrontendTests(unittest.TestCase):
         self.assertIn("data/donations-weekly.json", self.app)
         self.assertNotIn("svisbee.github.io", self.app.lower())
         self.assertIn("assets/js/donations-weekly-contract.js", self.html)
-        self.assertIn("donations-weekly-ui-v1-20260824", self.html)
+        self.assertIn("donations-counter-schema-v2-20260825", self.html)
 
     def test_week_selector_summary_and_leaderboard_contract(self) -> None:
         self.assertIn('data-donations-selection="current"', self.html)
-        self.assertIn('data-donations-selection="previous_usable"', self.html)
+        self.assertIn('data-donations-selection="previous"', self.html)
         self.assertIn("Передано", self.html)
         self.assertIn("Получено", self.html)
         self.assertIn("Активных донатеров", self.html)
@@ -44,7 +44,7 @@ class DonationsWeeklyFrontendTests(unittest.TestCase):
 
     def test_weekly_failure_is_caught_without_calling_the_site_error_handler(self) -> None:
         loader = re.search(
-            r"const loadWeeklyDonations = async \(\) => \{(?P<body>.*?)\n\};",
+            r"const loadWeeklyDonations = async \(collectedAt = null\) => \{(?P<body>.*?)\n\};",
             self.app,
             re.DOTALL,
         )
@@ -53,7 +53,16 @@ class DonationsWeeklyFrontendTests(unittest.TestCase):
         self.assertIn("try {", body)
         self.assertIn("catch (error)", body)
         self.assertNotIn("showError", body)
-        self.assertLess(self.app.rfind("renderSite("), self.app.rfind("await loadWeeklyDonations();"))
+        self.assertLess(self.app.rfind("renderSite("), self.app.rfind("await loadWeeklyDonations(config.collected_at);"))
+
+    def test_v2_raw_counter_wording_replaces_delta_lower_bound_wording(self) -> None:
+        self.assertIn("Показываются последние значения игровых счётчиков", self.html)
+        self.assertIn("Текущие показатели в игре", self.contract)
+        self.assertIn("Последний зафиксированный итог", self.contract)
+        self.assertNotIn("подтверждённый минимум", (self.html + self.contract).lower())
+        self.assertIn("week.donations", self.app)
+        self.assertIn("player.donations", self.app)
+        self.assertNotIn("week.donations_confirmed", self.app)
 
     def test_frontend_does_not_reference_private_identity_fields(self) -> None:
         frontend = self.app + "\n" + self.contract

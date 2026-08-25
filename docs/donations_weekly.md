@@ -1,4 +1,39 @@
-# Weekly donations v1
+# Weekly donations
+
+## Public counter-snapshot semantics (schema v2)
+
+Status: implementation complete; controlled production validation pending.
+
+The public primary metric supersedes the earlier confirmed-delta projection.
+For each member of the current roster, the current selection publishes the
+latest confirmed raw `donations` and `donations_received` counters exactly as
+stored in snapshot history. It does not subtract a Monday baseline, sum
+positive transitions, interpolate gaps or exclude resets. A game reset is
+therefore represented directly: a new raw value of zero is published as zero.
+
+The previous selection is the immediately preceding `Europe/Moscow` calendar
+week, Monday 00:00 inclusive to the next Monday 00:00 exclusive. For each
+current roster identity it uses the last confirmed observation inside that
+interval. It does not use a sum or a maximum. A missing or null value is not
+fabricated as zero; missing rows and evidence older than the established
+two-hour collection interval produce objective `partial` coverage flags.
+
+Public schema v2 uses `metric_semantics=game_counter_snapshot`, selections
+`current` and `previous`, and player fields `nickname`, `donations` and
+`donations_received`. Totals are sums of visible current-roster rows. Active
+donors are rows where `donations > 0`. Departed members remain excluded and
+stable tags remain private in-memory join keys.
+
+The current observation timestamp is intentionally absent from the semantic
+payload. Site-level freshness comes from `site-config.json`; another confirmed
+observation with the same counters and roster leaves `donations-weekly.json`
+byte-identical. The existing snapshot SQLite remains authoritative and is read
+only by the builder. No probe or API request was added.
+
+The delta derivation described below remains an internal historical and audit
+utility. It is no longer the production source of displayed donation values.
+
+## Historical v1 implementation record
 
 Status: `completed`
 

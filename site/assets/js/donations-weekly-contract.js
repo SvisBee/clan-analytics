@@ -1,56 +1,49 @@
 /* Shared, dependency-free public weekly-donations display contract. */
 (() => {
-  const allowedSelections = new Set(["current", "previous_usable"]);
-  const allowedStatuses = new Set(["complete", "partial", "insufficient_data"]);
-
   const fail = (message) => {
     throw new Error(`Weekly donations data is invalid: ${message}`);
   };
-
   const isRecord = (value) =>
     value !== null && typeof value === "object" && !Array.isArray(value);
-
   const requireString = (value, field) => {
     if (typeof value !== "string" || !value.trim()) fail(`${field} must be a string`);
   };
-
   const requireCounter = (value, field) => {
     if (!Number.isInteger(value) || value < 0) fail(`${field} must be a non-negative integer`);
   };
-
   const requireBoolean = (value, field) => {
     if (typeof value !== "boolean") fail(`${field} must be a boolean`);
   };
 
-  const validatePlayer = (player) => {
+  const validatePlayerV2 = (player) => {
     if (!isRecord(player)) fail("player must be an object");
     requireString(player.nickname, "nickname");
-    requireCounter(player.donations_confirmed, "player donations_confirmed");
-    requireCounter(player.donations_received_confirmed, "player donations_received_confirmed");
-    requireBoolean(player.reset_affected, "player reset_affected");
-    requireBoolean(player.gap_affected, "player gap_affected");
-    requireBoolean(player.boundary_ambiguous, "player boundary_ambiguous");
+    requireCounter(player.donations, "player donations");
+    requireCounter(player.donations_received, "player donations_received");
   };
 
-  const validateWeek = (week) => {
+  const validateWeekV2 = (week) => {
     if (!isRecord(week)) fail("week must be an object");
     requireString(week.week_id, "week_id");
     requireString(week.week_start, "week_start");
     requireString(week.week_end, "week_end");
-    requireString(week.selection, "selection");
-    requireString(week.status, "status");
-    if (!allowedSelections.has(week.selection)) fail("selection is unsupported");
-    if (!allowedStatuses.has(week.status)) fail("status is unsupported");
-    requireBoolean(week.is_current, "is_current");
-    requireCounter(week.donations_confirmed, "donations_confirmed");
-    requireCounter(week.donations_received_confirmed, "donations_received_confirmed");
-    requireCounter(week.participant_count, "participant_count");
-    requireCounter(week.contributing_player_count, "contributing_player_count");
-    requireBoolean(week.reset_affected, "reset_affected");
-    requireBoolean(week.gap_affected, "gap_affected");
-    requireBoolean(week.boundary_ambiguous, "boundary_ambiguous");
+    if (!["current", "previous"].includes(week.selection)) fail("selection is unsupported");
+    if (!["current", "recorded", "partial"].includes(week.status)) fail("status is unsupported");
+    if (week.snapshot_at_utc !== null) {
+      requireString(week.snapshot_at_utc, "snapshot_at_utc");
+      if (Number.isNaN(new Date(week.snapshot_at_utc).getTime())) fail("snapshot_at_utc is invalid");
+    }
+    for (const field of ["donations", "donations_received", "participant_count", "contributing_player_count"]) {
+      requireCounter(week[field], field);
+    }
+    if (!isRecord(week.coverage)) fail("coverage must be an object");
+    for (const field of ["stale_end_snapshot", "insufficient_data", "reset_observed"]) {
+      requireBoolean(week.coverage[field], `coverage ${field}`);
+    }
+    requireCounter(week.coverage.stale_player_count, "coverage stale_player_count");
+    requireCounter(week.coverage.missing_player_count, "coverage missing_player_count");
     if (!Array.isArray(week.players)) fail("players must be an array");
-    week.players.forEach(validatePlayer);
+    week.players.forEach(validatePlayerV2);
     const start = new Date(week.week_start);
     const end = new Date(week.week_end);
     if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end <= start) {
@@ -58,43 +51,71 @@
     }
   };
 
+  const normalizeLegacyV1 = (payload) => {
+    if (!Array.isArray(payload.weeks)) fail("legacy weeks must be an array");
+    return {
+      schema_version: 2,
+      timezone: payload.timezone,
+      scope: payload.scope,
+      metric_semantics: "legacy_confirmed_delta_rollout",
+      legacy_schema: true,
+      weeks: payload.weeks.slice(0, 2).map((week) => ({
+        week_id: week.week_id,
+        week_start: week.week_start,
+        week_end: week.week_end,
+        selection: week.selection === "previous_usable" ? "previous" : "current",
+        status: week.selection === "current" ? "current" : "partial",
+        snapshot_at_utc: null,
+        donations: week.donations_confirmed,
+        donations_received: week.donations_received_confirmed,
+        participant_count: week.participant_count,
+        contributing_player_count: week.contributing_player_count,
+        coverage: {
+          stale_end_snapshot: false,
+          stale_player_count: 0,
+          missing_player_count: 0,
+          insufficient_data: true,
+          reset_observed: false
+        },
+        players: Array.isArray(week.players) ? week.players.map((player) => ({
+          nickname: player.nickname,
+          donations: player.donations_confirmed,
+          donations_received: player.donations_received_confirmed
+        })) : []
+      }))
+    };
+  };
+
   const validateWeeklyPayload = (payload) => {
     if (!isRecord(payload)) fail("payload must be an object");
-    if (payload.schema_version !== 1) fail("schema_version must equal 1");
-    requireString(payload.timezone, "timezone");
-    requireString(payload.scope, "scope");
-    requireString(payload.metric_semantics, "metric_semantics");
-    requireString(payload.latest_observed_at_utc, "latest_observed_at_utc");
-    if (Number.isNaN(new Date(payload.latest_observed_at_utc).getTime())) {
-      fail("latest_observed_at_utc is invalid");
+    let normalized = payload;
+    if (payload.schema_version === 1) normalized = normalizeLegacyV1(payload);
+    if (normalized.schema_version !== 2) fail("schema_version must equal 2");
+    requireString(normalized.timezone, "timezone");
+    requireString(normalized.scope, "scope");
+    requireString(normalized.metric_semantics, "metric_semantics");
+    if (!Array.isArray(normalized.weeks) || normalized.weeks.length < 1 || normalized.weeks.length > 2) {
+      fail("weeks must contain one or two entries");
     }
-    if (!Array.isArray(payload.weeks) || payload.weeks.length < 1) {
-      fail("weeks must be a non-empty array");
-    }
-    payload.weeks.forEach(validateWeek);
-    const selections = payload.weeks.map((week) => week.selection);
+    normalized.weeks.forEach(validateWeekV2);
+    const selections = normalized.weeks.map((week) => week.selection);
     if (new Set(selections).size !== selections.length) fail("week selections must be unique");
     if (!selections.includes("current")) fail("current week is required");
-    return payload;
+    return normalized;
   };
 
   const selectWeek = (payload, selection = "current") => {
-    validateWeeklyPayload(payload);
-    return payload.weeks.find((week) => week.selection === selection) || null;
+    const normalized = validateWeeklyPayload(payload);
+    return normalized.weeks.find((week) => week.selection === selection) || null;
   };
-
   const dateParts = (date, timezone) => {
     const parts = new Intl.DateTimeFormat("ru-RU", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-      timeZone: timezone
+      day: "numeric", month: "long", year: "numeric", timeZone: timezone
     }).formatToParts(date);
     return Object.fromEntries(parts.map((part) => [part.type, part.value]));
   };
-
   const formatWeekRange = (week, timezone = "Europe/Moscow") => {
-    validateWeek(week);
+    validateWeekV2(week);
     const start = dateParts(new Date(week.week_start), timezone);
     const inclusiveEnd = dateParts(new Date(new Date(week.week_end).getTime() - 1), timezone);
     if (start.year === inclusiveEnd.year && start.month === inclusiveEnd.month) {
@@ -106,30 +127,28 @@
     return `${start.day} ${start.month} ${start.year} – ${inclusiveEnd.day} ${inclusiveEnd.month} ${inclusiveEnd.year}`;
   };
 
-  const weekPresentation = (week) => {
-    validateWeek(week);
-    const title = week.selection === "current"
-      ? "Текущая неделя"
-      : "Предыдущая доступная неделя";
-
-    let badge = "Данные собраны";
-    let explanation = "Доступные данные относятся к завершённой неделе.";
-    if (week.status === "insufficient_data") {
-      badge = "Недостаточно данных";
-      explanation = "Недостаточно подтверждённых данных для надёжного вывода.";
-    } else if (week.selection === "current") {
-      badge = "Подтверждённый минимум";
-      explanation = "Неделя ещё идёт, поэтому итог может увеличиться.";
-    } else if (week.status === "partial") {
-      badge = "Неполные данные";
-      explanation = "В сборе есть пробелы или неоднозначные интервалы. Показан только подтверждённый минимум.";
-    }
-
+  const weekPresentation = (week, { legacySchema = false } = {}) => {
+    validateWeekV2(week);
+    const current = week.selection === "current";
+    let title = current ? "Текущие показатели в игре" : "Предыдущая неделя";
+    let badge = current ? "Текущие счётчики" : "Зафиксировано";
+    let explanation = current
+      ? "Показываются последние значения счётчиков пожертвований из данных клана."
+      : "Последний зафиксированный итог перед началом новой недели.";
     const warnings = [];
-    if (week.gap_affected) warnings.push("В течение недели были разрывы в сборе данных.");
-    if (week.reset_affected) warnings.push("Часть счётчиков сбрасывалась или изменилась неоднозначно.");
-    if (week.boundary_ambiguous) {
-      warnings.push("Некоторые изменения пересекли границу недели и не вошли в подтверждённую сумму.");
+    if (legacySchema) {
+      badge = "Обновление данных";
+      explanation = "Временно показана ранее опубликованная версия данных до первого обновления schema v2.";
+      warnings.push("Ожидается публикация прямых игровых счётчиков.");
+    } else {
+      if (week.coverage.stale_end_snapshot) {
+        badge = "Последний доступный снимок";
+        explanation = "Последний доступный снимок был сделан раньше конца недели.";
+        warnings.push("Итог может не включать активность после последнего доступного снимка.");
+      }
+      if (week.coverage.insufficient_data) {
+        warnings.push("Для части текущего состава нет наблюдения за выбранную неделю.");
+      }
     }
     return { title, badge, explanation, warnings };
   };

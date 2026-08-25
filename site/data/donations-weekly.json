@@ -5,7 +5,7 @@
   "timezone": "Europe/Moscow",
   "weeks": [
     {
-      "contributing_player_count": 21,
+      "contributing_player_count": 23,
       "coverage": {
         "insufficient_data": false,
         "missing_player_count": 0,
@@ -13,9 +13,9 @@
         "stale_end_snapshot": false,
         "stale_player_count": 0
       },
-      "donations": 2839,
-      "donations_received": 1712,
-      "participant_count": 38,
+      "donations": 2949,
+      "donations_received": 1807,
+      "participant_count": 40,
       "players": [
         {
           "donations": 438,
@@ -34,7 +34,7 @@
         },
         {
           "donations": 332,
-          "donations_received": 418,
+          "donations_received": 449,
           "nickname": "SvisBee"
         },
         {
@@ -63,6 +63,11 @@
           "nickname": "wss"
         },
         {
+          "donations": 52,
+          "donations_received": 93,
+          "nickname": "Anarbek"
+        },
+        {
           "donations": 50,
           "donations_received": 0,
           "nickname": "шкура"
@@ -78,9 +83,14 @@
           "nickname": "Саша Саша"
         },
         {
+          "donations": 33,
+          "donations_received": 125,
+          "nickname": "Али"
+        },
+        {
           "donations": 31,
-          "donations_received": 61,
-          "nickname": "Anarbek"
+          "donations_received": 0,
+          "nickname": "Ronin♡"
         },
         {
           "donations": 30,
@@ -103,14 +113,14 @@
           "nickname": "Artoym_Arty"
         },
         {
+          "donations": 26,
+          "donations_received": 0,
+          "nickname": "Krushutell"
+        },
+        {
           "donations": 20,
           "donations_received": 0,
           "nickname": "Дилмурат"
-        },
-        {
-          "donations": 1,
-          "donations_received": 93,
-          "nickname": "Али"
         },
         {
           "donations": 1,
@@ -145,6 +155,11 @@
         {
           "donations": 0,
           "donations_received": 0,
+          "nickname": "basik__37"
+        },
+        {
+          "donations": 0,
+          "donations_received": 0,
           "nickname": "dodiq"
         },
         {
@@ -160,17 +175,17 @@
         {
           "donations": 0,
           "donations_received": 0,
-          "nickname": "Krushutell"
-        },
-        {
-          "donations": 0,
-          "donations_received": 0,
           "nickname": "Mr.killer"
         },
         {
           "donations": 0,
           "donations_received": 0,
           "nickname": "nao"
+        },
+        {
+          "donations": 0,
+          "donations_received": 0,
+          "nickname": "Nur"
         },
         {
           "donations": 0,
@@ -201,11 +216,6 @@
           "donations": 0,
           "donations_received": 0,
           "nickname": "роза"
-        },
-        {
-          "donations": 0,
-          "donations_received": 0,
-          "nickname": "самир"
         }
       ],
       "selection": "current",
@@ -219,7 +229,7 @@
       "contributing_player_count": 13,
       "coverage": {
         "insufficient_data": true,
-        "missing_player_count": 22,
+        "missing_player_count": 24,
         "reset_observed": false,
         "stale_end_snapshot": false,
         "stale_player_count": 0

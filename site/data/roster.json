@@ -5,7 +5,7 @@
   },
   "composition": {
     "members_with_limited_composition_data": 0,
-    "total_members": 38,
+    "total_members": 40,
     "town_hall_distribution": [
       {
         "members": 1,
@@ -24,7 +24,7 @@
         "town_hall_level": 10
       },
       {
-        "members": 27,
+        "members": 29,
         "town_hall_level": 9
       },
       {
@@ -123,6 +123,18 @@
       "clan_role": "member",
       "data_status": "insufficient_data",
       "last_war_date": null,
+      "nickname": "Ronin♡",
+      "stars_earned": null,
+      "town_hall_level": 9,
+      "war_participations": 0
+    },
+    {
+      "attacks_available": null,
+      "attacks_used": null,
+      "average_stars": null,
+      "clan_role": "member",
+      "data_status": "insufficient_data",
+      "last_war_date": null,
       "nickname": "нурс",
       "stars_earned": null,
       "town_hall_level": 9,
@@ -196,6 +208,18 @@
       "data_status": "insufficient_data",
       "last_war_date": null,
       "nickname": "роза",
+      "stars_earned": null,
+      "town_hall_level": 9,
+      "war_participations": 0
+    },
+    {
+      "attacks_available": null,
+      "attacks_used": null,
+      "average_stars": null,
+      "clan_role": "member",
+      "data_status": "insufficient_data",
+      "last_war_date": null,
+      "nickname": "Nur",
       "stars_earned": null,
       "town_hall_level": 9,
       "war_participations": 0
@@ -331,18 +355,6 @@
       "stars_earned": 46,
       "town_hall_level": 9,
       "war_participations": 9
-    },
-    {
-      "attacks_available": null,
-      "attacks_used": null,
-      "average_stars": null,
-      "clan_role": "member",
-      "data_status": "insufficient_data",
-      "last_war_date": null,
-      "nickname": "самир",
-      "stars_earned": null,
-      "town_hall_level": 9,
-      "war_participations": 0
     },
     {
       "attacks_available": null,
@@ -528,10 +540,22 @@
       "stars_earned": 53,
       "town_hall_level": 9,
       "war_participations": 10
+    },
+    {
+      "attacks_available": null,
+      "attacks_used": null,
+      "average_stars": null,
+      "clan_role": "member",
+      "data_status": "insufficient_data",
+      "last_war_date": null,
+      "nickname": "basik__37",
+      "stars_earned": null,
+      "town_hall_level": 9,
+      "war_participations": 0
     }
   ],
   "war_data_coverage": {
     "members_with_data": 14,
-    "members_without_data": 24
+    "members_without_data": 26
   }
 }

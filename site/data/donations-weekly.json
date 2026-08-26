@@ -5,7 +5,7 @@
   "timezone": "Europe/Moscow",
   "weeks": [
     {
-      "contributing_player_count": 24,
+      "contributing_player_count": 25,
       "coverage": {
         "insufficient_data": false,
         "missing_player_count": 0,
@@ -13,8 +13,8 @@
         "stale_end_snapshot": false,
         "stale_player_count": 0
       },
-      "donations": 3425,
-      "donations_received": 2288,
+      "donations": 3427,
+      "donations_received": 2290,
       "participant_count": 43,
       "players": [
         {
@@ -74,7 +74,7 @@
         },
         {
           "donations": 61,
-          "donations_received": 1,
+          "donations_received": 2,
           "nickname": "wss"
         },
         {
@@ -98,14 +98,14 @@
           "nickname": "Kohan"
         },
         {
-          "donations": 31,
-          "donations_received": 26,
-          "nickname": "самир"
+          "donations": 32,
+          "donations_received": 0,
+          "nickname": "Ronin♡"
         },
         {
           "donations": 31,
-          "donations_received": 0,
-          "nickname": "Ronin♡"
+          "donations_received": 27,
+          "nickname": "самир"
         },
         {
           "donations": 30,
@@ -134,6 +134,11 @@
         },
         {
           "donations": 1,
+          "donations_received": 25,
+          "nickname": "Mr.killer"
+        },
+        {
+          "donations": 1,
           "donations_received": 0,
           "nickname": "shaxboz"
         },
@@ -141,11 +146,6 @@
           "donations": 0,
           "donations_received": 32,
           "nickname": "govnozhuy"
-        },
-        {
-          "donations": 0,
-          "donations_received": 25,
-          "nickname": "Mr.killer"
         },
         {
           "donations": 0,

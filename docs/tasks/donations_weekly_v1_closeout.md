@@ -3,11 +3,28 @@
 Status: `completed`
 
 Superseded public semantics: this closeout records the original schema-v1
-confirmed-delta implementation. The production public metric is being replaced
+confirmed-delta implementation. The production public metric has been replaced
 by schema v2 `game_counter_snapshot`, which publishes direct raw counters for
 the current roster and the last observed raw counters from the immediately
 previous Moscow week. The pure delta core is retained only as an internal
 historical/audit utility.
+
+## Public semantics correction closeout
+
+Schema v2 is now the validated production contract. Natural run
+`20260825-170003-26a1d230` first published it in data commit
+`872ec9db2c5d1700e8d273192d275b9f9b1c848e`; no extra API request was added.
+The 26 August follow-up reconciled all 42 current-roster rows against the latest
+confirmed raw counters with mismatch, missing and extra counts all equal to
+zero. The previous-week projection matched all 16 identities with available
+evidence and remained explicitly partial for 26 missing identities.
+
+No reset cluster was observed at the well-covered 24 August Moscow boundary.
+Earlier boundaries lack close observations, so actual game-reset timing remains
+an observational follow-up and does not change the direct-counter semantics.
+Consecutive no-change natural runs also proved byte stability. The original v1
+material below remains the historical record and is not the current public
+metric definition.
 
 ## Scope
 

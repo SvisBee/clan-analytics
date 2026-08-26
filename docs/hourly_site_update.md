@@ -16,8 +16,11 @@ The builder also reads the existing clan snapshot-history SQLite through the
 read-only donations adapter and proposes `site/data/donations-weekly.json`.
 This happens after private roster normalization and before shared public
 validation. The production database path is fixed below the workspace root,
-and a missing or invalid store fails the builder before atomic apply. Weekly
-generation adds no API request and does not write SQLite.
+and a missing or invalid store fails the builder before atomic apply. Schema v2
+publishes direct same-run raw counters for the current roster and the last
+confirmed observation inside the previous Moscow week. Natural rollout and
+exact production reconciliation completed successfully. Weekly generation adds
+no API request and does not write SQLite.
 
 Because the established `snapshot_history` persistence stage follows builder
 and tests, the newly collected roster becomes weekly counter evidence on the

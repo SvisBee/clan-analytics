@@ -2,8 +2,8 @@
 
 ## Public counter-snapshot semantics (schema v2)
 
-Status: implementation complete; natural production validation pending after
-the controlled run exposed a safely handled roster-churn edge case.
+Status: completed and naturally validated in production. The first normal run
+after the roster-churn fix published schema v2 successfully.
 
 The public primary metric supersedes the earlier confirmed-delta projection.
 For each member of the current roster, the current selection publishes the
@@ -37,6 +37,36 @@ added.
 
 The delta derivation described below remains an internal historical and audit
 utility. It is no longer the production source of displayed donation values.
+
+## Schema v2 production validation
+
+Natural normal run `20260825-170003-26a1d230` was the first successful
+schema-v2 publication. Data commit
+`872ec9db2c5d1700e8d273192d275b9f9b1c848e` passed the unchanged three-probe
+flow, builder, public validation, tests, snapshot recording, atomic apply,
+commit and push. No player-profile or additional API request was introduced.
+
+Follow-up reconciliation after run `20260826-120004-89ffd2c3` compared the
+latest confirmed normalized snapshot to the published current selection by
+private tag in memory. All 42 current-roster identities matched, with zero
+mismatches and zero missing or extra public rows. Raw and public totals matched
+at 3,506 donations and 2,372 received. The previous selection independently
+matched all 16 available current-roster identities from the last confirmed
+observation inside `2026-W34`; its partial status correctly records 26 members
+without previous-week evidence.
+
+The well-covered Moscow boundary at 24 August showed no donation or received
+counter decreases across 18 overlapping members, so the current evidence is
+classified `NO_RESET_CLUSTER`. Earlier August boundaries are insufficient for
+boundary inference because the nearest observations are separated by about 354
+hours. Determining the actual in-game reset timing remains a non-blocking
+observational follow-up; public current values remain direct raw counters.
+
+Consecutive natural no-change runs from 01:00 through 07:00 on 26 August kept
+`donations-weekly.json` byte-identical. GitHub Pages workflow
+`32856961208` published the first schema-v2 data commit successfully, and the
+latest checked deployment served repository-identical schema-v2 JSON and
+frontend assets over HTTP 200.
 
 ## Historical v1 implementation record
 

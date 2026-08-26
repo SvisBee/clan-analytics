@@ -5,7 +5,7 @@
   "timezone": "Europe/Moscow",
   "weeks": [
     {
-      "contributing_player_count": 25,
+      "contributing_player_count": 24,
       "coverage": {
         "insufficient_data": false,
         "missing_player_count": 0,
@@ -13,9 +13,9 @@
         "stale_end_snapshot": false,
         "stale_player_count": 0
       },
-      "donations": 3536,
-      "donations_received": 2399,
-      "participant_count": 43,
+      "donations": 3506,
+      "donations_received": 2372,
+      "participant_count": 42,
       "players": [
         {
           "donations": 438,
@@ -68,7 +68,7 @@
           "nickname": "Anarbek"
         },
         {
-          "donations": 86,
+          "donations": 87,
           "donations_received": 80,
           "nickname": "Alexvils"
         },
@@ -106,11 +106,6 @@
           "donations": 32,
           "donations_received": 0,
           "nickname": "Ronin♡"
-        },
-        {
-          "donations": 31,
-          "donations_received": 27,
-          "nickname": "самир"
         },
         {
           "donations": 30,
@@ -244,7 +239,7 @@
       "contributing_player_count": 13,
       "coverage": {
         "insufficient_data": true,
-        "missing_player_count": 27,
+        "missing_player_count": 26,
         "reset_observed": false,
         "stale_end_snapshot": false,
         "stale_player_count": 0

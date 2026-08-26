@@ -20,11 +20,11 @@
         "town_hall_level": 11
       },
       {
-        "members": 2,
+        "members": 3,
         "town_hall_level": 10
       },
       {
-        "members": 30,
+        "members": 29,
         "town_hall_level": 9
       },
       {
@@ -161,7 +161,7 @@
       "last_war_date": "2026-08-27",
       "nickname": "Саша Саша",
       "stars_earned": 0,
-      "town_hall_level": 9,
+      "town_hall_level": 10,
       "war_participations": 1
     },
     {

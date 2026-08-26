@@ -58,7 +58,10 @@ class DonationsWeeklyFrontendTests(unittest.TestCase):
     def test_v2_raw_counter_wording_replaces_delta_lower_bound_wording(self) -> None:
         self.assertIn("Показываются последние значения игровых счётчиков", self.html)
         self.assertIn("Текущие показатели в игре", self.contract)
-        self.assertIn("Последний зафиксированный итог", self.contract)
+        self.assertIn("Последний снимок предыдущей календарной недели", self.contract)
+        self.assertIn("Игровой момент сброса пока не подтверждён", self.contract)
+        self.assertIn("раньше конца календарной недели", self.contract)
+        self.assertNotIn("Последний зафиксированный итог", self.contract)
         self.assertNotIn("подтверждённый минимум", (self.html + self.contract).lower())
         self.assertIn("week.donations", self.app)
         self.assertIn("player.donations", self.app)

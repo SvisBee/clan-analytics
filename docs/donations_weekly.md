@@ -56,11 +56,19 @@ observation inside `2026-W34`; its partial status correctly records 26 members
 without previous-week evidence.
 
 The well-covered Moscow boundary at 24 August showed no donation or received
-counter decreases across 18 overlapping members, so the current evidence is
-classified `NO_RESET_CLUSTER`. Earlier August boundaries are insufficient for
-boundary inference because the nearest observations are separated by about 354
-hours. Determining the actual in-game reset timing remains a non-blocking
-observational follow-up; public current values remain direct raw counters.
+counter decreases across 18 overlapping members. This contradicts an exact
+Monday 00:00 reset for that observed boundary. Earlier August boundaries are
+insufficient for boundary inference because the nearest observations are
+separated by about 354 hours. No bounded mass-reset timestamp or recurrence is
+available, so the real game reset cycle is not yet identifiable.
+
+The public previous selection is therefore a previous Moscow calendar-week
+snapshot, not a completed game donation period or an outcome before a proven
+reset. Its UI title is `Последний снимок предыдущей календарной недели`, and it
+explicitly states that the game reset moment is not confirmed. A stale snapshot
+warning remains a separate collection-coverage fact. No schema, selection or
+calculation change is required; future hourly observations can provide stronger
+reset-cycle evidence. Public current values remain direct raw counters.
 
 Consecutive natural no-change runs from 01:00 through 07:00 on 26 August kept
 `donations-weekly.json` byte-identical. GitHub Pages workflow

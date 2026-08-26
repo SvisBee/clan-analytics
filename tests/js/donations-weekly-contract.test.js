@@ -86,8 +86,11 @@ test("raw-counter wording and previous date range are explicit", () => {
   const previous = payload().weeks[1];
   assert.equal(current.title, "Текущие показатели в игре");
   assert.match(current.explanation, /последние значения счётчиков/);
-  assert.equal(contract.weekPresentation(previous).title, "Предыдущая неделя");
-  assert.match(contract.weekPresentation(previous).explanation, /Последний зафиксированный итог/);
+  const previousPresentation = contract.weekPresentation(previous);
+  assert.equal(previousPresentation.title, "Последний снимок предыдущей календарной недели");
+  assert.match(previousPresentation.explanation, /предыдущую неделю по московскому времени/);
+  assert.match(previousPresentation.explanation, /Игровой момент сброса пока не подтверждён/);
+  assert.doesNotMatch(previousPresentation.title + previousPresentation.explanation, /итог|игровая неделя|игровой период/i);
   assert.equal(contract.formatWeekRange(previous), "17–23 августа");
 });
 
@@ -99,8 +102,9 @@ test("only objective freshness and missing-evidence warnings are rendered", () =
     coverage: coverage({ stale_end_snapshot: true, stale_player_count: 1 })
   });
   const presentation = contract.weekPresentation(stale);
-  assert.match(presentation.explanation, /раньше конца недели/);
+  assert.match(presentation.explanation, /Игровой момент сброса пока не подтверждён/);
   assert.equal(presentation.warnings.length, 1);
+  assert.match(presentation.warnings[0], /раньше конца календарной недели/);
   assert.doesNotMatch(presentation.warnings.join(" "), /reset|boundary|дельт|минимум/i);
 });
 

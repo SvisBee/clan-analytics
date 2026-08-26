@@ -5,7 +5,7 @@
   "timezone": "Europe/Moscow",
   "weeks": [
     {
-      "contributing_player_count": 24,
+      "contributing_player_count": 25,
       "coverage": {
         "insufficient_data": false,
         "missing_player_count": 0,
@@ -13,8 +13,8 @@
         "stale_end_snapshot": false,
         "stale_player_count": 0
       },
-      "donations": 3506,
-      "donations_received": 2372,
+      "donations": 3568,
+      "donations_received": 2434,
       "participant_count": 42,
       "players": [
         {
@@ -24,7 +24,7 @@
         },
         {
           "donations": 404,
-          "donations_received": 541,
+          "donations_received": 572,
           "nickname": "SvisBee"
         },
         {
@@ -63,9 +63,14 @@
           "nickname": "Fyst"
         },
         {
-          "donations": 109,
+          "donations": 110,
           "donations_received": 155,
           "nickname": "Anarbek"
+        },
+        {
+          "donations": 92,
+          "donations_received": 4,
+          "nickname": "wss"
         },
         {
           "donations": 87,
@@ -74,13 +79,8 @@
         },
         {
           "donations": 85,
-          "donations_received": 343,
+          "donations_received": 373,
           "nickname": "Али"
-        },
-        {
-          "donations": 61,
-          "donations_received": 3,
-          "nickname": "wss"
         },
         {
           "donations": 61,
@@ -106,6 +106,11 @@
           "donations": 32,
           "donations_received": 0,
           "nickname": "Ronin♡"
+        },
+        {
+          "donations": 30,
+          "donations_received": 32,
+          "nickname": "govnozhuy"
         },
         {
           "donations": 30,
@@ -141,11 +146,6 @@
           "donations": 0,
           "donations_received": 52,
           "nickname": "KING"
-        },
-        {
-          "donations": 0,
-          "donations_received": 32,
-          "nickname": "govnozhuy"
         },
         {
           "donations": 0,

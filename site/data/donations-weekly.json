@@ -13,8 +13,8 @@
         "stale_end_snapshot": false,
         "stale_player_count": 0
       },
-      "donations": 3589,
-      "donations_received": 2455,
+      "donations": 3676,
+      "donations_received": 2542,
       "participant_count": 42,
       "players": [
         {
@@ -24,7 +24,7 @@
         },
         {
           "donations": 404,
-          "donations_received": 572,
+          "donations_received": 602,
           "nickname": "SvisBee"
         },
         {
@@ -48,7 +48,7 @@
           "nickname": "сява"
         },
         {
-          "donations": 266,
+          "donations": 297,
           "donations_received": 32,
           "nickname": "Саша Саша"
         },
@@ -58,14 +58,14 @@
           "nickname": "Kedr"
         },
         {
+          "donations": 137,
+          "donations_received": 155,
+          "nickname": "Anarbek"
+        },
+        {
           "donations": 114,
           "donations_received": 180,
           "nickname": "Fyst"
-        },
-        {
-          "donations": 111,
-          "donations_received": 155,
-          "nickname": "Anarbek"
         },
         {
           "donations": 92,
@@ -86,6 +86,11 @@
           "donations": 61,
           "donations_received": 0,
           "nickname": "Terzi_T"
+        },
+        {
+          "donations": 50,
+          "donations_received": 26,
+          "nickname": "Дилмурат"
         },
         {
           "donations": 50,
@@ -133,11 +138,6 @@
           "nickname": "Krushutell"
         },
         {
-          "donations": 20,
-          "donations_received": 0,
-          "nickname": "Дилмурат"
-        },
-        {
           "donations": 1,
           "donations_received": 0,
           "nickname": "shaxboz"
@@ -149,6 +149,11 @@
         },
         {
           "donations": 0,
+          "donations_received": 31,
+          "nickname": "AGGRESSOR"
+        },
+        {
+          "donations": 0,
           "donations_received": 20,
           "nickname": "Ronnurik"
         },
@@ -156,11 +161,6 @@
           "donations": 0,
           "donations_received": 1,
           "nickname": "Jako"
-        },
-        {
-          "donations": 0,
-          "donations_received": 0,
-          "nickname": "AGGRESSOR"
         },
         {
           "donations": 0,

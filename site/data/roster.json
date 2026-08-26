@@ -20,11 +20,11 @@
         "town_hall_level": 11
       },
       {
-        "members": 1,
+        "members": 2,
         "town_hall_level": 10
       },
       {
-        "members": 32,
+        "members": 31,
         "town_hall_level": 9
       },
       {
@@ -281,7 +281,7 @@
       "last_war_date": null,
       "nickname": "iTeeshka",
       "stars_earned": null,
-      "town_hall_level": 9,
+      "town_hall_level": 10,
       "war_participations": 0
     },
     {

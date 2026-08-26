@@ -13,8 +13,8 @@
         "stale_end_snapshot": false,
         "stale_player_count": 0
       },
-      "donations": 3427,
-      "donations_received": 2290,
+      "donations": 3478,
+      "donations_received": 2341,
       "participant_count": 43,
       "players": [
         {
@@ -68,6 +68,11 @@
           "nickname": "Alexvils"
         },
         {
+          "donations": 85,
+          "donations_received": 343,
+          "nickname": "Али"
+        },
+        {
           "donations": 83,
           "donations_received": 155,
           "nickname": "Anarbek"
@@ -76,11 +81,6 @@
           "donations": 61,
           "donations_received": 2,
           "nickname": "wss"
-        },
-        {
-          "donations": 60,
-          "donations_received": 343,
-          "nickname": "Али"
         },
         {
           "donations": 50,
@@ -123,6 +123,11 @@
           "nickname": "Artoym_Arty"
         },
         {
+          "donations": 27,
+          "donations_received": 25,
+          "nickname": "Mr.killer"
+        },
+        {
           "donations": 26,
           "donations_received": 0,
           "nickname": "Krushutell"
@@ -134,13 +139,13 @@
         },
         {
           "donations": 1,
-          "donations_received": 25,
-          "nickname": "Mr.killer"
-        },
-        {
-          "donations": 1,
           "donations_received": 0,
           "nickname": "shaxboz"
+        },
+        {
+          "donations": 0,
+          "donations_received": 52,
+          "nickname": "KING"
         },
         {
           "donations": 0,
@@ -151,11 +156,6 @@
           "donations": 0,
           "donations_received": 20,
           "nickname": "Ronnurik"
-        },
-        {
-          "donations": 0,
-          "donations_received": 1,
-          "nickname": "KING"
         },
         {
           "donations": 0,

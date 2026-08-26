@@ -13,8 +13,8 @@
         "stale_end_snapshot": false,
         "stale_player_count": 0
       },
-      "donations": 3588,
-      "donations_received": 2454,
+      "donations": 3589,
+      "donations_received": 2455,
       "participant_count": 42,
       "players": [
         {
@@ -63,7 +63,7 @@
           "nickname": "Fyst"
         },
         {
-          "donations": 110,
+          "donations": 111,
           "donations_received": 155,
           "nickname": "Anarbek"
         },
@@ -154,6 +154,11 @@
         },
         {
           "donations": 0,
+          "donations_received": 1,
+          "nickname": "Jako"
+        },
+        {
+          "donations": 0,
           "donations_received": 0,
           "nickname": "AGGRESSOR"
         },
@@ -181,11 +186,6 @@
           "donations": 0,
           "donations_received": 0,
           "nickname": "iTeeshka"
-        },
-        {
-          "donations": 0,
-          "donations_received": 0,
-          "nickname": "Jako"
         },
         {
           "donations": 0,

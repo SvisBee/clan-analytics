@@ -13,8 +13,8 @@
         "stale_end_snapshot": false,
         "stale_player_count": 0
       },
-      "donations": 3478,
-      "donations_received": 2341,
+      "donations": 3536,
+      "donations_received": 2399,
       "participant_count": 43,
       "players": [
         {
@@ -24,7 +24,7 @@
         },
         {
           "donations": 404,
-          "donations_received": 510,
+          "donations_received": 541,
           "nickname": "SvisBee"
         },
         {
@@ -63,6 +63,11 @@
           "nickname": "Fyst"
         },
         {
+          "donations": 109,
+          "donations_received": 155,
+          "nickname": "Anarbek"
+        },
+        {
           "donations": 86,
           "donations_received": 80,
           "nickname": "Alexvils"
@@ -73,14 +78,14 @@
           "nickname": "Али"
         },
         {
-          "donations": 83,
-          "donations_received": 155,
-          "nickname": "Anarbek"
+          "donations": 61,
+          "donations_received": 3,
+          "nickname": "wss"
         },
         {
           "donations": 61,
-          "donations_received": 2,
-          "nickname": "wss"
+          "donations_received": 0,
+          "nickname": "Terzi_T"
         },
         {
           "donations": 50,
@@ -113,19 +118,14 @@
           "nickname": "kent"
         },
         {
-          "donations": 30,
-          "donations_received": 0,
-          "nickname": "Terzi_T"
+          "donations": 28,
+          "donations_received": 51,
+          "nickname": "Mr.killer"
         },
         {
           "donations": 28,
           "donations_received": 0,
           "nickname": "Artoym_Arty"
-        },
-        {
-          "donations": 27,
-          "donations_received": 25,
-          "nickname": "Mr.killer"
         },
         {
           "donations": 26,

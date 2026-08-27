@@ -5,7 +5,7 @@
   "timezone": "Europe/Moscow",
   "weeks": [
     {
-      "contributing_player_count": 24,
+      "contributing_player_count": 25,
       "coverage": {
         "insufficient_data": false,
         "missing_player_count": 0,
@@ -13,13 +13,13 @@
         "stale_end_snapshot": false,
         "stale_player_count": 0
       },
-      "donations": 4186,
-      "donations_received": 3055,
+      "donations": 4187,
+      "donations_received": 3056,
       "participant_count": 41,
       "players": [
         {
           "donations": 651,
-          "donations_received": 92,
+          "donations_received": 93,
           "nickname": "FRENI"
         },
         {
@@ -135,6 +135,11 @@
         {
           "donations": 1,
           "donations_received": 0,
+          "nickname": "Islamov"
+        },
+        {
+          "donations": 1,
+          "donations_received": 0,
           "nickname": "shaxboz"
         },
         {
@@ -171,11 +176,6 @@
           "donations": 0,
           "donations_received": 0,
           "nickname": "dodiq"
-        },
-        {
-          "donations": 0,
-          "donations_received": 0,
-          "nickname": "Islamov"
         },
         {
           "donations": 0,

@@ -112,8 +112,8 @@
     },
     {
       "attacks_available": 26,
-      "attacks_used": 20,
-      "average_stars": 2.7,
+      "attacks_used": 21,
+      "average_stars": 2.71,
       "clan_role": "admin",
       "data_status": "available",
       "last_war_date": "2026-08-27",
@@ -124,7 +124,7 @@
       "new_stars_contributed": null,
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "Kedr",
-      "stars_earned": 54,
+      "stars_earned": 57,
       "town_hall_level": 9,
       "war_participations": 13
     },

@@ -13,8 +13,8 @@
         "stale_end_snapshot": false,
         "stale_player_count": 0
       },
-      "donations": 4207,
-      "donations_received": 3076,
+      "donations": 4237,
+      "donations_received": 3106,
       "participant_count": 41,
       "players": [
         {
@@ -74,7 +74,7 @@
         },
         {
           "donations": 111,
-          "donations_received": 436,
+          "donations_received": 466,
           "nickname": "Али"
         },
         {
@@ -113,6 +113,11 @@
           "nickname": "Ronin♡"
         },
         {
+          "donations": 31,
+          "donations_received": 0,
+          "nickname": "shaxboz"
+        },
+        {
           "donations": 30,
           "donations_received": 94,
           "nickname": "govnozhuy"
@@ -136,11 +141,6 @@
           "donations": 21,
           "donations_received": 0,
           "nickname": "Islamov"
-        },
-        {
-          "donations": 1,
-          "donations_received": 0,
-          "nickname": "shaxboz"
         },
         {
           "donations": 0,

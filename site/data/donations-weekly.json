@@ -13,8 +13,8 @@
         "stale_end_snapshot": false,
         "stale_player_count": 0
       },
-      "donations": 4323,
-      "donations_received": 3222,
+      "donations": 4343,
+      "donations_received": 3242,
       "participant_count": 40,
       "players": [
         {
@@ -69,11 +69,11 @@
         },
         {
           "donations": 138,
-          "donations_received": 100,
+          "donations_received": 120,
           "nickname": "Alexvils"
         },
         {
-          "donations": 115,
+          "donations": 135,
           "donations_received": 206,
           "nickname": "Fyst"
         },

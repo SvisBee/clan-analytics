@@ -5,7 +5,7 @@
   },
   "composition": {
     "members_with_limited_composition_data": 0,
-    "total_members": 41,
+    "total_members": 40,
     "town_hall_distribution": [
       {
         "members": 1,
@@ -24,7 +24,7 @@
         "town_hall_level": 10
       },
       {
-        "members": 28,
+        "members": 27,
         "town_hall_level": 9
       },
       {
@@ -112,8 +112,8 @@
     },
     {
       "attacks_available": 26,
-      "attacks_used": 21,
-      "average_stars": 2.71,
+      "attacks_used": 22,
+      "average_stars": 2.73,
       "clan_role": "admin",
       "data_status": "available",
       "last_war_date": "2026-08-27",
@@ -124,7 +124,7 @@
       "new_stars_contributed": null,
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "Kedr",
-      "stars_earned": 57,
+      "stars_earned": 60,
       "town_hall_level": 9,
       "war_participations": 13
     },
@@ -470,18 +470,6 @@
       "war_participations": 0
     },
     {
-      "attacks_available": null,
-      "attacks_used": null,
-      "average_stars": null,
-      "clan_role": "member",
-      "data_status": "insufficient_data",
-      "last_war_date": null,
-      "nickname": "Terzi_T",
-      "stars_earned": null,
-      "town_hall_level": 9,
-      "war_participations": 0
-    },
-    {
       "attacks_available": 18,
       "attacks_used": 8,
       "average_stars": 2.5,
@@ -568,6 +556,6 @@
   ],
   "war_data_coverage": {
     "members_with_data": 19,
-    "members_without_data": 22
+    "members_without_data": 21
   }
 }

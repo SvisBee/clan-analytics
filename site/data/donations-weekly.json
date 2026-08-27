@@ -13,8 +13,8 @@
         "stale_end_snapshot": false,
         "stale_player_count": 0
       },
-      "donations": 4241,
-      "donations_received": 3140,
+      "donations": 4323,
+      "donations_received": 3222,
       "participant_count": 40,
       "players": [
         {
@@ -29,7 +29,7 @@
         },
         {
           "donations": 458,
-          "donations_received": 695,
+          "donations_received": 726,
           "nickname": "SvisBee"
         },
         {
@@ -63,7 +63,12 @@
           "nickname": "Anarbek"
         },
         {
-          "donations": 118,
+          "donations": 142,
+          "donations_received": 466,
+          "nickname": "Али"
+        },
+        {
+          "donations": 138,
           "donations_received": 100,
           "nickname": "Alexvils"
         },
@@ -71,11 +76,6 @@
           "donations": 115,
           "donations_received": 206,
           "nickname": "Fyst"
-        },
-        {
-          "donations": 111,
-          "donations_received": 466,
-          "nickname": "Али"
         },
         {
           "donations": 93,
@@ -86,6 +86,11 @@
           "donations": 81,
           "donations_received": 52,
           "nickname": "Дилмурат"
+        },
+        {
+          "donations": 65,
+          "donations_received": 80,
+          "nickname": "Kohan"
         },
         {
           "donations": 61,
@@ -101,11 +106,6 @@
           "donations": 42,
           "donations_received": 130,
           "nickname": "VB(;"
-        },
-        {
-          "donations": 34,
-          "donations_received": 60,
-          "nickname": "Kohan"
         },
         {
           "donations": 32,
@@ -154,6 +154,11 @@
         },
         {
           "donations": 0,
+          "donations_received": 31,
+          "nickname": "ospo56"
+        },
+        {
+          "donations": 0,
           "donations_received": 20,
           "nickname": "Ronnurik"
         },
@@ -186,11 +191,6 @@
           "donations": 0,
           "donations_received": 0,
           "nickname": "Nur"
-        },
-        {
-          "donations": 0,
-          "donations_received": 0,
-          "nickname": "ospo56"
         },
         {
           "donations": 0,

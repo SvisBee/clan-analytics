@@ -5,7 +5,7 @@
   "timezone": "Europe/Moscow",
   "weeks": [
     {
-      "contributing_player_count": 25,
+      "contributing_player_count": 24,
       "coverage": {
         "insufficient_data": false,
         "missing_player_count": 0,
@@ -13,29 +13,29 @@
         "stale_end_snapshot": false,
         "stale_player_count": 0
       },
-      "donations": 3677,
-      "donations_received": 2543,
-      "participant_count": 42,
+      "donations": 3997,
+      "donations_received": 2866,
+      "participant_count": 41,
       "players": [
         {
-          "donations": 438,
+          "donations": 509,
+          "donations_received": 47,
+          "nickname": "FRENI"
+        },
+        {
+          "donations": 464,
           "donations_received": 67,
           "nickname": "Арче"
         },
         {
-          "donations": 405,
-          "donations_received": 602,
+          "donations": 456,
+          "donations_received": 664,
           "nickname": "SvisBee"
         },
         {
-          "donations": 397,
+          "donations": 428,
           "donations_received": 0,
           "nickname": "кума88"
-        },
-        {
-          "donations": 387,
-          "donations_received": 47,
-          "nickname": "FRENI"
         },
         {
           "donations": 300,
@@ -58,39 +58,39 @@
           "nickname": "Kedr"
         },
         {
-          "donations": 137,
-          "donations_received": 155,
+          "donations": 167,
+          "donations_received": 186,
           "nickname": "Anarbek"
         },
         {
-          "donations": 114,
-          "donations_received": 180,
-          "nickname": "Fyst"
-        },
-        {
-          "donations": 92,
-          "donations_received": 4,
-          "nickname": "wss"
-        },
-        {
-          "donations": 87,
+          "donations": 118,
           "donations_received": 80,
           "nickname": "Alexvils"
         },
         {
-          "donations": 85,
-          "donations_received": 374,
+          "donations": 114,
+          "donations_received": 206,
+          "nickname": "Fyst"
+        },
+        {
+          "donations": 111,
+          "donations_received": 435,
           "nickname": "Али"
         },
         {
-          "donations": 61,
-          "donations_received": 0,
-          "nickname": "Terzi_T"
+          "donations": 92,
+          "donations_received": 34,
+          "nickname": "wss"
         },
         {
-          "donations": 50,
-          "donations_received": 26,
+          "donations": 81,
+          "donations_received": 52,
           "nickname": "Дилмурат"
+        },
+        {
+          "donations": 61,
+          "donations_received": 31,
+          "nickname": "Terzi_T"
         },
         {
           "donations": 50,
@@ -104,7 +104,7 @@
         },
         {
           "donations": 34,
-          "donations_received": 40,
+          "donations_received": 60,
           "nickname": "Kohan"
         },
         {
@@ -114,18 +114,13 @@
         },
         {
           "donations": 30,
-          "donations_received": 32,
+          "donations_received": 63,
           "nickname": "govnozhuy"
         },
         {
           "donations": 30,
           "donations_received": 0,
           "nickname": "kent"
-        },
-        {
-          "donations": 28,
-          "donations_received": 51,
-          "nickname": "Mr.killer"
         },
         {
           "donations": 28,
@@ -144,7 +139,7 @@
         },
         {
           "donations": 0,
-          "donations_received": 52,
+          "donations_received": 78,
           "nickname": "KING"
         },
         {
@@ -154,13 +149,13 @@
         },
         {
           "donations": 0,
-          "donations_received": 20,
-          "nickname": "Ronnurik"
+          "donations_received": 31,
+          "nickname": "Jako"
         },
         {
           "donations": 0,
-          "donations_received": 1,
-          "nickname": "Jako"
+          "donations_received": 20,
+          "nickname": "Ronnurik"
         },
         {
           "donations": 0,
@@ -239,7 +234,7 @@
       "contributing_player_count": 13,
       "coverage": {
         "insufficient_data": true,
-        "missing_player_count": 26,
+        "missing_player_count": 25,
         "reset_observed": false,
         "stale_end_snapshot": false,
         "stale_player_count": 0

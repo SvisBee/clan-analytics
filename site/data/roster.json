@@ -5,7 +5,7 @@
   },
   "composition": {
     "members_with_limited_composition_data": 0,
-    "total_members": 42,
+    "total_members": 41,
     "town_hall_distribution": [
       {
         "members": 1,
@@ -24,7 +24,7 @@
         "town_hall_level": 10
       },
       {
-        "members": 29,
+        "members": 28,
         "town_hall_level": 9
       },
       {
@@ -154,25 +154,25 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
+      "attacks_used": 2,
+      "average_stars": 2.5,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-08-27",
       "nickname": "Саша Саша",
-      "stars_earned": 0,
+      "stars_earned": 5,
       "town_hall_level": 10,
       "war_participations": 1
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
+      "attacks_used": 2,
+      "average_stars": 1.0,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-08-27",
       "nickname": "Дилмурат",
-      "stars_earned": 0,
+      "stars_earned": 2,
       "town_hall_level": 9,
       "war_participations": 1
     },
@@ -315,18 +315,6 @@
       "clan_role": "member",
       "data_status": "insufficient_data",
       "last_war_date": null,
-      "nickname": "Mr.killer",
-      "stars_earned": null,
-      "town_hall_level": 9,
-      "war_participations": 0
-    },
-    {
-      "attacks_available": null,
-      "attacks_used": null,
-      "average_stars": null,
-      "clan_role": "member",
-      "data_status": "insufficient_data",
-      "last_war_date": null,
       "nickname": "wss",
       "stars_earned": null,
       "town_hall_level": 9,
@@ -334,13 +322,13 @@
     },
     {
       "attacks_available": 12,
-      "attacks_used": 8,
-      "average_stars": 2.0,
+      "attacks_used": 10,
+      "average_stars": 1.9,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-08-27",
       "nickname": "MiKiRi",
-      "stars_earned": 16,
+      "stars_earned": 19,
       "town_hall_level": 9,
       "war_participations": 6
     },
@@ -358,13 +346,13 @@
     },
     {
       "attacks_available": 20,
-      "attacks_used": 18,
-      "average_stars": 2.56,
+      "attacks_used": 20,
+      "average_stars": 2.6,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-08-27",
       "nickname": "Али",
-      "stars_earned": 46,
+      "stars_earned": 52,
       "town_hall_level": 9,
       "war_participations": 10
     },
@@ -441,20 +429,20 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
+      "attacks_used": 2,
+      "average_stars": 3.0,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-08-27",
       "nickname": "Kohan",
-      "stars_earned": 0,
+      "stars_earned": 6,
       "town_hall_level": 9,
       "war_participations": 1
     },
     {
       "attacks_available": 14,
-      "attacks_used": 8,
-      "average_stars": 2.75,
+      "attacks_used": 9,
+      "average_stars": 2.78,
       "clan_role": "coLeader",
       "data_status": "available",
       "last_war_date": "2026-08-27",
@@ -465,7 +453,7 @@
       "new_stars_contributed": null,
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "шкура",
-      "stars_earned": 22,
+      "stars_earned": 25,
       "town_hall_level": 8,
       "war_participations": 7
     },
@@ -525,13 +513,13 @@
     },
     {
       "attacks_available": 8,
-      "attacks_used": 6,
-      "average_stars": 2.5,
+      "attacks_used": 8,
+      "average_stars": 2.12,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-08-27",
       "nickname": "сява",
-      "stars_earned": 15,
+      "stars_earned": 17,
       "town_hall_level": 9,
       "war_participations": 4
     },
@@ -549,8 +537,8 @@
     },
     {
       "attacks_available": 22,
-      "attacks_used": 18,
-      "average_stars": 2.94,
+      "attacks_used": 20,
+      "average_stars": 2.95,
       "clan_role": "coLeader",
       "data_status": "available",
       "last_war_date": "2026-08-27",
@@ -561,7 +549,7 @@
       "new_stars_contributed": null,
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "SvisBee",
-      "stars_earned": 53,
+      "stars_earned": 59,
       "town_hall_level": 9,
       "war_participations": 11
     },
@@ -580,6 +568,6 @@
   ],
   "war_data_coverage": {
     "members_with_data": 19,
-    "members_without_data": 23
+    "members_without_data": 22
   }
 }

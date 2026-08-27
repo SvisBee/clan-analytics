@@ -13,8 +13,8 @@
         "stale_end_snapshot": false,
         "stale_player_count": 0
       },
-      "donations": 4207,
-      "donations_received": 3106,
+      "donations": 4240,
+      "donations_received": 3139,
       "participant_count": 40,
       "players": [
         {
@@ -28,8 +28,8 @@
           "nickname": "Арче"
         },
         {
-          "donations": 456,
-          "donations_received": 664,
+          "donations": 457,
+          "donations_received": 695,
           "nickname": "SvisBee"
         },
         {
@@ -68,7 +68,7 @@
           "nickname": "Alexvils"
         },
         {
-          "donations": 114,
+          "donations": 115,
           "donations_received": 206,
           "nickname": "Fyst"
         },
@@ -86,6 +86,11 @@
           "donations": 81,
           "donations_received": 52,
           "nickname": "Дилмурат"
+        },
+        {
+          "donations": 61,
+          "donations_received": 96,
+          "nickname": "govnozhuy"
         },
         {
           "donations": 50,
@@ -111,11 +116,6 @@
           "donations": 31,
           "donations_received": 0,
           "nickname": "shaxboz"
-        },
-        {
-          "donations": 30,
-          "donations_received": 94,
-          "nickname": "govnozhuy"
         },
         {
           "donations": 30,

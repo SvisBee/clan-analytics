@@ -13,8 +13,8 @@
         "stale_end_snapshot": false,
         "stale_player_count": 0
       },
-      "donations": 4486,
-      "donations_received": 3385,
+      "donations": 4537,
+      "donations_received": 3436,
       "participant_count": 40,
       "players": [
         {
@@ -23,14 +23,14 @@
           "nickname": "FRENI"
         },
         {
+          "donations": 479,
+          "donations_received": 757,
+          "nickname": "SvisBee"
+        },
+        {
           "donations": 464,
           "donations_received": 67,
           "nickname": "Арче"
-        },
-        {
-          "donations": 459,
-          "donations_received": 726,
-          "nickname": "SvisBee"
         },
         {
           "donations": 428,
@@ -69,7 +69,7 @@
         },
         {
           "donations": 138,
-          "donations_received": 120,
+          "donations_received": 140,
           "nickname": "Alexvils"
         },
         {
@@ -113,6 +113,11 @@
           "nickname": "VB(;"
         },
         {
+          "donations": 41,
+          "donations_received": 62,
+          "nickname": "AGGRESSOR"
+        },
+        {
           "donations": 32,
           "donations_received": 30,
           "nickname": "Ronin♡"
@@ -136,11 +141,6 @@
           "donations": 26,
           "donations_received": 0,
           "nickname": "Krushutell"
-        },
-        {
-          "donations": 10,
-          "donations_received": 62,
-          "nickname": "AGGRESSOR"
         },
         {
           "donations": 0,

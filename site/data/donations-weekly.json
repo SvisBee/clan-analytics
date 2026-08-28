@@ -5,7 +5,7 @@
   "timezone": "Europe/Moscow",
   "weeks": [
     {
-      "contributing_player_count": 24,
+      "contributing_player_count": 25,
       "coverage": {
         "insufficient_data": false,
         "missing_player_count": 0,
@@ -13,8 +13,8 @@
         "stale_end_snapshot": false,
         "stale_player_count": 0
       },
-      "donations": 4343,
-      "donations_received": 3242,
+      "donations": 4456,
+      "donations_received": 3355,
       "participant_count": 40,
       "players": [
         {
@@ -28,7 +28,7 @@
           "nickname": "Арче"
         },
         {
-          "donations": 458,
+          "donations": 459,
           "donations_received": 726,
           "nickname": "SvisBee"
         },
@@ -58,13 +58,13 @@
           "nickname": "Kedr"
         },
         {
-          "donations": 167,
+          "donations": 187,
           "donations_received": 247,
           "nickname": "Anarbek"
         },
         {
           "donations": 142,
-          "donations_received": 466,
+          "donations_received": 496,
           "nickname": "Али"
         },
         {
@@ -79,8 +79,18 @@
         },
         {
           "donations": 93,
-          "donations_received": 34,
+          "donations_received": 65,
           "nickname": "wss"
+        },
+        {
+          "donations": 82,
+          "donations_received": 0,
+          "nickname": "Islamov"
+        },
+        {
+          "donations": 81,
+          "donations_received": 98,
+          "nickname": "govnozhuy"
         },
         {
           "donations": 81,
@@ -88,14 +98,9 @@
           "nickname": "Дилмурат"
         },
         {
-          "donations": 65,
-          "donations_received": 80,
+          "donations": 66,
+          "donations_received": 100,
           "nickname": "Kohan"
-        },
-        {
-          "donations": 61,
-          "donations_received": 97,
-          "nickname": "govnozhuy"
         },
         {
           "donations": 50,
@@ -133,19 +138,14 @@
           "nickname": "Krushutell"
         },
         {
-          "donations": 21,
-          "donations_received": 0,
-          "nickname": "Islamov"
+          "donations": 10,
+          "donations_received": 62,
+          "nickname": "AGGRESSOR"
         },
         {
           "donations": 0,
           "donations_received": 78,
           "nickname": "KING"
-        },
-        {
-          "donations": 0,
-          "donations_received": 31,
-          "nickname": "AGGRESSOR"
         },
         {
           "donations": 0,

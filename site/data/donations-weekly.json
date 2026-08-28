@@ -5,7 +5,7 @@
   "timezone": "Europe/Moscow",
   "weeks": [
     {
-      "contributing_player_count": 25,
+      "contributing_player_count": 26,
       "coverage": {
         "insufficient_data": false,
         "missing_player_count": 0,
@@ -13,17 +13,17 @@
         "stale_end_snapshot": false,
         "stale_player_count": 0
       },
-      "donations": 4657,
-      "donations_received": 3556,
+      "donations": 4789,
+      "donations_received": 3688,
       "participant_count": 40,
       "players": [
         {
-          "donations": 712,
-          "donations_received": 93,
+          "donations": 743,
+          "donations_received": 138,
           "nickname": "FRENI"
         },
         {
-          "donations": 479,
+          "donations": 509,
           "donations_received": 788,
           "nickname": "SvisBee"
         },
@@ -38,7 +38,7 @@
           "nickname": "кума88"
         },
         {
-          "donations": 300,
+          "donations": 345,
           "donations_received": 234,
           "nickname": "MiKiRi"
         },
@@ -54,22 +54,22 @@
         },
         {
           "donations": 272,
-          "donations_received": 260,
+          "donations_received": 265,
           "nickname": "Kedr"
         },
         {
           "donations": 244,
-          "donations_received": 277,
+          "donations_received": 308,
           "nickname": "Anarbek"
         },
         {
           "donations": 142,
-          "donations_received": 496,
+          "donations_received": 526,
           "nickname": "Али"
         },
         {
           "donations": 138,
-          "donations_received": 140,
+          "donations_received": 160,
           "nickname": "Alexvils"
         },
         {
@@ -78,7 +78,7 @@
           "nickname": "Fyst"
         },
         {
-          "donations": 113,
+          "donations": 114,
           "donations_received": 0,
           "nickname": "Islamov"
         },
@@ -143,8 +143,8 @@
           "nickname": "Krushutell"
         },
         {
-          "donations": 0,
-          "donations_received": 105,
+          "donations": 25,
+          "donations_received": 106,
           "nickname": "KING"
         },
         {

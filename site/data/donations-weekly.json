@@ -5,7 +5,7 @@
   "timezone": "Europe/Moscow",
   "weeks": [
     {
-      "contributing_player_count": 26,
+      "contributing_player_count": 27,
       "coverage": {
         "insufficient_data": false,
         "missing_player_count": 0,
@@ -13,8 +13,8 @@
         "stale_end_snapshot": false,
         "stale_player_count": 0
       },
-      "donations": 4810,
-      "donations_received": 3709,
+      "donations": 4862,
+      "donations_received": 3761,
       "participant_count": 40,
       "players": [
         {
@@ -24,7 +24,7 @@
         },
         {
           "donations": 509,
-          "donations_received": 788,
+          "donations_received": 819,
           "nickname": "SvisBee"
         },
         {
@@ -43,14 +43,14 @@
           "nickname": "MiKiRi"
         },
         {
+          "donations": 318,
+          "donations_received": 32,
+          "nickname": "Саша Саша"
+        },
+        {
           "donations": 299,
           "donations_received": 177,
           "nickname": "сява"
-        },
-        {
-          "donations": 298,
-          "donations_received": 32,
-          "nickname": "Саша Саша"
         },
         {
           "donations": 272,
@@ -69,7 +69,7 @@
         },
         {
           "donations": 138,
-          "donations_received": 160,
+          "donations_received": 180,
           "nickname": "Alexvils"
         },
         {
@@ -83,13 +83,13 @@
           "nickname": "Islamov"
         },
         {
-          "donations": 97,
+          "donations": 128,
           "donations_received": 100,
           "nickname": "Kohan"
         },
         {
           "donations": 94,
-          "donations_received": 65,
+          "donations_received": 66,
           "nickname": "wss"
         },
         {
@@ -148,6 +148,11 @@
           "nickname": "KING"
         },
         {
+          "donations": 1,
+          "donations_received": 0,
+          "nickname": "SHREK2009"
+        },
+        {
           "donations": 0,
           "donations_received": 62,
           "nickname": "Jako"
@@ -196,11 +201,6 @@
           "donations": 0,
           "donations_received": 0,
           "nickname": "Nur"
-        },
-        {
-          "donations": 0,
-          "donations_received": 0,
-          "nickname": "SHREK2009"
         },
         {
           "donations": 0,

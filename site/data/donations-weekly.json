@@ -13,8 +13,8 @@
         "stale_end_snapshot": false,
         "stale_player_count": 0
       },
-      "donations": 4599,
-      "donations_received": 3498,
+      "donations": 4655,
+      "donations_received": 3554,
       "participant_count": 40,
       "players": [
         {
@@ -58,7 +58,7 @@
           "nickname": "Kedr"
         },
         {
-          "donations": 187,
+          "donations": 243,
           "donations_received": 277,
           "nickname": "Anarbek"
         },
@@ -144,7 +144,7 @@
         },
         {
           "donations": 0,
-          "donations_received": 78,
+          "donations_received": 103,
           "nickname": "KING"
         },
         {
@@ -156,6 +156,11 @@
           "donations": 0,
           "donations_received": 31,
           "nickname": "ospo56"
+        },
+        {
+          "donations": 0,
+          "donations_received": 31,
+          "nickname": "роза"
         },
         {
           "donations": 0,
@@ -211,11 +216,6 @@
           "donations": 0,
           "donations_received": 0,
           "nickname": "нурс"
-        },
-        {
-          "donations": 0,
-          "donations_received": 0,
-          "nickname": "роза"
         }
       ],
       "selection": "current",

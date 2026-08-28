@@ -20,11 +20,11 @@
         "town_hall_level": 11
       },
       {
-        "members": 4,
+        "members": 5,
         "town_hall_level": 10
       },
       {
-        "members": 26,
+        "members": 25,
         "town_hall_level": 9
       },
       {
@@ -305,7 +305,7 @@
       "last_war_date": null,
       "nickname": "SHREK2009",
       "stars_earned": null,
-      "town_hall_level": 9,
+      "town_hall_level": 10,
       "war_participations": 0
     },
     {

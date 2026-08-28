@@ -20,11 +20,11 @@
         "town_hall_level": 11
       },
       {
-        "members": 3,
+        "members": 4,
         "town_hall_level": 10
       },
       {
-        "members": 27,
+        "members": 26,
         "town_hall_level": 9
       },
       {
@@ -436,7 +436,7 @@
       "last_war_date": "2026-08-29",
       "nickname": "Kohan",
       "stars_earned": 6,
-      "town_hall_level": 9,
+      "town_hall_level": 10,
       "war_participations": 2
     },
     {

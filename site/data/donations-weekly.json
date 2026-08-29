@@ -13,18 +13,18 @@
         "stale_end_snapshot": false,
         "stale_player_count": 0
       },
-      "donations": 4862,
-      "donations_received": 3761,
+      "donations": 5175,
+      "donations_received": 4074,
       "participant_count": 40,
       "players": [
         {
-          "donations": 743,
+          "donations": 804,
           "donations_received": 138,
           "nickname": "FRENI"
         },
         {
-          "donations": 509,
-          "donations_received": 819,
+          "donations": 529,
+          "donations_received": 850,
           "nickname": "SvisBee"
         },
         {
@@ -38,9 +38,14 @@
           "nickname": "кума88"
         },
         {
-          "donations": 345,
+          "donations": 375,
           "donations_received": 234,
           "nickname": "MiKiRi"
+        },
+        {
+          "donations": 330,
+          "donations_received": 177,
+          "nickname": "сява"
         },
         {
           "donations": 318,
@@ -48,13 +53,8 @@
           "nickname": "Саша Саша"
         },
         {
-          "donations": 299,
-          "donations_received": 177,
-          "nickname": "сява"
-        },
-        {
           "donations": 272,
-          "donations_received": 265,
+          "donations_received": 326,
           "nickname": "Kedr"
         },
         {
@@ -63,13 +63,18 @@
           "nickname": "Anarbek"
         },
         {
+          "donations": 242,
+          "donations_received": 0,
+          "nickname": "Islamov"
+        },
+        {
           "donations": 142,
-          "donations_received": 526,
+          "donations_received": 649,
           "nickname": "Али"
         },
         {
-          "donations": 138,
-          "donations_received": 180,
+          "donations": 139,
+          "donations_received": 200,
           "nickname": "Alexvils"
         },
         {
@@ -78,29 +83,29 @@
           "nickname": "Fyst"
         },
         {
-          "donations": 135,
-          "donations_received": 0,
-          "nickname": "Islamov"
-        },
-        {
           "donations": 128,
-          "donations_received": 100,
+          "donations_received": 120,
           "nickname": "Kohan"
         },
         {
-          "donations": 94,
-          "donations_received": 66,
-          "nickname": "wss"
+          "donations": 112,
+          "donations_received": 99,
+          "nickname": "govnozhuy"
         },
         {
-          "donations": 81,
-          "donations_received": 98,
-          "nickname": "govnozhuy"
+          "donations": 94,
+          "donations_received": 97,
+          "nickname": "wss"
         },
         {
           "donations": 81,
           "donations_received": 52,
           "nickname": "Дилмурат"
+        },
+        {
+          "donations": 73,
+          "donations_received": 62,
+          "nickname": "AGGRESSOR"
         },
         {
           "donations": 50,
@@ -111,11 +116,6 @@
           "donations": 42,
           "donations_received": 130,
           "nickname": "VB(;"
-        },
-        {
-          "donations": 41,
-          "donations_received": 62,
-          "nickname": "AGGRESSOR"
         },
         {
           "donations": 32,
@@ -144,7 +144,7 @@
         },
         {
           "donations": 25,
-          "donations_received": 106,
+          "donations_received": 132,
           "nickname": "KING"
         },
         {

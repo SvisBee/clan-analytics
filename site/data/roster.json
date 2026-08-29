@@ -214,13 +214,13 @@
     },
     {
       "attacks_available": 2,
-      "attacks_used": 0,
-      "average_stars": null,
+      "attacks_used": 2,
+      "average_stars": 0.5,
       "clan_role": "member",
       "data_status": "available",
       "last_war_date": "2026-08-29",
       "nickname": "роза",
-      "stars_earned": 0,
+      "stars_earned": 1,
       "town_hall_level": 9,
       "war_participations": 1
     },

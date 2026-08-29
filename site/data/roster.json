@@ -20,11 +20,11 @@
         "town_hall_level": 11
       },
       {
-        "members": 5,
+        "members": 6,
         "town_hall_level": 10
       },
       {
-        "members": 25,
+        "members": 24,
         "town_hall_level": 9
       },
       {
@@ -83,7 +83,7 @@
       "last_war_date": null,
       "nickname": "shaxboz",
       "stars_earned": null,
-      "town_hall_level": 9,
+      "town_hall_level": 10,
       "war_participations": 0
     },
     {
@@ -112,8 +112,8 @@
     },
     {
       "attacks_available": 28,
-      "attacks_used": 23,
-      "average_stars": 2.74,
+      "attacks_used": 24,
+      "average_stars": 2.75,
       "clan_role": "admin",
       "data_status": "available",
       "last_war_date": "2026-08-29",
@@ -124,7 +124,7 @@
       "new_stars_contributed": null,
       "new_stars_contribution_status": "unavailable_with_manual_evidence",
       "nickname": "Kedr",
-      "stars_earned": 63,
+      "stars_earned": 66,
       "town_hall_level": 9,
       "war_participations": 14
     },

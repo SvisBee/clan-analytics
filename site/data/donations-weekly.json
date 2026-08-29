@@ -13,13 +13,13 @@
         "stale_end_snapshot": false,
         "stale_player_count": 0
       },
-      "donations": 5230,
-      "donations_received": 4129,
+      "donations": 5295,
+      "donations_received": 4194,
       "participant_count": 40,
       "players": [
         {
-          "donations": 810,
-          "donations_received": 183,
+          "donations": 841,
+          "donations_received": 185,
           "nickname": "FRENI"
         },
         {
@@ -54,7 +54,7 @@
         },
         {
           "donations": 317,
-          "donations_received": 326,
+          "donations_received": 357,
           "nickname": "Kedr"
         },
         {
@@ -63,13 +63,13 @@
           "nickname": "Anarbek"
         },
         {
-          "donations": 242,
+          "donations": 244,
           "donations_received": 0,
           "nickname": "Islamov"
         },
         {
           "donations": 142,
-          "donations_received": 649,
+          "donations_received": 680,
           "nickname": "Али"
         },
         {
@@ -93,6 +93,11 @@
           "nickname": "govnozhuy"
         },
         {
+          "donations": 105,
+          "donations_received": 62,
+          "nickname": "AGGRESSOR"
+        },
+        {
           "donations": 94,
           "donations_received": 97,
           "nickname": "wss"
@@ -101,11 +106,6 @@
           "donations": 81,
           "donations_received": 52,
           "nickname": "Дилмурат"
-        },
-        {
-          "donations": 73,
-          "donations_received": 62,
-          "nickname": "AGGRESSOR"
         },
         {
           "donations": 50,
@@ -124,7 +124,7 @@
         },
         {
           "donations": 31,
-          "donations_received": 0,
+          "donations_received": 1,
           "nickname": "shaxboz"
         },
         {

@@ -13,8 +13,8 @@
         "stale_end_snapshot": false,
         "stale_player_count": 0
       },
-      "donations": 5356,
-      "donations_received": 4255,
+      "donations": 5393,
+      "donations_received": 4292,
       "participant_count": 40,
       "players": [
         {
@@ -43,14 +43,14 @@
           "nickname": "MiKiRi"
         },
         {
+          "donations": 349,
+          "donations_received": 32,
+          "nickname": "Саша Саша"
+        },
+        {
           "donations": 330,
           "donations_received": 177,
           "nickname": "сява"
-        },
-        {
-          "donations": 318,
-          "donations_received": 32,
-          "nickname": "Саша Саша"
         },
         {
           "donations": 317,
@@ -74,7 +74,7 @@
         },
         {
           "donations": 139,
-          "donations_received": 210,
+          "donations_received": 216,
           "nickname": "Alexvils"
         },
         {
@@ -118,6 +118,11 @@
           "nickname": "VB(;"
         },
         {
+          "donations": 34,
+          "donations_received": 0,
+          "nickname": "Artoym_Arty"
+        },
+        {
           "donations": 32,
           "donations_received": 30,
           "nickname": "Ronin♡"
@@ -131,11 +136,6 @@
           "donations": 30,
           "donations_received": 0,
           "nickname": "kent"
-        },
-        {
-          "donations": 28,
-          "donations_received": 0,
-          "nickname": "Artoym_Arty"
         },
         {
           "donations": 26,
@@ -159,13 +159,13 @@
         },
         {
           "donations": 0,
-          "donations_received": 31,
-          "nickname": "ospo56"
+          "donations_received": 62,
+          "nickname": "роза"
         },
         {
           "donations": 0,
           "donations_received": 31,
-          "nickname": "роза"
+          "nickname": "ospo56"
         },
         {
           "donations": 0,

@@ -164,12 +164,12 @@
     },
     {
       "attacks_available": 4,
-      "attacks_used": 2,
-      "average_stars": 3.0,
+      "attacks_used": 4,
+      "average_stars": 2.5,
       "last_war_date": "2026-08-29",
-      "new_stars_contributed": 6,
+      "new_stars_contributed": 9,
       "nickname": "Kohan",
-      "stars_earned": 6,
+      "stars_earned": 10,
       "war_participations": 2
     },
     {
@@ -435,11 +435,11 @@
   "schema_version": 2,
   "wars": [
     {
-      "attack_stars_total": 30,
+      "attack_stars_total": 34,
       "attacks_available": 30,
       "attacks_per_member": 2,
-      "attacks_used": 15,
-      "clan_stars": 29,
+      "attacks_used": 17,
+      "clan_stars": 32,
       "end_time": "2026-08-29",
       "lifecycle_status": "active",
       "members": [
@@ -545,11 +545,11 @@
         },
         {
           "attacks_available": 2,
-          "attacks_used": 0,
-          "average_stars": null,
-          "new_stars_contributed": 0,
+          "attacks_used": 2,
+          "average_stars": 2.0,
+          "new_stars_contributed": 3,
           "nickname": "Kohan",
-          "stars_earned": 0,
+          "stars_earned": 4,
           "town_hall_level": 10,
           "war_position": 11
         },
